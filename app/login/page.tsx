@@ -319,6 +319,7 @@ export default function Login() {
       id: userId,
       nome: trimmedName,
       email,
+      senha: password,
       status: "pendente",
     });
 
