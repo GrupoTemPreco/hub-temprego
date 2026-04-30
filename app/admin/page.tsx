@@ -41,9 +41,16 @@ export default function AdminPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [pendentes, setPendentes] = useState<UsuarioPendente[]>([]);
+  const [usuarios, setUsuarios] = useState<UsuarioPendente[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedManageUserId, setSelectedManageUserId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [loadingPermissoesUsuario, setLoadingPermissoesUsuario] = useState(false);
   const [checks, setChecks] = useState<Record<PermissaoKey, boolean>>({
+    "analytics.vendas": false,
+    "analytics.contas_a_pagar": false,
+  });
+  const [manageChecks, setManageChecks] = useState<Record<PermissaoKey, boolean>>({
     "analytics.vendas": false,
     "analytics.contas_a_pagar": false,
   });
@@ -51,6 +58,10 @@ export default function AdminPage() {
   const selectedUser = useMemo(
     () => pendentes.find((u) => u.id === selectedUserId) ?? null,
     [pendentes, selectedUserId],
+  );
+  const selectedManageUser = useMemo(
+    () => usuarios.find((u) => u.id === selectedManageUserId) ?? null,
+    [usuarios, selectedManageUserId],
   );
 
   async function carregarPendentes() {
@@ -66,6 +77,20 @@ export default function AdminPage() {
     }
 
     setPendentes((data ?? []) as UsuarioPendente[]);
+  }
+
+  async function carregarUsuarios() {
+    const { data, error: usuariosError } = await supabase
+      .from("usuarios")
+      .select("id, nome, email, status")
+      .order("nome", { ascending: true });
+
+    if (usuariosError) {
+      setError(usuariosError.message);
+      return;
+    }
+
+    setUsuarios((data ?? []) as UsuarioPendente[]);
   }
 
   useEffect(() => {
@@ -96,6 +121,7 @@ export default function AdminPage() {
 
       setIsAdmin(true);
       await carregarPendentes();
+      await carregarUsuarios();
       setLoading(false);
     }
 
@@ -104,6 +130,38 @@ export default function AdminPage() {
 
   function togglePermissao(key: PermissaoKey) {
     setChecks((prev) => ({ ...prev, [key]: !prev[key] }));
+  }
+
+  function togglePermissaoGerenciamento(key: PermissaoKey) {
+    setManageChecks((prev) => ({ ...prev, [key]: !prev[key] }));
+  }
+
+  async function carregarPermissoesDoUsuario(userId: string) {
+    setLoadingPermissoesUsuario(true);
+    setError("");
+    setSuccess("");
+
+    const { data, error: permissoesError } = await supabase
+      .from("permissoes")
+      .select("modulo, item")
+      .eq("user_id", userId);
+
+    if (permissoesError) {
+      setError(permissoesError.message);
+      setLoadingPermissoesUsuario(false);
+      return;
+    }
+
+    const temVendas = (data ?? []).some((p) => p.modulo === "analytics" && p.item === "vendas");
+    const temContas = (data ?? []).some(
+      (p) => p.modulo === "analytics" && p.item === "contas_a_pagar",
+    );
+
+    setManageChecks({
+      "analytics.vendas": temVendas,
+      "analytics.contas_a_pagar": temContas,
+    });
+    setLoadingPermissoesUsuario(false);
   }
 
   async function handleLogout() {
@@ -187,6 +245,44 @@ export default function AdminPage() {
       "analytics.contas_a_pagar": false,
     });
     setSuccess("Usuario aprovado e permissoes salvas com sucesso.");
+    setSaving(false);
+  }
+
+  async function handleSalvarPermissoesUsuario() {
+    if (!selectedManageUserId) return;
+
+    setSaving(true);
+    setError("");
+    setSuccess("");
+
+    const { error: deleteError } = await supabase
+      .from("permissoes")
+      .delete()
+      .eq("user_id", selectedManageUserId);
+
+    if (deleteError) {
+      setError(deleteError.message);
+      setSaving(false);
+      return;
+    }
+
+    const permissoesSelecionadas = PERMISSOES_DISPONIVEIS.filter((p) => manageChecks[p.key]).map((p) => ({
+      user_id: selectedManageUserId,
+      modulo: p.modulo,
+      item: p.item,
+    }));
+
+    if (permissoesSelecionadas.length > 0) {
+      const { error: insertError } = await supabase.from("permissoes").insert(permissoesSelecionadas);
+
+      if (insertError) {
+        setError(insertError.message);
+        setSaving(false);
+        return;
+      }
+    }
+
+    setSuccess("Permissoes atualizadas com sucesso.");
     setSaving(false);
   }
 
@@ -310,6 +406,77 @@ export default function AdminPage() {
             )}
           </section>
         </div>
+
+        <section className="mt-6 rounded-xl border border-white/15 bg-white/5 p-4">
+          <h2 className="mb-3 text-lg font-medium">Gerenciar usuarios</h2>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              {usuarios.length === 0 ? (
+                <p className="text-sm text-white/70">Nenhum usuario encontrado.</p>
+              ) : (
+                usuarios.map((usuario) => (
+                  <button
+                    key={usuario.id}
+                    onClick={async () => {
+                      setSelectedManageUserId(usuario.id);
+                      await carregarPermissoesDoUsuario(usuario.id);
+                    }}
+                    className={`w-full rounded-lg border px-3 py-2 text-left transition-colors ${
+                      selectedManageUserId === usuario.id
+                        ? "border-cyan-400 bg-cyan-500/10"
+                        : "border-white/10 bg-white/5 hover:bg-white/10"
+                    }`}
+                  >
+                    <p className="font-medium">{usuario.nome || "Sem nome"}</p>
+                    <p className="text-sm text-white/70">{usuario.email}</p>
+                    <p className="text-xs text-white/50">Status: {usuario.status || "sem status"}</p>
+                  </button>
+                ))
+              )}
+            </div>
+
+            <div>
+              {!selectedManageUser ? (
+                <p className="text-sm text-white/70">
+                  Selecione um usuario para editar as permissoes.
+                </p>
+              ) : loadingPermissoesUsuario ? (
+                <p className="text-sm text-white/70">Carregando permissoes...</p>
+              ) : (
+                <>
+                  <p className="mb-3 text-sm text-white/80">
+                    Editando:{" "}
+                    <span className="font-medium">
+                      {selectedManageUser.nome || selectedManageUser.email}
+                    </span>
+                  </p>
+
+                  <div className="space-y-2">
+                    {PERMISSOES_DISPONIVEIS.map((permissao) => (
+                      <label key={permissao.key} className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={manageChecks[permissao.key]}
+                          onChange={() => togglePermissaoGerenciamento(permissao.key)}
+                        />
+                        {permissao.label}
+                      </label>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={handleSalvarPermissoesUsuario}
+                    disabled={saving}
+                    className="mt-4 rounded-md bg-cyan-500 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-400 disabled:opacity-50"
+                  >
+                    Salvar permissoes
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </section>
       </main>
     </div>
   );
