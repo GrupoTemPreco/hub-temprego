@@ -26,7 +26,7 @@ function MenuIcon({
   kind,
   className,
 }: {
-  kind: "analises" | "comercial" | "financeiro" | "rh" | "dp" | "marketing";
+  kind: "analises" | "comercial" | "financeiro" | "rh" | "dp" | "marketing" | "admin";
   className?: string;
 }) {
   const common = className ?? "h-4 w-4 shrink-0";
@@ -83,6 +83,13 @@ function MenuIcon({
           <path d="M19 6v12" />
         </svg>
       );
+    case "admin":
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={common}>
+          <path d="M12 3 4 7v6c0 4.5 3 7.8 8 9 5-1.2 8-4.5 8-9V7l-8-4Z" />
+          <path d="M9.5 12.5 11 14l3.5-3.5" />
+        </svg>
+      );
   }
 }
 
@@ -90,6 +97,7 @@ export default function Home() {
   const router = useRouter();
   const [active, setActive] = useState<(typeof todosApps)[0] | null>(null);
   const [permissoes, setPermissoes] = useState<{ modulo: string; item: string }[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [sidebarHovered, setSidebarHovered] = useState(false);
   const [sidebarPin, setSidebarPin] = useState<"auto" | "open" | "closed">("auto");
@@ -109,7 +117,14 @@ export default function Home() {
         .select("modulo, item")
         .eq("user_id", session.user.id);
 
+      const { data: perfil } = await supabase
+        .from("usuarios")
+        .select("is_admin")
+        .eq("id", session.user.id)
+        .maybeSingle();
+
       setPermissoes(data || []);
+      setIsAdmin(Boolean(perfil?.is_admin));
       setLoading(false);
     }
 
@@ -281,6 +296,23 @@ export default function Home() {
                 </button>
               ))}
           </div>
+
+          {isAdmin && (
+            <div className="mb-3">
+              <button
+                onClick={() => router.push("/admin")}
+                title="Admin"
+                className={`w-full rounded-lg py-2 font-medium text-white/75 transition-colors hover:bg-white/10 hover:text-white ${
+                  sidebarAberta ? "px-2 text-base text-left" : "px-0 text-sm text-center"
+                }`}
+              >
+                <span className={`flex items-center ${sidebarAberta ? "gap-2" : "justify-center"}`}>
+                  <MenuIcon kind="admin" className={menuIconSize} />
+                  {sidebarAberta && "Admin"}
+                </span>
+              </button>
+            </div>
+          )}
 
           <div className={`space-y-1 ${sidebarAberta ? "" : "flex flex-col items-center"}`}>
             {menusIndisponiveis.map((menu) => (

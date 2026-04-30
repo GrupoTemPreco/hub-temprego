@@ -7,9 +7,13 @@ import { useRouter } from "next/navigation";
 
 export default function Login() {
   const router = useRouter();
+  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const logoRef = useRef<HTMLImageElement | null>(null);
@@ -222,8 +226,9 @@ export default function Login() {
   async function handleLogin() {
     setLoading(true);
     setError("");
+    setSuccess("");
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -234,7 +239,102 @@ export default function Login() {
       return;
     }
 
+    const userId = data.user?.id;
+    if (!userId) {
+      setError("Nao foi possivel validar seu acesso.");
+      await supabase.auth.signOut();
+      setLoading(false);
+      return;
+    }
+
+    const { data: usuario, error: usuarioError } = await supabase
+      .from("usuarios")
+      .select("status")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (usuarioError) {
+      setError(`Erro ao validar acesso: ${usuarioError.message}`);
+      await supabase.auth.signOut();
+      setLoading(false);
+      return;
+    }
+
+    if (!usuario) {
+      setError("Seu cadastro em usuarios nao foi encontrado.");
+      await supabase.auth.signOut();
+      setLoading(false);
+      return;
+    }
+
+    const statusNormalizado = String(usuario.status ?? "").trim().toLowerCase();
+    const aprovado = statusNormalizado === "aprovado" || statusNormalizado === "approved";
+
+    if (!aprovado) {
+      setError("Seu acesso ainda nao foi aprovado.");
+      await supabase.auth.signOut();
+      setLoading(false);
+      return;
+    }
+
     router.push("/");
+  }
+
+  async function handleCreateAccess() {
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
+    const trimmedName = name.trim();
+    if (!trimmedName || !email || !password) {
+      setError("Preencha nome, email e senha.");
+      setLoading(false);
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          nome: trimmedName,
+        },
+      },
+    });
+
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+      return;
+    }
+
+    const userId = data.user?.id;
+    if (!userId) {
+      setError("Nao foi possivel criar o acesso.");
+      setLoading(false);
+      return;
+    }
+
+    const { error: insertError } = await supabase.from("usuarios").insert({
+      id: userId,
+      nome: trimmedName,
+      email,
+      status: "pendente",
+    });
+
+    await supabase.auth.signOut();
+
+    if (insertError) {
+      setError(`Conta criada, mas houve erro ao registrar solicitacao: ${insertError.message}`);
+      setLoading(false);
+      return;
+    }
+
+    setMode("login");
+    setName("");
+    setPassword("");
+    setSuccess("Solicitacao enviada com sucesso. Aguarde aprovacao.");
+    setLoading(false);
   }
 
   return (
@@ -246,9 +346,20 @@ export default function Login() {
           ref={modalRef}
           className="w-full rounded-xl border border-white/20 bg-white/9 p-8 shadow-sm backdrop-blur-sm"
         >
-          <h1 className="mb-6 text-xl font-semibold text-white">Entrar</h1>
+          <h1 className="mb-6 text-xl font-semibold text-white">
+            {mode === "login" ? "Entrar" : "Criar acesso"}
+          </h1>
 
           <div className="flex flex-col gap-3">
+            {mode === "signup" && (
+              <input
+                type="text"
+                placeholder="Nome"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:border-zinc-400"
+              />
+            )}
             <input
               type="email"
               placeholder="Email"
@@ -256,19 +367,57 @@ export default function Login() {
               onChange={(e) => setEmail(e.target.value)}
               className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:border-zinc-400"
             />
-            <input
-              type="password"
-              placeholder="Senha"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-              className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:border-zinc-400"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Senha"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && (mode === "login" ? handleLogin() : handleCreateAccess())
+                }
+                className="w-full rounded-lg border border-zinc-200 px-4 py-2 pr-10 text-sm outline-none focus:border-zinc-400"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute inset-y-0 right-0 flex items-center px-3 text-zinc-500 hover:text-zinc-700"
+                aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                title={showPassword ? "Ocultar senha" : "Mostrar senha"}
+              >
+                {showPassword ? (
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    className="h-4 w-4"
+                  >
+                    <path d="M3 3l18 18" />
+                    <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
+                    <path d="M9.9 5.2A10.9 10.9 0 0 1 12 5c6.4 0 9.8 7 9.8 7a16 16 0 0 1-4 4.9" />
+                    <path d="M6.6 6.7A16.2 16.2 0 0 0 2.2 12s3.4 7 9.8 7a11.2 11.2 0 0 0 4.1-.8" />
+                  </svg>
+                ) : (
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    className="h-4 w-4"
+                  >
+                    <path d="M2.2 12s3.4-7 9.8-7 9.8 7 9.8 7-3.4 7-9.8 7-9.8-7-9.8-7Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                )}
+              </button>
+            </div>
 
             {error && <p className="text-xs text-red-500">{error}</p>}
+            {success && <p className="text-xs text-emerald-400">{success}</p>}
 
             <button
-              onClick={handleLogin}
+              onClick={mode === "login" ? handleLogin : handleCreateAccess}
               disabled={loading}
               className="mt-2 flex items-center justify-center gap-2 rounded-lg bg-[#0EA5E9] py-2 text-sm font-medium text-white transition-colors hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-50"
             >
@@ -279,11 +428,23 @@ export default function Login() {
                     animate={{ rotate: 360 }}
                     transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
                   />
-                  Entrando...
+                  {mode === "login" ? "Entrando..." : "Enviando..."}
                 </>
               ) : (
-                "Entrar"
+                mode === "login" ? "Entrar" : "Solicitar acesso"
               )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setMode((prev) => (prev === "login" ? "signup" : "login"));
+                setError("");
+                setSuccess("");
+              }}
+              className="text-sm text-cyan-200/90 underline underline-offset-2 hover:text-cyan-100"
+            >
+              {mode === "login" ? "criar acesso" : "voltar para login"}
             </button>
           </div>
         </div>
