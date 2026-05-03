@@ -1,19 +1,51 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Tema escuro fixo — não segue prefers-color-scheme do SO/navegador */
+html {
+  color-scheme: dark;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --background: #020617;
+  --foreground: #e4e4e7;
+  --input-bg: rgba(15, 23, 42, 0.75);
+  --input-fg: #f4f4f5;
+  --input-placeholder: rgba(244, 244, 245, 0.45);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Campos nativos ignoram às vezes a cor herdada; força legível em qualquer SO */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+textarea,
+select {
+  color-scheme: dark;
+  background-color: var(--input-bg);
+  color: var(--input-fg);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--input-placeholder);
+  opacity: 1;
+}
+
+/* Autofill (Chrome/Safari) — evita texto escuro sobre fundo escuro */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--input-fg);
+  caret-color: var(--input-fg);
+  box-shadow: 0 0 0 1000px var(--input-bg) inset;
+  transition: background-color 99999s ease-out;
 }

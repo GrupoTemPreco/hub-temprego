@@ -20,13 +20,20 @@ const todosApps = [
     label: "Contas a Pagar",
     url: "https://dashboard-financeiro-zeta.vercel.app/",
   },
+  {
+    id: "checklist",
+    modulo: "checklist",
+    item: "preencher",
+    label: "Checklist",
+    url: "https://checklist-nu-nine.vercel.app/checklist",
+  },
 ];
 
 function MenuIcon({
   kind,
   className,
 }: {
-  kind: "analises" | "comercial" | "financeiro" | "rh" | "dp" | "marketing" | "admin";
+  kind: "analises" | "comercial" | "financeiro" | "checklist" | "rh" | "dp" | "marketing" | "admin";
   className?: string;
 }) {
   const common = className ?? "h-4 w-4 shrink-0";
@@ -54,6 +61,14 @@ function MenuIcon({
           <rect x="3" y="6" width="18" height="12" rx="2" />
           <path d="M3 10h18" />
           <path d="M8 14h4" />
+        </svg>
+      );
+    case "checklist":
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={common}>
+          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+          <rect x="9" y="3" width="6" height="4" rx="1" />
+          <path d="m9 12 2 2 4-4" />
         </svg>
       );
     case "rh":
@@ -102,6 +117,16 @@ export default function Home() {
   const [sidebarHovered, setSidebarHovered] = useState(false);
   const [sidebarPin, setSidebarPin] = useState<"auto" | "open" | "closed">("auto");
   const [analisesAberto, setAnalisesAberto] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    function updateMobile() {
+      setIsMobile(window.innerWidth < 768);
+    }
+    updateMobile();
+    window.addEventListener("resize", updateMobile);
+    return () => window.removeEventListener("resize", updateMobile);
+  }, []);
 
   useEffect(() => {
     async function init() {
@@ -135,8 +160,21 @@ export default function Home() {
     return permissoes.some((p) => p.modulo === modulo && p.item === item);
   }
 
+  function srcIframe(app: (typeof todosApps)[0]) {
+    if (app.id !== "checklist") return app.url;
+    const perfil = isAdmin
+      ? "admin"
+      : temPermissao("checklist", "analise")
+        ? "supervisor"
+        : "gerente";
+    const url = new URL(app.url);
+    url.searchParams.set("perfil", perfil);
+    return url.href;
+  }
+
   const appComercial = todosApps.find((a) => a.id === "vendas");
   const appFinanceiro = todosApps.find((a) => a.id === "financeiro");
+  const appChecklist = todosApps.find((a) => a.id === "checklist");
   type ItemAnalise = { id: string; label: string; app: (typeof todosApps)[0] };
   const itensAnalises = [
     appComercial ? { id: "comercial", label: "Comercial", app: appComercial } : null,
@@ -214,6 +252,88 @@ export default function Home() {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-[#020617]">
         <p className="text-sm text-zinc-400">Carregando...</p>
+      </div>
+    );
+  }
+
+  if (isMobile) {
+    if (active && active.id !== "checklist") {
+      return (
+        <div className="flex h-screen w-screen flex-col items-center justify-center gap-6 bg-[#020617] px-6 text-center">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            className="h-20 w-20 shrink-0 text-white/45"
+            aria-hidden
+          >
+            <rect x="2" y="4" width="20" height="12" rx="2" />
+            <path d="M8 20h8" />
+            <path d="M12 16v4" />
+          </svg>
+          <p className="max-w-sm text-base text-white/70">
+            Ferramenta disponivel somente em modo desktop
+          </p>
+          <button
+            type="button"
+            onClick={() => setActive(null)}
+            className="rounded-lg bg-white/10 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/20"
+          >
+            Voltar
+          </button>
+        </div>
+      );
+    }
+
+    if (active?.id === "checklist") {
+      return (
+        <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#020617]">
+          <header className="flex shrink-0 items-center gap-2 border-b border-white/10 px-3 py-3">
+            <button
+              type="button"
+              onClick={() => setActive(null)}
+              className="rounded-lg px-3 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+            >
+              Voltar
+            </button>
+          </header>
+          <iframe
+            key={active.id}
+            src={srcIframe(active)}
+            title={active.label}
+            className="min-h-0 w-full flex-1 border-none"
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex h-screen w-screen flex-col items-center justify-center gap-8 bg-[#020617] px-6">
+        <img src="/logoA.png" alt="Logo Tempreço" className="h-16 w-16 object-contain opacity-90" />
+        {appChecklist && (
+          <button
+            type="button"
+            onClick={() => {
+              if (temPermissao(appChecklist.modulo, appChecklist.item)) {
+                setActive(appChecklist);
+              }
+            }}
+            title={
+              temPermissao(appChecklist.modulo, appChecklist.item)
+                ? appChecklist.label
+                : "Sem permissão para acessar"
+            }
+            className={`flex w-full max-w-xs items-center justify-center gap-3 rounded-xl py-4 text-lg font-semibold transition-colors ${
+              temPermissao(appChecklist.modulo, appChecklist.item)
+                ? "bg-white/15 text-white hover:bg-white/25"
+                : "cursor-not-allowed bg-white/5 text-white/35"
+            }`}
+          >
+            <MenuIcon kind="checklist" className="h-7 w-7 shrink-0" />
+            {appChecklist.label}
+          </button>
+        )}
       </div>
     );
   }
@@ -296,6 +416,42 @@ export default function Home() {
                 </button>
               ))}
           </div>
+
+          {appChecklist && (
+            <div className={`mb-4 ${sidebarAberta ? "" : "flex flex-col items-center"}`}>
+              {sidebarAberta && (
+                <p className="mb-1 pl-1 text-xs font-semibold tracking-wide text-white/45">Checklist</p>
+              )}
+              <button
+                onClick={() => {
+                  if (temPermissao(appChecklist.modulo, appChecklist.item)) {
+                    setActive(appChecklist);
+                  }
+                }}
+                title={
+                  temPermissao(appChecklist.modulo, appChecklist.item)
+                    ? appChecklist.label
+                    : "Sem permissão para acessar"
+                }
+                className={`flex w-full items-center rounded-lg py-2 font-semibold transition-colors ${
+                  sidebarAberta ? "text-base" : "text-sm"
+                } ${
+                  sidebarAberta ? "justify-between pl-1 pr-2" : "justify-center px-0"
+                } ${
+                  active?.id === appChecklist.id
+                    ? "bg-white/15 text-white"
+                    : temPermissao(appChecklist.modulo, appChecklist.item)
+                      ? "text-white/80 hover:bg-white/10 hover:text-white"
+                      : "cursor-not-allowed text-white/35"
+                }`}
+              >
+                <span className={`flex items-center ${sidebarAberta ? "gap-2" : "justify-center"}`}>
+                  <MenuIcon kind="checklist" className={menuIconSize} />
+                  {sidebarAberta && appChecklist.label}
+                </span>
+              </button>
+            </div>
+          )}
 
           {isAdmin && (
             <div className="mb-3">
@@ -418,7 +574,7 @@ export default function Home() {
         {active ? (
           <iframe
             key={active.id}
-            src={active.url}
+            src={srcIframe(active)}
             className="flex-1 w-full border-none"
           />
         ) : (

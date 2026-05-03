@@ -358,7 +358,7 @@ export default function Login() {
                 placeholder="Nome"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:border-zinc-400"
+                className="rounded-lg border border-white/20 bg-slate-900/70 px-4 py-2 text-sm text-zinc-100 outline-none placeholder:text-zinc-400 focus:border-cyan-400/60"
               />
             )}
             <input
@@ -366,7 +366,7 @@ export default function Login() {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="rounded-lg border border-zinc-200 px-4 py-2 text-sm outline-none focus:border-zinc-400"
+              className="rounded-lg border border-white/20 bg-slate-900/70 px-4 py-2 text-sm text-zinc-100 outline-none placeholder:text-zinc-400 focus:border-cyan-400/60"
             />
             <div className="relative">
               <input
@@ -377,12 +377,12 @@ export default function Login() {
                 onKeyDown={(e) =>
                   e.key === "Enter" && (mode === "login" ? handleLogin() : handleCreateAccess())
                 }
-                className="w-full rounded-lg border border-zinc-200 px-4 py-2 pr-10 text-sm outline-none focus:border-zinc-400"
+                className="w-full rounded-lg border border-white/20 bg-slate-900/70 px-4 py-2 pr-10 text-sm text-zinc-100 outline-none placeholder:text-zinc-400 focus:border-cyan-400/60"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute inset-y-0 right-0 flex items-center px-3 text-zinc-500 hover:text-zinc-700"
+                className="absolute inset-y-0 right-0 flex items-center px-3 text-zinc-400 hover:text-zinc-100"
                 aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                 title={showPassword ? "Ocultar senha" : "Mostrar senha"}
               >

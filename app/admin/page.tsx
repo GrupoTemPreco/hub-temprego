@@ -11,7 +11,11 @@ type UsuarioPendente = {
   status: string;
 };
 
-type PermissaoKey = "analytics.vendas" | "analytics.contas_a_pagar";
+type PermissaoKey =
+  | "analytics.vendas"
+  | "analytics.contas_a_pagar"
+  | "checklist.preencher"
+  | "checklist.analise";
 
 const PERMISSOES_DISPONIVEIS: Array<{
   key: PermissaoKey;
@@ -31,6 +35,18 @@ const PERMISSOES_DISPONIVEIS: Array<{
     modulo: "analytics",
     item: "contas_a_pagar",
   },
+  {
+    key: "checklist.preencher",
+    label: "Checklist > Preencher",
+    modulo: "checklist",
+    item: "preencher",
+  },
+  {
+    key: "checklist.analise",
+    label: "Checklist > Análise",
+    modulo: "checklist",
+    item: "analise",
+  },
 ];
 
 export default function AdminPage() {
@@ -49,10 +65,14 @@ export default function AdminPage() {
   const [checks, setChecks] = useState<Record<PermissaoKey, boolean>>({
     "analytics.vendas": false,
     "analytics.contas_a_pagar": false,
+    "checklist.preencher": false,
+    "checklist.analise": false,
   });
   const [manageChecks, setManageChecks] = useState<Record<PermissaoKey, boolean>>({
     "analytics.vendas": false,
     "analytics.contas_a_pagar": false,
+    "checklist.preencher": false,
+    "checklist.analise": false,
   });
 
   const selectedUser = useMemo(
@@ -156,10 +176,18 @@ export default function AdminPage() {
     const temContas = (data ?? []).some(
       (p) => p.modulo === "analytics" && p.item === "contas_a_pagar",
     );
+    const temChecklistPreencher = (data ?? []).some(
+      (p) => p.modulo === "checklist" && p.item === "preencher",
+    );
+    const temChecklistAnalise = (data ?? []).some(
+      (p) => p.modulo === "checklist" && p.item === "analise",
+    );
 
     setManageChecks({
       "analytics.vendas": temVendas,
       "analytics.contas_a_pagar": temContas,
+      "checklist.preencher": temChecklistPreencher,
+      "checklist.analise": temChecklistAnalise,
     });
     setLoadingPermissoesUsuario(false);
   }
@@ -243,6 +271,8 @@ export default function AdminPage() {
     setChecks({
       "analytics.vendas": false,
       "analytics.contas_a_pagar": false,
+      "checklist.preencher": false,
+      "checklist.analise": false,
     });
     setSuccess("Usuario aprovado e permissoes salvas com sucesso.");
     setSaving(false);
