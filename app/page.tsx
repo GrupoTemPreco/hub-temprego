@@ -164,9 +164,11 @@ export default function Home() {
     if (app.id !== "checklist") return app.url;
     const perfil = isAdmin
       ? "admin"
-      : temPermissao("checklist", "analise")
+      : temPermissao("checklist", "preencher_supervisao")
         ? "supervisor"
-        : "gerente";
+        : temPermissao("checklist", "preencher")
+          ? "gerente"
+          : "gerente";
     const url = new URL(app.url);
     url.searchParams.set("perfil", perfil);
     return url.href;

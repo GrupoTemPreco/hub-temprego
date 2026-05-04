@@ -15,6 +15,7 @@ type PermissaoKey =
   | "analytics.vendas"
   | "analytics.contas_a_pagar"
   | "checklist.preencher"
+  | "checklist.preencher_supervisao"
   | "checklist.analise";
 
 const PERMISSOES_DISPONIVEIS: Array<{
@@ -42,6 +43,12 @@ const PERMISSOES_DISPONIVEIS: Array<{
     item: "preencher",
   },
   {
+    key: "checklist.preencher_supervisao",
+    label: "Checklist > Preencher Supervisão",
+    modulo: "checklist",
+    item: "preencher_supervisao",
+  },
+  {
     key: "checklist.analise",
     label: "Checklist > Análise",
     modulo: "checklist",
@@ -66,12 +73,14 @@ export default function AdminPage() {
     "analytics.vendas": false,
     "analytics.contas_a_pagar": false,
     "checklist.preencher": false,
+    "checklist.preencher_supervisao": false,
     "checklist.analise": false,
   });
   const [manageChecks, setManageChecks] = useState<Record<PermissaoKey, boolean>>({
     "analytics.vendas": false,
     "analytics.contas_a_pagar": false,
     "checklist.preencher": false,
+    "checklist.preencher_supervisao": false,
     "checklist.analise": false,
   });
 
@@ -179,6 +188,9 @@ export default function AdminPage() {
     const temChecklistPreencher = (data ?? []).some(
       (p) => p.modulo === "checklist" && p.item === "preencher",
     );
+    const temChecklistPreencherSupervisao = (data ?? []).some(
+      (p) => p.modulo === "checklist" && p.item === "preencher_supervisao",
+    );
     const temChecklistAnalise = (data ?? []).some(
       (p) => p.modulo === "checklist" && p.item === "analise",
     );
@@ -187,6 +199,7 @@ export default function AdminPage() {
       "analytics.vendas": temVendas,
       "analytics.contas_a_pagar": temContas,
       "checklist.preencher": temChecklistPreencher,
+      "checklist.preencher_supervisao": temChecklistPreencherSupervisao,
       "checklist.analise": temChecklistAnalise,
     });
     setLoadingPermissoesUsuario(false);
@@ -272,6 +285,7 @@ export default function AdminPage() {
       "analytics.vendas": false,
       "analytics.contas_a_pagar": false,
       "checklist.preencher": false,
+      "checklist.preencher_supervisao": false,
       "checklist.analise": false,
     });
     setSuccess("Usuario aprovado e permissoes salvas com sucesso.");
