@@ -160,6 +160,14 @@ export default function Home() {
     return permissoes.some((p) => p.modulo === modulo && p.item === item);
   }
 
+  function temPermissaoChecklist() {
+    return (
+      isAdmin ||
+      temPermissao("checklist", "preencher") ||
+      temPermissao("checklist", "preencher_supervisao")
+    );
+  }
+
   function srcIframe(app: (typeof todosApps)[0]) {
     if (app.id !== "checklist") return app.url;
     const perfil = isAdmin
@@ -317,17 +325,17 @@ export default function Home() {
           <button
             type="button"
             onClick={() => {
-              if (temPermissao(appChecklist.modulo, appChecklist.item)) {
+              if (temPermissaoChecklist()) {
                 setActive(appChecklist);
               }
             }}
             title={
-              temPermissao(appChecklist.modulo, appChecklist.item)
+              temPermissaoChecklist()
                 ? appChecklist.label
                 : "Sem permissão para acessar"
             }
             className={`flex w-full max-w-xs items-center justify-center gap-3 rounded-xl py-4 text-lg font-semibold transition-colors ${
-              temPermissao(appChecklist.modulo, appChecklist.item)
+              temPermissaoChecklist()
                 ? "bg-white/15 text-white hover:bg-white/25"
                 : "cursor-not-allowed bg-white/5 text-white/35"
             }`}
@@ -426,12 +434,12 @@ export default function Home() {
               )}
               <button
                 onClick={() => {
-                  if (temPermissao(appChecklist.modulo, appChecklist.item)) {
+                  if (temPermissaoChecklist()) {
                     setActive(appChecklist);
                   }
                 }}
                 title={
-                  temPermissao(appChecklist.modulo, appChecklist.item)
+                  temPermissaoChecklist()
                     ? appChecklist.label
                     : "Sem permissão para acessar"
                 }
@@ -442,7 +450,7 @@ export default function Home() {
                 } ${
                   active?.id === appChecklist.id
                     ? "bg-white/15 text-white"
-                    : temPermissao(appChecklist.modulo, appChecklist.item)
+                    : temPermissaoChecklist()
                       ? "text-white/80 hover:bg-white/10 hover:text-white"
                       : "cursor-not-allowed text-white/35"
                 }`}
