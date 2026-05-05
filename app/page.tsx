@@ -114,6 +114,7 @@ export default function Home() {
   const [permissoes, setPermissoes] = useState<{ modulo: string; item: string }[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
   const [sidebarHovered, setSidebarHovered] = useState(false);
   const [sidebarPin, setSidebarPin] = useState<"auto" | "open" | "closed">("auto");
   const [analisesAberto, setAnalisesAberto] = useState(false);
@@ -136,6 +137,8 @@ export default function Home() {
         router.push("/login");
         return;
       }
+
+      setUserId(session.user.id);
 
       const { data } = await supabase
         .from("permissoes")
@@ -179,6 +182,9 @@ export default function Home() {
           : "gerente";
     const url = new URL(app.url);
     url.searchParams.set("perfil", perfil);
+    if (userId !== null) {
+      url.searchParams.set("uid", userId);
+    }
     return url.href;
   }
 
