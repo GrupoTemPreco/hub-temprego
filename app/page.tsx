@@ -144,6 +144,13 @@ export default function Home() {
   const [sidebarPin, setSidebarPin] = useState<"auto" | "open" | "closed">("auto");
   const [analisesAberto, setAnalisesAberto] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [avisoComprasVisivel, setAvisoComprasVisivel] = useState(false);
+
+  useEffect(() => {
+    if (active?.id === "compras") {
+      setAvisoComprasVisivel(true);
+    }
+  }, [active?.id]);
 
   useEffect(() => {
     function updateMobile() {
@@ -463,6 +470,8 @@ export default function Home() {
                       : "Sem permissão para acessar"
                   }
                   className={`w-full rounded-lg py-2 font-medium transition-colors ${
+                    item.app.id === "compras" ? "relative" : ""
+                  } ${
                     sidebarAberta ? "text-base" : "text-sm"
                   } ${
                     sidebarAberta ? "pl-7 pr-2 text-left" : "px-0 text-center"
@@ -474,9 +483,26 @@ export default function Home() {
                         : "cursor-not-allowed text-white/35"
                   }`}
                 >
-                  <span className={`flex items-center ${sidebarAberta ? "gap-2" : "justify-center"}`}>
+                  <span
+                    className={`flex w-full items-center ${sidebarAberta ? "min-w-0 gap-2" : "justify-center gap-2"}`}
+                  >
                     <MenuIcon kind={menuIconKindAnalise(item.app.id)} className={menuIconSize} />
-                    {sidebarAberta && item.label}
+                    {sidebarAberta && (
+                      <>
+                        <span
+                          className={`min-w-0 flex-1 truncate text-left ${
+                            item.app.id === "compras" ? "pr-11" : ""
+                          }`}
+                        >
+                          {item.label}
+                        </span>
+                        {item.app.id === "compras" && (
+                          <span className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full border border-emerald-200/70 bg-emerald-500/55 px-1.5 py-0.5 text-[9px] font-bold uppercase leading-none tracking-wide text-white shadow-[0_0_14px_rgba(52,211,153,0.55)]">
+                            Novo
+                          </span>
+                        )}
+                      </>
+                    )}
                   </span>
                 </button>
               ))}
@@ -611,13 +637,38 @@ export default function Home() {
       </aside>
 
       {/* Conteúdo */}
-      <main className="flex flex-1 flex-col">
+      <main className="flex min-h-0 flex-1 flex-col">
         {active ? (
-          <iframe
-            key={active.id}
-            src={srcIframe(active)}
-            className="flex-1 w-full border-none"
-          />
+          <div className="relative flex min-h-0 flex-1 flex-col">
+            {active.id === "compras" && avisoComprasVisivel && (
+              <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex justify-center p-3 sm:p-4">
+                <div
+                  role="status"
+                  className="pointer-events-auto flex max-w-lg items-start gap-3 rounded-xl border border-emerald-400/35 bg-emerald-950/92 px-4 py-3 text-sm text-emerald-50 shadow-lg backdrop-blur-sm"
+                >
+                  <p className="min-w-0 flex-1 leading-snug">
+                    Confirmando dados com as fontes internas. Pode usar o painel normalmente; feche este aviso quando
+                    quiser.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setAvisoComprasVisivel(false)}
+                    className="shrink-0 rounded-md p-1 text-emerald-200/90 transition-colors hover:bg-white/10 hover:text-white"
+                    aria-label="Fechar aviso"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
+                      <path d="M6 6l12 12M18 6L6 18" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            )}
+            <iframe
+              key={active.id}
+              src={srcIframe(active)}
+              className="min-h-0 w-full flex-1 border-none"
+            />
+          </div>
         ) : (
           <div className="flex flex-1 items-center justify-center">
             <p className="text-sm text-white/60">
