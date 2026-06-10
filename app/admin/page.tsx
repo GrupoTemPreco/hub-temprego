@@ -14,6 +14,7 @@ type UsuarioPendente = {
 type PermissaoKey =
   | "analytics.vendas"
   | "analytics.contas_a_pagar"
+  | "analytics.compras"
   | "checklist.preencher"
   | "checklist.preencher_supervisao"
   | "checklist.analise";
@@ -35,6 +36,12 @@ const PERMISSOES_DISPONIVEIS: Array<{
     label: "Analytics > Contas a Pagar",
     modulo: "analytics",
     item: "contas_a_pagar",
+  },
+  {
+    key: "analytics.compras",
+    label: "Analytics > Compras",
+    modulo: "analytics",
+    item: "compras",
   },
   {
     key: "checklist.preencher",
@@ -72,6 +79,7 @@ export default function AdminPage() {
   const [checks, setChecks] = useState<Record<PermissaoKey, boolean>>({
     "analytics.vendas": false,
     "analytics.contas_a_pagar": false,
+    "analytics.compras": false,
     "checklist.preencher": false,
     "checklist.preencher_supervisao": false,
     "checklist.analise": false,
@@ -79,6 +87,7 @@ export default function AdminPage() {
   const [manageChecks, setManageChecks] = useState<Record<PermissaoKey, boolean>>({
     "analytics.vendas": false,
     "analytics.contas_a_pagar": false,
+    "analytics.compras": false,
     "checklist.preencher": false,
     "checklist.preencher_supervisao": false,
     "checklist.analise": false,
@@ -185,6 +194,7 @@ export default function AdminPage() {
     const temContas = (data ?? []).some(
       (p) => p.modulo === "analytics" && p.item === "contas_a_pagar",
     );
+    const temCompras = (data ?? []).some((p) => p.modulo === "analytics" && p.item === "compras");
     const temChecklistPreencher = (data ?? []).some(
       (p) => p.modulo === "checklist" && p.item === "preencher",
     );
@@ -198,6 +208,7 @@ export default function AdminPage() {
     setManageChecks({
       "analytics.vendas": temVendas,
       "analytics.contas_a_pagar": temContas,
+      "analytics.compras": temCompras,
       "checklist.preencher": temChecklistPreencher,
       "checklist.preencher_supervisao": temChecklistPreencherSupervisao,
       "checklist.analise": temChecklistAnalise,
@@ -284,6 +295,7 @@ export default function AdminPage() {
     setChecks({
       "analytics.vendas": false,
       "analytics.contas_a_pagar": false,
+      "analytics.compras": false,
       "checklist.preencher": false,
       "checklist.preencher_supervisao": false,
       "checklist.analise": false,

@@ -21,6 +21,13 @@ const todosApps = [
     url: "https://dashboard-financeiro-zeta.vercel.app/",
   },
   {
+    id: "compras",
+    modulo: "analytics",
+    item: "compras",
+    label: "Compras",
+    url: "https://dashboard-compras-kappa.vercel.app/",
+  },
+  {
     id: "checklist",
     modulo: "checklist",
     item: "preencher",
@@ -33,7 +40,16 @@ function MenuIcon({
   kind,
   className,
 }: {
-  kind: "analises" | "comercial" | "financeiro" | "checklist" | "rh" | "dp" | "marketing" | "admin";
+  kind:
+    | "analises"
+    | "comercial"
+    | "financeiro"
+    | "compras"
+    | "checklist"
+    | "rh"
+    | "dp"
+    | "marketing"
+    | "admin";
   className?: string;
 }) {
   const common = className ?? "h-4 w-4 shrink-0";
@@ -61,6 +77,15 @@ function MenuIcon({
           <rect x="3" y="6" width="18" height="12" rx="2" />
           <path d="M3 10h18" />
           <path d="M8 14h4" />
+        </svg>
+      );
+    case "compras":
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={common}>
+          <path d="M6 6h15l-1.5 9h-11L6 6Z" />
+          <path d="M6 6 5 3H3" />
+          <circle cx="9" cy="20" r="1.6" />
+          <circle cx="17" cy="20" r="1.6" />
         </svg>
       );
     case "checklist":
@@ -190,11 +215,13 @@ export default function Home() {
 
   const appComercial = todosApps.find((a) => a.id === "vendas");
   const appFinanceiro = todosApps.find((a) => a.id === "financeiro");
+  const appCompras = todosApps.find((a) => a.id === "compras");
   const appChecklist = todosApps.find((a) => a.id === "checklist");
   type ItemAnalise = { id: string; label: string; app: (typeof todosApps)[0] };
   const itensAnalises = [
     appComercial ? { id: "comercial", label: "Comercial", app: appComercial } : null,
     appFinanceiro ? { id: "analise-financeiro", label: "Financeiro", app: appFinanceiro } : null,
+    appCompras ? { id: "analise-compras", label: "Compras", app: appCompras } : null,
   ].filter((item): item is ItemAnalise => {
     return Boolean(item);
   });
@@ -212,6 +239,12 @@ export default function Home() {
         ? false
         : !sidebarColapsavel || sidebarHovered;
   const menuIconSize = sidebarAberta ? "h-5 w-5 shrink-0" : "h-6 w-6 shrink-0";
+  function menuIconKindAnalise(appId: string): "comercial" | "financeiro" | "compras" {
+    if (appId === "vendas") return "comercial";
+    if (appId === "financeiro") return "financeiro";
+    return "compras";
+  }
+
   const decoNodes = [
     { left: "1%", bottom: "8%", size: "h-1.5 w-1.5", delay: 0, driftX: 10, driftY: -16 },
     { left: "4%", bottom: "14%", size: "h-1 w-1", delay: 0.1, driftX: -8, driftY: -13 },
@@ -379,7 +412,26 @@ export default function Home() {
             />
           )}
 
-          <div className={`mb-4 ${sidebarAberta ? "" : "flex flex-col items-center"}`}>
+          <div
+            className={`flex flex-col gap-1 ${sidebarAberta ? "" : "items-center"}`}
+          >
+            {isAdmin && (
+              <button
+                onClick={() => router.push("/admin")}
+                title="Admin"
+                className={`flex w-full items-center rounded-lg py-2 font-semibold text-white/80 transition-colors hover:bg-white/10 hover:text-white ${
+                  sidebarAberta ? "text-base" : "text-sm"
+                } ${
+                  sidebarAberta ? "justify-between pl-1 pr-2" : "justify-center px-0"
+                }`}
+              >
+                <span className={`flex items-center ${sidebarAberta ? "gap-2" : "justify-center"}`}>
+                  <MenuIcon kind="admin" className={menuIconSize} />
+                  {sidebarAberta && "Admin"}
+                </span>
+              </button>
+            )}
+
             <button
               onClick={() => setAnalisesAberto((prev) => !prev)}
               className={`flex w-full items-center rounded-lg py-2 font-semibold text-white/80 transition-colors hover:bg-white/10 hover:text-white ${
@@ -410,7 +462,7 @@ export default function Home() {
                       ? item.label
                       : "Sem permissão para acessar"
                   }
-                  className={`mt-1 w-full rounded-lg py-2 font-medium transition-colors ${
+                  className={`w-full rounded-lg py-2 font-medium transition-colors ${
                     sidebarAberta ? "text-base" : "text-sm"
                   } ${
                     sidebarAberta ? "pl-7 pr-2 text-left" : "px-0 text-center"
@@ -423,21 +475,13 @@ export default function Home() {
                   }`}
                 >
                   <span className={`flex items-center ${sidebarAberta ? "gap-2" : "justify-center"}`}>
-                    <MenuIcon
-                      kind={item.id === "comercial" ? "comercial" : "financeiro"}
-                      className={menuIconSize}
-                    />
+                    <MenuIcon kind={menuIconKindAnalise(item.app.id)} className={menuIconSize} />
                     {sidebarAberta && item.label}
                   </span>
                 </button>
               ))}
-          </div>
 
-          {appChecklist && (
-            <div className={`mb-4 ${sidebarAberta ? "" : "flex flex-col items-center"}`}>
-              {sidebarAberta && (
-                <p className="mb-1 pl-1 text-xs font-semibold tracking-wide text-white/45">Checklist</p>
-              )}
+            {appChecklist && (
               <button
                 onClick={() => {
                   if (temPermissaoChecklist()) {
@@ -466,27 +510,8 @@ export default function Home() {
                   {sidebarAberta && appChecklist.label}
                 </span>
               </button>
-            </div>
-          )}
+            )}
 
-          {isAdmin && (
-            <div className="mb-3">
-              <button
-                onClick={() => router.push("/admin")}
-                title="Admin"
-                className={`w-full rounded-lg py-2 font-medium text-white/75 transition-colors hover:bg-white/10 hover:text-white ${
-                  sidebarAberta ? "px-2 text-base text-left" : "px-0 text-sm text-center"
-                }`}
-              >
-                <span className={`flex items-center ${sidebarAberta ? "gap-2" : "justify-center"}`}>
-                  <MenuIcon kind="admin" className={menuIconSize} />
-                  {sidebarAberta && "Admin"}
-                </span>
-              </button>
-            </div>
-          )}
-
-          <div className={`space-y-1 ${sidebarAberta ? "" : "flex flex-col items-center"}`}>
             {menusIndisponiveis.map((menu) => (
               <button
                 key={menu.label}
