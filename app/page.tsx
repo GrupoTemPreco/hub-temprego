@@ -647,8 +647,7 @@ export default function Home() {
                   className="pointer-events-auto flex max-w-lg items-start gap-3 rounded-xl border border-emerald-400/35 bg-emerald-950/92 px-4 py-3 text-sm text-emerald-50 shadow-lg backdrop-blur-sm"
                 >
                   <p className="min-w-0 flex-1 leading-snug">
-                    Confirmando dados com as fontes internas. Pode usar o painel normalmente; feche este aviso quando
-                    quiser.
+                    Dados em validação. Valores podem variar até a conclusão da conferência.
                   </p>
                   <button
                     type="button"
