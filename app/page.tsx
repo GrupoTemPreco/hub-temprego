@@ -140,6 +140,7 @@ export default function Home() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
+  const [userNome, setUserNome] = useState<string | null>(null);
   const [sidebarHovered, setSidebarHovered] = useState(false);
   const [sidebarPin, setSidebarPin] = useState<"auto" | "open" | "closed">("auto");
   const [analisesAberto, setAnalisesAberto] = useState(false);
@@ -179,12 +180,13 @@ export default function Home() {
 
       const { data: perfil } = await supabase
         .from("usuarios")
-        .select("is_admin")
+        .select("is_admin, nome")
         .eq("id", session.user.id)
         .maybeSingle();
 
       setPermissoes(data || []);
       setIsAdmin(Boolean(perfil?.is_admin));
+      setUserNome(perfil?.nome ?? null);
       setLoading(false);
     }
 
@@ -204,6 +206,15 @@ export default function Home() {
   }
 
   function srcIframe(app: (typeof todosApps)[0]) {
+    if (app.id === "compras") {
+      const url = new URL(app.url);
+      if (userId !== null) {
+        url.searchParams.set("uid", userId);
+      }
+      url.searchParams.set("nome", userNome ?? "");
+      return url.href;
+    }
+
     if (app.id !== "checklist") return app.url;
     const perfil = isAdmin
       ? "admin"
