@@ -7,11 +7,11 @@ import { supabase } from "@/lib/supabase";
 
 const todosApps = [
   {
-    id: "vendas",
+    id: "estoque",
     modulo: "analytics",
-    item: "vendas",
-    label: "Vendas",
-    url: "https://dashboard-orpin-delta-58.vercel.app/",
+    item: "estoque",
+    label: "Estoque",
+    url: "https://estoque-seven-kappa.vercel.app/",
   },
   {
     id: "financeiro",
@@ -42,7 +42,7 @@ function MenuIcon({
 }: {
   kind:
     | "analises"
-    | "comercial"
+    | "estoque"
     | "financeiro"
     | "compras"
     | "checklist"
@@ -63,12 +63,12 @@ function MenuIcon({
           <path d="M17 15v-3" />
         </svg>
       );
-    case "comercial":
+    case "estoque":
       return (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={common}>
-          <path d="M3 9.5 12 4l9 5.5" />
-          <path d="M5 10v8h14v-8" />
-          <path d="M9 13h6" />
+          <rect x="3" y="12" width="8" height="8" rx="1" />
+          <rect x="13" y="12" width="8" height="8" rx="1" />
+          <rect x="8" y="4" width="8" height="8" rx="1" />
         </svg>
       );
     case "financeiro":
@@ -231,13 +231,13 @@ export default function Home() {
     return url.href;
   }
 
-  const appComercial = todosApps.find((a) => a.id === "vendas");
+  const appEstoque = todosApps.find((a) => a.id === "estoque");
   const appFinanceiro = todosApps.find((a) => a.id === "financeiro");
   const appCompras = todosApps.find((a) => a.id === "compras");
   const appChecklist = todosApps.find((a) => a.id === "checklist");
   type ItemAnalise = { id: string; label: string; app: (typeof todosApps)[0] };
   const itensAnalises = [
-    appComercial ? { id: "comercial", label: "Comercial", app: appComercial } : null,
+    appEstoque ? { id: "analise-estoque", label: "Estoque", app: appEstoque } : null,
     appFinanceiro ? { id: "analise-financeiro", label: "Financeiro", app: appFinanceiro } : null,
     appCompras ? { id: "analise-compras", label: "Compras", app: appCompras } : null,
   ].filter((item): item is ItemAnalise => {
@@ -257,10 +257,13 @@ export default function Home() {
         ? false
         : !sidebarColapsavel || sidebarHovered;
   const menuIconSize = sidebarAberta ? "h-5 w-5 shrink-0" : "h-6 w-6 shrink-0";
-  function menuIconKindAnalise(appId: string): "comercial" | "financeiro" | "compras" {
-    if (appId === "vendas") return "comercial";
+  function menuIconKindAnalise(appId: string): "estoque" | "financeiro" | "compras" {
+    if (appId === "estoque") return "estoque";
     if (appId === "financeiro") return "financeiro";
     return "compras";
+  }
+  function temSeloNovo(appId: string) {
+    return appId === "compras" || appId === "estoque";
   }
 
   const decoNodes = [
@@ -481,7 +484,7 @@ export default function Home() {
                       : "Sem permissão para acessar"
                   }
                   className={`w-full rounded-lg py-2 font-medium transition-colors ${
-                    item.app.id === "compras" ? "relative" : ""
+                    temSeloNovo(item.app.id) ? "relative" : ""
                   } ${
                     sidebarAberta ? "text-base" : "text-sm"
                   } ${
@@ -502,12 +505,12 @@ export default function Home() {
                       <>
                         <span
                           className={`min-w-0 flex-1 truncate text-left ${
-                            item.app.id === "compras" ? "pr-11" : ""
+                            temSeloNovo(item.app.id) ? "pr-11" : ""
                           }`}
                         >
                           {item.label}
                         </span>
-                        {item.app.id === "compras" && (
+                        {temSeloNovo(item.app.id) && (
                           <span className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full border border-emerald-200/70 bg-emerald-500/55 px-1.5 py-0.5 text-[9px] font-bold uppercase leading-none tracking-wide text-white shadow-[0_0_14px_rgba(52,211,153,0.55)]">
                             Novo
                           </span>

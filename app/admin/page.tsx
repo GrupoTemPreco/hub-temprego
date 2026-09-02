@@ -12,7 +12,7 @@ type UsuarioPendente = {
 };
 
 type PermissaoKey =
-  | "analytics.vendas"
+  | "analytics.estoque"
   | "analytics.contas_a_pagar"
   | "analytics.compras"
   | "checklist.preencher"
@@ -26,10 +26,10 @@ const PERMISSOES_DISPONIVEIS: Array<{
   item: string;
 }> = [
   {
-    key: "analytics.vendas",
-    label: "Analytics > Vendas",
+    key: "analytics.estoque",
+    label: "Analytics > Estoque",
     modulo: "analytics",
-    item: "vendas",
+    item: "estoque",
   },
   {
     key: "analytics.contas_a_pagar",
@@ -77,7 +77,7 @@ export default function AdminPage() {
   const [saving, setSaving] = useState(false);
   const [loadingPermissoesUsuario, setLoadingPermissoesUsuario] = useState(false);
   const [checks, setChecks] = useState<Record<PermissaoKey, boolean>>({
-    "analytics.vendas": false,
+    "analytics.estoque": false,
     "analytics.contas_a_pagar": false,
     "analytics.compras": false,
     "checklist.preencher": false,
@@ -85,7 +85,7 @@ export default function AdminPage() {
     "checklist.analise": false,
   });
   const [manageChecks, setManageChecks] = useState<Record<PermissaoKey, boolean>>({
-    "analytics.vendas": false,
+    "analytics.estoque": false,
     "analytics.contas_a_pagar": false,
     "analytics.compras": false,
     "checklist.preencher": false,
@@ -190,7 +190,7 @@ export default function AdminPage() {
       return;
     }
 
-    const temVendas = (data ?? []).some((p) => p.modulo === "analytics" && p.item === "vendas");
+    const temEstoque = (data ?? []).some((p) => p.modulo === "analytics" && p.item === "estoque");
     const temContas = (data ?? []).some(
       (p) => p.modulo === "analytics" && p.item === "contas_a_pagar",
     );
@@ -206,7 +206,7 @@ export default function AdminPage() {
     );
 
     setManageChecks({
-      "analytics.vendas": temVendas,
+      "analytics.estoque": temEstoque,
       "analytics.contas_a_pagar": temContas,
       "analytics.compras": temCompras,
       "checklist.preencher": temChecklistPreencher,
@@ -293,7 +293,7 @@ export default function AdminPage() {
     setPendentes((prev) => prev.filter((u) => u.id !== selectedUserId));
     setSelectedUserId(null);
     setChecks({
-      "analytics.vendas": false,
+      "analytics.estoque": false,
       "analytics.contas_a_pagar": false,
       "analytics.compras": false,
       "checklist.preencher": false,
