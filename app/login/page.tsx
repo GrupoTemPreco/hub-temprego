@@ -249,7 +249,7 @@ export default function Login() {
 
     const { data: usuario, error: usuarioError } = await supabase
       .from("usuarios")
-      .select("status")
+      .select("status, is_admin")
       .eq("id", userId)
       .maybeSingle();
 
@@ -277,7 +277,7 @@ export default function Login() {
       return;
     }
 
-    router.push("/");
+    router.push(usuario.is_admin ? "/admin" : "/");
   }
 
   async function handleCreateAccess() {

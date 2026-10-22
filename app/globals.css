@@ -49,3 +49,35 @@ select:-webkit-autofill:focus {
   box-shadow: 0 0 0 1000px var(--input-bg) inset;
   transition: background-color 99999s ease-out;
 }
+
+/* Barras de rolagem do hub */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(30, 58, 138, 0.55);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(37, 99, 235, 0.7);
+}
+*::-webkit-scrollbar-button {
+  display: none;
+}
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Firefox */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(30, 58, 138, 0.55) transparent;
+  }
+}
