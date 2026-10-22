@@ -1,12 +1,8 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
-import { UserCheck } from "lucide-react";
-import { Button } from "@/components/ui/Button";
-import { useToast } from "@/components/ui/Toast";
-import { useUsuarioAtual } from "@/components/hub/UsuarioAtualProvider";
-import { assumirTicket } from "@/lib/admin/ticketsAcoes";
+import type { ReactNode } from "react";
 import type { Ticket } from "@/lib/types/shell";
+import { BotaoAssumir, useAssumirTicket } from "./AssumirTicket";
 import { ListaTicketsUsuario } from "./ListaTicketsUsuario";
 import { useTicketsUsuario } from "./TicketsUsuarioProvider";
 
@@ -20,25 +16,10 @@ function Secao({ titulo, children }: { titulo: string; children: ReactNode }) {
 }
 
 export function RecebidosTickets({ onAbrir }: { onAbrir: (ticket: Ticket) => void }) {
-  const toast = useToast();
-  const usuario = useUsuarioAtual();
-  const { classificados, novidades, referencias, atualizar } = useTicketsUsuario();
-  const [assumindo, setAssumindo] = useState<string | null>(null);
+  const { classificados, novidades, referencias } = useTicketsUsuario();
+  const { assumindo, assumir } = useAssumirTicket();
   if (!referencias) return null;
   const deQuem = (t: Ticket) => `De ${referencias.nomes.usuario(t.autor_id)}`;
-
-  async function assumir(t: Ticket) {
-    setAssumindo(t.id);
-    try {
-      await assumirTicket(t.id, usuario.id);
-      toast.success(`Você assumiu o ticket #${t.numero}.`);
-      atualizar();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err));
-    } finally {
-      setAssumindo(null);
-    }
-  }
 
   return (
     <div className="space-y-5">
@@ -49,11 +30,7 @@ export function RecebidosTickets({ onAbrir }: { onAbrir: (ticket: Ticket) => voi
             outraParte={deQuem}
             novidades={novidades}
             onAbrir={onAbrir}
-            acao={(t) => (
-              <Button size="sm" variant="secondary" disabled={assumindo !== null} onClick={() => assumir(t)}>
-                <UserCheck className="h-3.5 w-3.5" /> {assumindo === t.id ? "Assumindo..." : "Assumir"}
-              </Button>
-            )}
+            acao={(t) => <BotaoAssumir ticket={t} assumindo={assumindo} onAssumir={assumir} />}
           />
         </Secao>
       )}

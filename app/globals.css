@@ -1,5 +1,44 @@
 @import "tailwindcss";
 
+/* Animações do balão de tickets (use com motion-safe: para respeitar prefers-reduced-motion) */
+@theme {
+  --animate-balancar: balancar 0.6s ease-in-out;
+  --animate-surgir: surgir 0.2s ease-out;
+
+  @keyframes balancar {
+    0%,
+    100% {
+      transform: rotate(0deg);
+    }
+    15% {
+      transform: rotate(-14deg);
+    }
+    30% {
+      transform: rotate(12deg);
+    }
+    45% {
+      transform: rotate(-9deg);
+    }
+    60% {
+      transform: rotate(6deg);
+    }
+    75% {
+      transform: rotate(-3deg);
+    }
+  }
+
+  @keyframes surgir {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
 /* Tema escuro fixo — não segue prefers-color-scheme do SO/navegador */
 html {
   color-scheme: dark;

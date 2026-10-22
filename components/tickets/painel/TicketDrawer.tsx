@@ -45,7 +45,7 @@ const recebeTickets = (u: UsuarioReferencia) => u.status === "aprovado" && Boole
 export function TicketDrawer({ numero, referencias, versao, modo = "admin", onClose, onAlterado }: Props) {
   const toast = useToast();
   const usuario = useUsuarioAtual();
-  const { contextoDe, marcarLido } = useTicketsUsuario();
+  const { contextoDe, marcarLido, registrarPainelAberto } = useTicketsUsuario();
   const [detalhe, setDetalhe] = useState<Detalhe>("carregando");
   const [ocupado, setOcupado] = useState(false);
   const [encaminhando, setEncaminhando] = useState(false);
@@ -71,6 +71,10 @@ export function TicketDrawer({ numero, referencias, versao, modo = "admin", onCl
   useEffect(() => {
     if (ticket && visivel) marcarLido(ticket.id);
   }, [ticket, visivel, marcarLido]);
+
+  // Enquanto o painel estiver aberto, os avisos do balão não falam deste ticket.
+  const ticketId = ticket?.id ?? null;
+  useEffect(() => (ticketId && visivel ? registrarPainelAberto(ticketId) : undefined), [ticketId, visivel, registrarPainelAberto]);
 
   async function executar(acao: () => Promise<void>, sucesso: string): Promise<boolean> {
     setOcupado(true);

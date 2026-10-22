@@ -22,6 +22,9 @@ export type NotificacaoForm = {
 export type CampoComErro = "titulo" | "mensagem" | "publico" | "modulos" | "inicio" | "fim";
 export type ErrosForm = Partial<Record<CampoComErro, string>>;
 
+const DIAS_FIM_PADRAO = 7;
+
+/** Nova notificação: começa agora e termina em 7 dias ("sem data de fim" continua disponível). */
 export function formVazio(): NotificacaoForm {
   return {
     titulo: "",
@@ -34,8 +37,8 @@ export function formVazio(): NotificacaoForm {
     todasTelas: true,
     modulos: [],
     inicio: agoraInputSP(),
-    fim: "",
-    semFim: true,
+    fim: agoraInputSP(DIAS_FIM_PADRAO),
+    semFim: false,
     ativa: true,
   };
 }

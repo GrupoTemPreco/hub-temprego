@@ -125,6 +125,14 @@ export function notificacaoVisivelPara(
 
 const PESO_NIVEL: Record<NotificacaoNivel, number> = { critico: 0, atencao: 1, informacao: 2, sucesso: 3 };
 
+/** Mural da tela inicial: críticas, depois de atenção, depois as demais; em cada grupo, as mais recentes. */
+export function ordenarParaMural<T extends Pick<Notificacao, "nivel" | "inicio_em">>(lista: T[]): T[] {
+  const grupo = (n: T) => (n.nivel === "critico" ? 0 : n.nivel === "atencao" ? 1 : 2);
+  return [...lista].sort(
+    (a, b) => grupo(a) - grupo(b) || new Date(b.inicio_em).getTime() - new Date(a.inicio_em).getTime(),
+  );
+}
+
 /** Mais críticas primeiro; no mesmo nível, as mais recentes. */
 export function ordenarPorCriticidade<T extends Pick<Notificacao, "nivel" | "inicio_em">>(lista: T[]): T[] {
   return [...lista].sort(

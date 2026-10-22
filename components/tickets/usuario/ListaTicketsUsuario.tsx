@@ -15,6 +15,8 @@ type Props = {
   acao?: (ticket: Ticket) => ReactNode;
   vazio?: string;
   limite?: number;
+  /** Falso quando a lista já chega na ordem desejada. Padrão: última atualização primeiro. */
+  ordenar?: boolean;
 };
 
 const ultimaAtualizacao = (t: Ticket) => t.atualizado_em ?? t.criado_em;
@@ -23,8 +25,14 @@ export function ordenarPorAtualizacao(tickets: Ticket[]) {
   return [...tickets].sort((a, b) => new Date(ultimaAtualizacao(b)).getTime() - new Date(ultimaAtualizacao(a)).getTime());
 }
 
-export function ListaTicketsUsuario({ tickets, outraParte, novidades, onAbrir, acao, vazio, limite }: Props) {
-  const itens = ordenarPorAtualizacao(tickets).slice(0, limite);
+/** Com novidade primeiro; dentro de cada grupo, última atualização primeiro. */
+export function ordenarPorNovidade(tickets: Ticket[], novidades: Set<string>) {
+  const ordenados = ordenarPorAtualizacao(tickets);
+  return [...ordenados.filter((t) => novidades.has(t.id)), ...ordenados.filter((t) => !novidades.has(t.id))];
+}
+
+export function ListaTicketsUsuario({ tickets, outraParte, novidades, onAbrir, acao, vazio, limite, ordenar = true }: Props) {
+  const itens = (ordenar ? ordenarPorAtualizacao(tickets) : tickets).slice(0, limite);
   if (itens.length === 0) {
     return vazio ? <p className="rounded-lg border border-dashed border-white/10 px-3 py-5 text-center text-sm text-white/45">{vazio}</p> : null;
   }
