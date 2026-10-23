@@ -1,6 +1,8 @@
 "use client";
 
 import { Badge } from "@/components/ui/Badge";
+import { CheckboxSelecao } from "@/components/ui/CheckboxSelecao";
+import type { Selecao } from "@/hooks/useSelecao";
 import { CategoriaBadge, PrioridadeBadge, TicketStatusBadge } from "@/components/tickets/TicketBadges";
 import { TempoAberto } from "@/components/tickets/TempoAberto";
 import { ContadorAnexos } from "@/components/tickets/anexos/ContadorAnexos";
@@ -12,18 +14,27 @@ import type { Ticket } from "@/lib/types/shell";
 type Props = {
   tickets: TicketListagem[];
   nomes: ResolvedorNomes;
+  selecao: Selecao;
   onAbrir: (ticket: Ticket) => void;
 };
 
 const TH = "px-3 py-3 font-medium";
 const TD = "px-3 py-3";
 
-export function TicketsLista({ tickets, nomes, onAbrir }: Props) {
+export function TicketsLista({ tickets, nomes, selecao, onAbrir }: Props) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm">
         <thead className="border-b border-white/10 text-xs uppercase tracking-wide text-white/45">
           <tr>
+            <th className="w-10 py-3 pl-4">
+              <CheckboxSelecao
+                checked={selecao.todosVisiveis}
+                indeterminado={selecao.algunsVisiveis}
+                onChange={selecao.alternarTodosVisiveis}
+                rotulo="Selecionar todos os tickets visíveis"
+              />
+            </th>
             <th className={TH}>#</th>
             <th className={TH}>Título</th>
             <th className={TH}>Autor</th>
@@ -44,6 +55,13 @@ export function TicketsLista({ tickets, nomes, onAbrir }: Props) {
                 estaAtrasado(t) ? "bg-rose-500/5 hover:bg-rose-500/10" : "hover:bg-white/4"
               }`}
             >
+              <td className="py-3 pl-4" onClick={(e) => e.stopPropagation()}>
+                <CheckboxSelecao
+                  checked={selecao.estaSelecionado(t.id)}
+                  onChange={() => selecao.alternar(t.id)}
+                  rotulo={`Selecionar ticket #${t.numero}`}
+                />
+              </td>
               <td className={`${TD} font-mono text-white/55`}>#{t.numero}</td>
               <td className={TD}>
                 <span className="flex items-center gap-2">

@@ -1,43 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 const ARQUIVO_PADRAO = "/sons/notificacao.mp3";
 const INTERVALO_MINIMO_MS = 10_000;
-const VOLUME_PADRAO = 0.8;
-/** Ganho da reserva (Web Audio) no volume padrão fica em torno de 0,6. */
+/** Ganho da reserva (Web Audio) no volume 0,8 fica em torno de 0,6. */
 const FATOR_GANHO_RESERVA = 0.75;
 
 type JanelaComWebkit = Window & { webkitAudioContext?: typeof AudioContext };
 
 type Opcoes = {
-  /** Chave do localStorage com "ligado"/"desligado" (padrão: ligado). */
-  chavePreferencia: string;
-  /** Chave do localStorage com o volume de 0 a 1 (padrão: 0,8). */
-  chaveVolume: string;
+  /** De 0 a 1 (volume efetivo, decidido por quem chama). */
+  volume: number;
+  /** Falso silencia `tocar` (o "Testar som" continua tocando). */
+  ligado: boolean;
   arquivo?: string;
 };
-
-function ler(chave: string) {
-  try {
-    return window.localStorage.getItem(chave);
-  } catch {
-    return null;
-  }
-}
-
-function salvar(chave: string, valor: string) {
-  try {
-    window.localStorage.setItem(chave, valor);
-  } catch {
-    // Sem localStorage (modo privado, bloqueio): a preferência vale só nesta sessão.
-  }
-}
-
-function lerVolume(chave: string) {
-  const v = Number(ler(chave));
-  return ler(chave) !== null && Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : VOLUME_PADRAO;
-}
 
 function criarContexto(): AudioContext | null {
   try {
@@ -65,10 +43,9 @@ function nota(ctx: AudioContext, frequencia: number, inicio: number, duracao: nu
  * Som de notificação a partir de um arquivo (HTMLAudioElement), pré-carregado ao montar.
  * O áudio é liberado na primeira interação com a página (toque silencioso e pausa).
  * Se o arquivo não carregar, toca um "plim" da Web Audio API como reserva. Falhas ficam em silêncio.
+ * Use uma instância só (SomNotificacaoProvider): o intervalo mínimo vale para o hub inteiro.
  */
-export function useSomNotificacao({ chavePreferencia, chaveVolume, arquivo = ARQUIVO_PADRAO }: Opcoes) {
-  const [ligado, setLigado] = useState(() => ler(chavePreferencia) !== "desligado");
-  const [volume, setVolume] = useState(() => lerVolume(chaveVolume));
+export function useSomNotificacao({ volume, ligado, arquivo = ARQUIVO_PADRAO }: Opcoes) {
   const ligadoRef = useRef(ligado);
   const volumeRef = useRef(volume);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -140,12 +117,12 @@ export function useSomNotificacao({ chavePreferencia, chaveVolume, arquivo = ARQ
     return remover;
   }, []);
 
-  const tocarReserva = useCallback(() => {
+  const tocarReserva = useCallback((volumeDoToque: number) => {
     try {
       const ctx = (contextoRef.current ??= criarContexto());
       if (!ctx) return;
       if (ctx.state === "suspended") ctx.resume().catch(() => {});
-      const ganho = FATOR_GANHO_RESERVA * volumeRef.current;
+      const ganho = FATOR_GANHO_RESERVA * volumeDoToque;
       const t = ctx.currentTime;
       nota(ctx, 880, t, 0.16, ganho);
       nota(ctx, 1318.5, t + 0.1, 0.22, ganho);
@@ -154,27 +131,27 @@ export function useSomNotificacao({ chavePreferencia, chaveVolume, arquivo = ARQ
     }
   }, []);
 
-  const reproduzir = useCallback(() => {
+  const reproduzir = useCallback((volumeDoToque: number) => {
     geracaoRef.current += 1;
     const audio = audioRef.current;
     if (!audio || arquivoFalhouRef.current) {
-      tocarReserva();
+      tocarReserva(volumeDoToque);
       return;
     }
     try {
       audio.pause();
       audio.currentTime = 0;
       audio.muted = false;
-      audio.volume = volumeRef.current;
+      audio.volume = volumeDoToque;
       audio.play().catch((err: unknown) => {
         // Arquivo inválido ou formato sem suporte: usa a reserva. Bloqueio do navegador: silêncio.
         if (err instanceof DOMException && err.name === "NotSupportedError") {
           arquivoFalhouRef.current = true;
-          tocarReserva();
+          tocarReserva(volumeDoToque);
         }
       });
     } catch {
-      tocarReserva();
+      tocarReserva(volumeDoToque);
     }
   }, [tocarReserva]);
 
@@ -182,27 +159,11 @@ export function useSomNotificacao({ chavePreferencia, chaveVolume, arquivo = ARQ
   const tocar = useCallback(() => {
     if (!ligadoRef.current || Date.now() - ultimoRef.current < INTERVALO_MINIMO_MS) return;
     ultimoRef.current = Date.now();
-    reproduzir();
+    reproduzir(volumeRef.current);
   }, [reproduzir]);
 
-  /** Botão "Testar som": toca agora, no volume atual. */
-  const testar = useCallback(() => reproduzir(), [reproduzir]);
+  /** Botão "Testar som": toca agora, no volume informado (ex.: o do slider, antes de salvar). */
+  const testar = useCallback((volumeTeste?: number) => reproduzir(volumeTeste ?? volumeRef.current), [reproduzir]);
 
-  const alternar = useCallback(() => {
-    const novo = !ligadoRef.current;
-    setLigado(novo);
-    salvar(chavePreferencia, novo ? "ligado" : "desligado");
-  }, [chavePreferencia]);
-
-  const definirVolume = useCallback(
-    (novo: number) => {
-      const v = Math.min(1, Math.max(0, novo));
-      volumeRef.current = v;
-      setVolume(v);
-      salvar(chaveVolume, String(v));
-    },
-    [chaveVolume],
-  );
-
-  return { ligado, alternar, volume, definirVolume, tocar, testar };
+  return { tocar, testar };
 }

@@ -3,25 +3,29 @@
 import type { ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
 import { BotaoAssumir, useAssumirTicket } from "@/components/tickets/usuario/AssumirTicket";
+import { ContadorNovidades } from "@/components/tickets/usuario/ContadorNovidades";
 import { ListaTicketsUsuario, ordenarPorAtualizacao } from "@/components/tickets/usuario/ListaTicketsUsuario";
 import { useTicketsUsuario } from "@/components/tickets/usuario/TicketsUsuarioProvider";
 import type { Ticket } from "@/lib/types/shell";
-import { ColunaTickets } from "./ColunaTickets";
 
-function Grupo({ titulo, children }: { titulo: string; children: ReactNode }) {
+export function TituloGrupoTickets({ children }: { children: ReactNode }) {
   return (
-    <div>
-      <h4 className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-white/40">{titulo}</h4>
+    <h3 className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-white/40">
       {children}
-    </div>
+    </h3>
   );
 }
 
+/** Lista vazia de um grupo: texto curto, sem caixa ocupando altura. */
+export function VazioGrupoTickets({ children }: { children: ReactNode }) {
+  return <p className="py-2 text-center text-sm text-white/45">{children}</p>;
+}
+
 /**
- * Com novidade primeiro, depois os do setor sem responsável (com Assumir) e os demais por última atualização.
- * "Em que participei" fica recolhido no fim.
+ * Recebidos dentro do card "Meus tickets": com novidade primeiro, depois os do setor sem responsável
+ * (com Assumir) e os demais por última atualização. "Em que participei" fica recolhido no fim.
  */
-export function ColunaRecebidos({ onAbrir }: { onAbrir: (ticket: Ticket) => void }) {
+export function GruposRecebidos({ onAbrir }: { onAbrir: (ticket: Ticket) => void }) {
   const { classificados, novidades, referencias } = useTicketsUsuario();
   const { assumindo, assumir } = useAssumirTicket();
   if (!referencias) return null;
@@ -31,6 +35,7 @@ export function ColunaRecebidos({ onAbrir }: { onAbrir: (ticket: Ticket) => void
   const comNovidade = ordenarPorAtualizacao([...semResponsavelDoSetor, ...recebidos].filter((t) => novidades.has(t.id)));
   const setorSemNovidade = ordenarPorAtualizacao(semResponsavelDoSetor.filter((t) => !novidades.has(t.id)));
   const demais = ordenarPorAtualizacao(recebidos.filter((t) => !novidades.has(t.id)));
+  const total = semResponsavelDoSetor.length + recebidos.length;
 
   const lista = (tickets: Ticket[]) => (
     <ListaTicketsUsuario
@@ -44,15 +49,19 @@ export function ColunaRecebidos({ onAbrir }: { onAbrir: (ticket: Ticket) => void
   );
 
   return (
-    <ColunaTickets
-      titulo="Recebidos"
-      total={semResponsavelDoSetor.length + recebidos.length}
-      novidades={comNovidade.length}
-      vazio="Nenhum ticket recebido."
-    >
-      {comNovidade.length > 0 && <Grupo titulo="Com novidade">{lista(comNovidade)}</Grupo>}
-      {setorSemNovidade.length > 0 && <Grupo titulo="Do meu setor, sem responsável">{lista(setorSemNovidade)}</Grupo>}
-      {demais.length > 0 && <Grupo titulo="Outros recebidos">{lista(demais)}</Grupo>}
+    <div className="space-y-3">
+      <TituloGrupoTickets>
+        Recebidos ({total}) <ContadorNovidades total={comNovidade.length} />
+      </TituloGrupoTickets>
+      {total === 0 && <VazioGrupoTickets>Nenhum ticket recebido.</VazioGrupoTickets>}
+      {comNovidade.length > 0 && lista(comNovidade)}
+      {setorSemNovidade.length > 0 && (
+        <div>
+          <p className="mb-1 text-xs text-white/45">Do meu setor, sem responsável</p>
+          {lista(setorSemNovidade)}
+        </div>
+      )}
+      {demais.length > 0 && lista(demais)}
 
       {participei.length > 0 && (
         <details className="group rounded-lg border border-white/10">
@@ -70,6 +79,6 @@ export function ColunaRecebidos({ onAbrir }: { onAbrir: (ticket: Ticket) => void
           </div>
         </details>
       )}
-    </ColunaTickets>
+    </div>
   );
 }

@@ -10,16 +10,16 @@ import type { Setor } from "@/lib/types/shell";
 import { UsuarioDadosTab } from "./UsuarioDadosTab";
 import { UsuarioSetoresTab } from "./UsuarioSetoresTab";
 import { UsuarioPermissoesTab } from "./UsuarioPermissoesTab";
-import { UsuarioSenhaTab } from "./UsuarioSenhaTab";
+import { UsuarioAcessoTab } from "./UsuarioAcessoTab";
 import { UsuarioAtividadeTab } from "./UsuarioAtividadeTab";
 
-export type AbaUsuario = "dados" | "setores" | "permissoes" | "senha" | "atividade";
+export type AbaUsuario = "dados" | "setores" | "permissoes" | "acesso" | "atividade";
 
 const ABAS: TabItem<AbaUsuario>[] = [
   { id: "dados", label: "Dados" },
   { id: "setores", label: "Setores" },
   { id: "permissoes", label: "Permissões" },
-  { id: "senha", label: "Senha" },
+  { id: "acesso", label: "Acesso" },
   { id: "atividade", label: "Atividade" },
 ];
 
@@ -53,7 +53,7 @@ export function UsuarioDrawer({ usuario, setores, abaInicial, onClose, onAtualiz
         {aba === "dados" && <UsuarioDadosTab usuario={usuario} onAtualizado={onAtualizado} />}
         {aba === "setores" && <UsuarioSetoresTab usuario={usuario} setores={setores} onAtualizado={onAtualizado} />}
         {aba === "permissoes" && <UsuarioPermissoesTab usuario={usuario} onAtualizado={onAtualizado} />}
-        {aba === "senha" && <UsuarioSenhaTab usuarioId={usuario.id} />}
+        {aba === "acesso" && <UsuarioAcessoTab key={usuario.id} usuario={usuario} />}
         {aba === "atividade" && <UsuarioAtividadeTab usuarioId={usuario.id} />}
       </div>
     </Drawer>

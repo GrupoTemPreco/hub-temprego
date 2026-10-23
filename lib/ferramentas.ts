@@ -41,7 +41,7 @@ export const FERRAMENTAS: Ferramenta[] = [
     id: "checklist",
     modulo: "checklist",
     item: "preencher",
-    label: "Checklist",
+    label: "Checklist lojas",
     url: "https://checklist-nu-nine.vercel.app/checklist",
   },
 ];
@@ -59,6 +59,14 @@ export const ITENS_ANALISES = [
 
 export function temPermissao(usuario: AcessoUsuario, modulo: string, item: string) {
   return usuario.permissoes.some((p) => p.modulo === modulo && p.item === item);
+}
+
+/** Rota nativa do monitoramento de tarefas do RH. */
+export const ROTA_RH_MONITORAMENTO = "/rh/monitoramento";
+
+/** Admin ou permissão rh/monitoramento (a mesma regra da RPC pode_monitorar_rh). */
+export function podeMonitorarRh(usuario: AcessoUsuario) {
+  return usuario.isAdmin || temPermissao(usuario, "rh", "monitoramento");
 }
 
 export function temPermissaoChecklist(usuario: AcessoUsuario) {

@@ -78,12 +78,6 @@ export async function salvarPermissoesUsuario(usuario: UsuarioLista, marcadas: P
   });
 }
 
-export async function buscarSenhaUsuario(userId: string): Promise<string | null> {
-  const { data, error } = await supabase.from("usuarios").select("senha").eq("id", userId).single();
-  falhar(error);
-  return data?.senha ?? null;
-}
-
 export type TicketResumo = Pick<Ticket, "id" | "numero" | "titulo" | "status" | "criado_em">;
 
 export async function carregarTicketsUsuario(userId: string) {

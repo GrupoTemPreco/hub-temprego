@@ -14,6 +14,8 @@ import { UsuariosFiltros, parseFiltroStatus, type FiltrosUsuarios } from "./Usua
 import { UsuariosTabela } from "./UsuariosTabela";
 import { filtrarUsuarios } from "./filtrarUsuarios";
 import { UsuarioDrawer, type AbaUsuario } from "./drawer/UsuarioDrawer";
+import { UsuariosAcoesMassa } from "./massa/UsuariosAcoesMassa";
+import { useSelecao } from "@/hooks/useSelecao";
 
 function mensagemErro(err: unknown) {
   return err instanceof Error ? err.message : String(err);
@@ -50,6 +52,8 @@ export function UsuariosTab({ statusInicial }: { statusInicial: string | null })
   }, [recarregar]);
 
   const visiveis = useMemo(() => filtrarUsuarios(usuarios, filtros), [usuarios, filtros]);
+  const selecao = useSelecao(visiveis.map((u) => u.id));
+  const selecionados = usuarios.filter((u) => selecao.estaSelecionado(u.id));
   const usuarioAberto = aberto ? usuarios.find((u) => u.id === aberto.id) ?? null : null;
 
   async function aprovar(usuario: UsuarioLista) {
@@ -88,11 +92,7 @@ export function UsuariosTab({ statusInicial }: { statusInicial: string | null })
       <div className="space-y-3 border-b border-white/10 p-4">
         <div className="flex items-baseline justify-between gap-2">
           <h2 className="font-semibold">Usuários</h2>
-          {pendentes > 0 && (
-            <span className="text-xs text-amber-300">
-              {pendentes} aguardando aprovação
-            </span>
-          )}
+          {pendentes > 0 && <span className="text-xs text-amber-300">{pendentes} aguardando aprovação</span>}
         </div>
         <UsuariosFiltros filtros={filtros} setores={setores} onChange={setFiltros} />
       </div>
@@ -103,12 +103,20 @@ export function UsuariosTab({ statusInicial }: { statusInicial: string | null })
         <UsuariosTabela
           usuarios={visiveis}
           setores={setores}
+          selecao={selecao}
           emAndamentoId={emAndamentoId}
           onAbrir={(u) => setAberto({ id: u.id, aba: "dados" })}
           onAprovar={aprovar}
           onRejeitar={setRejeitando}
         />
       )}
+
+      <UsuariosAcoesMassa
+        selecionados={selecionados}
+        setores={setores}
+        onLimpar={selecao.limpar}
+        onConcluido={recarregar}
+      />
 
       {usuarioAberto && aberto && (
         <UsuarioDrawer

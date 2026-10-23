@@ -32,7 +32,8 @@ export default function RootLayout({
       data-theme="dark"
       className={`dark ${geistSans.variable} ${geistMono.variable} h-full bg-[#020617] text-zinc-200 antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#020617] text-zinc-200">
+      {/* Extensões do navegador (ex.: ColorZilla, cz-shortcut-listen) injetam atributos no body antes da hidratação. */}
+      <body suppressHydrationWarning className="min-h-full flex flex-col bg-[#020617] text-zinc-200">
         {children}
       </body>
     </html>

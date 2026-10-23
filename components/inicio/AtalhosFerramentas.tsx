@@ -18,7 +18,7 @@ const ATALHOS: Atalho[] = [
   })),
   {
     app: buscarFerramenta("checklist"),
-    label: "Checklist",
+    label: "Checklist lojas",
     descricao: "Preencher e acompanhar checklists",
     icon: "checklist",
   },

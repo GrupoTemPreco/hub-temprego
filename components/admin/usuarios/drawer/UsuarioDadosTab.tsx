@@ -14,7 +14,8 @@ type Props = { usuario: UsuarioLista; onAtualizado: () => Promise<void> };
 
 export function UsuarioDadosTab({ usuario, onAtualizado }: Props) {
   const toast = useToast();
-  const ehVoceMesmo = useUsuarioAtual().id === usuario.id;
+  const usuarioAtual = useUsuarioAtual();
+  const ehVoceMesmo = usuarioAtual.id === usuario.id;
   const [salvando, setSalvando] = useState(false);
   const [form, setForm] = useState<DadosUsuarioEditaveis>({
     nome: usuario.nome,
@@ -22,6 +23,7 @@ export function UsuarioDadosTab({ usuario, onAtualizado }: Props) {
     status: usuario.status,
     is_admin: Boolean(usuario.is_admin),
     recebe_tickets: Boolean(usuario.recebe_tickets),
+    acesso_checklist: Boolean(usuario.acesso_checklist),
   });
 
   async function salvar() {
@@ -38,6 +40,7 @@ export function UsuarioDadosTab({ usuario, onAtualizado }: Props) {
       }
       toast.success("Dados do usuário atualizados.");
       await onAtualizado();
+      if (ehVoceMesmo) await usuarioAtual.recarregarUsuario();
     } catch (err) {
       toast.error(`Erro ao salvar dados: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
@@ -109,6 +112,17 @@ export function UsuarioDadosTab({ usuario, onAtualizado }: Props) {
             label="Recebe tickets"
             checked={Boolean(form.recebe_tickets)}
             onChange={(v) => setForm({ ...form, recebe_tickets: v })}
+          />
+        </div>
+        <div className="flex items-center justify-between gap-4 p-3">
+          <div>
+            <p className="text-sm font-medium">Acesso ao checklist</p>
+            <p className="text-xs text-white/50">Mostra o Checklist (tarefas pessoais) na sidebar.</p>
+          </div>
+          <Toggle
+            label="Acesso ao checklist"
+            checked={Boolean(form.acesso_checklist)}
+            onChange={(v) => setForm({ ...form, acesso_checklist: v })}
           />
         </div>
       </div>

@@ -5,7 +5,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Tabs } from "@/components/ui/Tabs";
 import { useUsuarioAtual } from "@/components/hub/UsuarioAtualProvider";
 import { SaudacaoUsuario } from "@/components/inicio/SaudacaoUsuario";
-import { ABAS_ADMIN, parseAba, type AbaAdmin } from "./abas";
+import { ChecklistPagina } from "@/components/checklist/ChecklistPagina";
+import { useChecklistEnvios } from "@/components/checklist/envios/ChecklistEnviosProvider";
+import { abasDisponiveis, parseAba, type AbaAdmin } from "./abas";
 import { VisaoGeralTab } from "./visao-geral/VisaoGeralTab";
 import { UsuariosTab } from "./usuarios/UsuariosTab";
 import { SetoresTab } from "./setores/SetoresTab";
@@ -18,7 +20,11 @@ export function AdminShell() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const usuario = useUsuarioAtual();
-  const aba = parseAba(searchParams.get("aba"));
+  const aba = parseAba(searchParams.get("aba"), usuario.acessoChecklist);
+  const recebidos = useChecklistEnvios().recebidos.length;
+  const abas = abasDisponiveis(usuario.acessoChecklist).map((a) =>
+    a.id === "checklist" ? { ...a, count: recebidos } : a,
+  );
 
   const navegar = useCallback(
     (destino: AbaAdmin, extras?: Record<string, string>) => {
@@ -35,10 +41,11 @@ export function AdminShell() {
       </div>
 
       <div className="mb-6">
-        <Tabs items={ABAS_ADMIN} value={aba} onChange={(id) => navegar(id)} />
+        <Tabs items={abas} value={aba} onChange={(id) => navegar(id)} />
       </div>
 
       {aba === "visao-geral" && <VisaoGeralTab onNavegar={navegar} />}
+      {aba === "checklist" && <ChecklistPagina />}
       {aba === "usuarios" && <UsuariosTab statusInicial={searchParams.get("status")} />}
       {aba === "setores" && <SetoresTab filtroInicial={searchParams.get("filtro")} />}
       {aba === "tickets" && <TicketsTab />}

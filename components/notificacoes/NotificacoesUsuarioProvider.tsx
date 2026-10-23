@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { supabase } from "@/lib/supabase";
 import { useUsuarioAtual } from "@/components/hub/UsuarioAtualProvider";
+import { useSom } from "@/components/hub/SomNotificacaoProvider";
 import { useTelaAtual } from "@/lib/telaAtual";
 import { notificacaoVisivelPara, ordenarPorCriticidade } from "@/lib/notificacoes";
 import {
@@ -13,7 +14,8 @@ import {
 import type { Notificacao, NotificacaoLeitura } from "@/lib/types/shell";
 
 const MAX_FAIXAS = 2;
-const REAVALIAR_MS = 60_000;
+/** Também é o intervalo em que uma notificação agendada (inicio_em) é percebida como "chegou agora". */
+const REAVALIAR_MS = 30_000;
 
 type NotificacoesUsuarioApi = {
   /** Ativas para a pessoa em qualquer tela e formato, inclusive as já fechadas (mural da tela inicial). */
@@ -64,8 +66,12 @@ export function NotificacoesUsuarioProvider({ children }: { children: ReactNode 
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
   const [leituras, setLeituras] = useState<Leituras>({});
   const [agora, setAgora] = useState(() => new Date());
+  const [carregado, setCarregado] = useState(false);
+  const { tocar } = useSom();
   /** notificacao_id -> visto_em gravado nesta sessão. */
   const vistasRef = useRef(new Map<string, string>());
+  /** Notificações já valendo para a pessoa; nulo até a primeira carga (essas não tocam som). */
+  const valendoRef = useRef<Set<string> | null>(null);
 
   useEffect(() => {
     const id = setInterval(() => setAgora(new Date()), REAVALIAR_MS);
@@ -80,6 +86,7 @@ export function NotificacoesUsuarioProvider({ children }: { children: ReactNode 
         setNotificacoes(d.notificacoes);
         setLeituras((prev) => mesclarLeituras(prev, d.leituras));
         setAgora(new Date());
+        setCarregado(true);
       })
       .catch((err) => console.error("[notificacoes] Falha ao carregar:", err));
     return () => {
@@ -118,6 +125,19 @@ export function NotificacoesUsuarioProvider({ children }: { children: ReactNode 
       fechar,
     };
   }, [notificacoes, leituras, usuario.id, usuario.setores, tela, agora, fechar]);
+
+  // Som quando uma notificação passa a valer durante a sessão: criada agora ou agendada que chegou ao início.
+  useEffect(() => {
+    if (!carregado) return;
+    const ids = valor.ativas.map((n) => n.id);
+    if (!valendoRef.current) {
+      valendoRef.current = new Set(ids);
+      return;
+    }
+    const novas = ids.filter((id) => !valendoRef.current!.has(id));
+    novas.forEach((id) => valendoRef.current!.add(id));
+    if (novas.length > 0) tocar();
+  }, [carregado, valor.ativas, tocar]);
 
   useEffect(() => {
     const exibidas = [...valor.faixas, valor.aviso, valor.janela].filter((n): n is Notificacao => Boolean(n));

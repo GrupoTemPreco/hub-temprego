@@ -3,9 +3,12 @@ import { registrarAcao } from "@/lib/adminLog";
 import { rotuloStatus } from "@/lib/format";
 import type { Setor, Usuario, UsuarioStatus } from "@/lib/types/shell";
 
-export type UsuarioLista = Omit<Usuario, "senha"> & { setores_ids: string[] };
+export type UsuarioLista = Usuario & { setores_ids: string[] };
 
-export type DadosUsuarioEditaveis = Pick<Usuario, "nome" | "email" | "status" | "is_admin" | "recebe_tickets">;
+export type DadosUsuarioEditaveis = Pick<
+  Usuario,
+  "nome" | "email" | "status" | "is_admin" | "recebe_tickets" | "acesso_checklist"
+>;
 
 function falhar(error: { message: string } | null) {
   if (error) throw new Error(error.message);
@@ -19,7 +22,7 @@ export async function listarUsuariosESetores(): Promise<{ usuarios: UsuarioLista
   const [usuariosRes, vinculosRes, setoresRes] = await Promise.all([
     supabase
       .from("usuarios")
-      .select("id, nome, email, status, is_admin, recebe_tickets")
+      .select("id, nome, email, status, is_admin, recebe_tickets, acesso_checklist")
       .order("nome", { ascending: true }),
     supabase.from("usuario_setores").select("usuario_id, setor_id"),
     supabase.from("setores").select("*").order("nome", { ascending: true }),
@@ -34,7 +37,7 @@ export async function listarUsuariosESetores(): Promise<{ usuarios: UsuarioLista
   }
 
   const usuarios = (usuariosRes.data ?? []).map((u) => ({
-    ...(u as Omit<Usuario, "senha">),
+    ...(u as Usuario),
     setores_ids: setoresPorUsuario.get(u.id) ?? [],
   }));
 
@@ -58,7 +61,7 @@ export async function alterarStatusUsuario(usuario: UsuarioLista, status: Extrac
 /** Salva só o que mudou e registra uma ação no log para cada tipo de alteração. */
 export async function salvarDadosUsuario(antes: UsuarioLista, depois: DadosUsuarioEditaveis) {
   const mudou = (campo: keyof DadosUsuarioEditaveis) => antes[campo] !== depois[campo];
-  if (!(["nome", "email", "status", "is_admin", "recebe_tickets"] as const).some(mudou)) return false;
+  if (!(["nome", "email", "status", "is_admin", "recebe_tickets", "acesso_checklist"] as const).some(mudou)) return false;
 
   const { error } = await supabase.from("usuarios").update(depois).eq("id", antes.id);
   falhar(error);
@@ -108,6 +111,18 @@ export async function salvarDadosUsuario(antes: UsuarioLista, depois: DadosUsuar
           ? `ativou o recebimento de tickets para ${nome}`
           : `desativou o recebimento de tickets para ${nome}`,
         dados: { recebe_tickets: depois.recebe_tickets },
+      }),
+    );
+  }
+  if (mudou("acesso_checklist")) {
+    logs.push(
+      registrarAcao({
+        ...base,
+        acao: "alterar_acesso_checklist",
+        descricao: depois.acesso_checklist
+          ? `concedeu acesso ao checklist a ${nome}`
+          : `removeu o acesso ao checklist de ${nome}`,
+        dados: { acesso_checklist: depois.acesso_checklist },
       }),
     );
   }

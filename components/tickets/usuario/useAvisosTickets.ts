@@ -4,27 +4,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useUsuarioAtual, type UsuarioAtual } from "@/components/hub/UsuarioAtualProvider";
 import { useFerramentaAtiva } from "@/components/hub/FerramentaAtivaProvider";
-import { useContagemNoTitulo } from "@/hooks/useContagemNoTitulo";
+import { useSom } from "@/components/hub/SomNotificacaoProvider";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import type { MudancaTicket } from "@/hooks/useTicketsRealtime";
 import type { Referencias } from "@/lib/ticketsApi";
 import type { Ticket } from "@/lib/types/shell";
 import { useTicketsUsuario } from "./TicketsUsuarioProvider";
-
-/** O que o cartão acima do balão exibe. */
-export type AvisoTickets = {
-  /** Estável enquanto o cartão é o mesmo: "tempo-real" ou "lembrete". */
-  chave: string;
-  titulo: string;
-  detalhe?: string;
-  /** Corta o detalhe em uma linha (título do ticket). */
-  detalheCortado?: boolean;
-  /** Nulo: "Abrir" leva ao balão na aba Recebidos. */
-  ticketNumero: number | null;
-};
+import type { AvisoCartao } from "./AvisoBalao";
 
 /** Aviso em tempo real ainda não dispensado (guardado no localStorage). */
-type AvisoPendente = {
+export type AvisoPendente = {
   /** Tabela + id do registro, para não repetir o mesmo aviso. */
   chave: string;
   ticketId: string;
@@ -120,13 +109,22 @@ function interpretar(m: MudancaTicket, ctx: Contexto, painelEstaAberto: (id: str
 }
 
 /**
- * Avisos que saem do balão.
+ * Avisos de tickets que saem do balão (o cartão junta estes com os do checklist em useAvisosDoBalao).
  * - Tempo real (ticket ou resposta nova): ficam até "Ok"/"Abrir", sobrevivem ao recarregamento
  *   e saem sozinhos quando o ticket é aberto. Tocam som e balançam o balão a cada chegada.
  * - Lembrete de pendências ao carregar: sem som, some em 6 s, no máximo a cada 30 minutos.
  * Dispensar não marca o ticket como lido.
  */
-export function useAvisosTickets({ tocarSom }: { tocarSom: () => void }) {
+type Opcoes = {
+  outrosAvisos: number;
+  /** O resumo "Enquanto você estava fora" ainda está sendo montado: o lembrete espera. */
+  aguardarResumo: boolean;
+  /** O resumo trouxe tickets: ele substitui o lembrete ao carregar. */
+  resumoTemTickets: boolean;
+};
+
+export function useAvisosTickets({ outrosAvisos, aguardarResumo, resumoTemTickets }: Opcoes) {
+  const { tocar: tocarSom } = useSom();
   const usuario = useUsuarioAtual();
   const pathname = usePathname();
   const { ativa } = useFerramentaAtiva();
@@ -143,7 +141,7 @@ export function useAvisosTickets({ tocarSom }: { tocarSom: () => void }) {
     abrirBalao,
   } = useTicketsUsuario();
   const [pendentes, setPendentes] = useState<AvisoPendente[]>(() => lerPendentes(usuario.id));
-  const [lembrete, setLembrete] = useState<AvisoTickets | null>(null);
+  const [lembrete, setLembrete] = useState<AvisoCartao | null>(null);
   const [balancos, setBalancos] = useState(0);
 
   const contextoRef = useRef<Contexto>({ usuario, tickets, referencias });
@@ -167,7 +165,6 @@ export function useAvisosTickets({ tocarSom }: { tocarSom: () => void }) {
   );
 
   useEffect(() => salvarPendentes(usuario.id, naoLidos), [usuario.id, naoLidos]);
-  useContagemNoTitulo(naoLidos.length);
 
   // 1. Tempo real
   useEffect(
@@ -185,11 +182,12 @@ export function useAvisosTickets({ tocarSom }: { tocarSom: () => void }) {
   // 2. Lembrete ao carregar (decide uma vez, depois que os dados chegam)
   const inicioNaTela = pathname === "/" && !ativa && !usuario.isAdmin && !isMobile;
   useEffect(() => {
-    if (!carregado || lembreteDecididoRef.current) return;
+    if (!carregado || aguardarResumo || lembreteDecididoRef.current) return;
     lembreteDecididoRef.current = true;
     const comNovidade = novidades.size;
     const semResponsavel = classificados.semResponsavelDoSetor.length;
-    const temAvisoNaTela = naoLidos.length > 0;
+    const temAvisoNaTela = naoLidos.length + outrosAvisos > 0;
+    if (resumoTemTickets) return;
     if (temAvisoNaTela || inicioNaTela || (comNovidade === 0 && semResponsavel === 0) || !podeLembrar(usuario.id)) return;
 
     const linhas = [
@@ -199,9 +197,19 @@ export function useAvisosTickets({ tocarSom }: { tocarSom: () => void }) {
     ].filter((l): l is string => Boolean(l));
     lembreteRef.current = setTimeout(() => {
       registrarLembrete(usuario.id);
-      setLembrete({ chave: "lembrete", titulo: linhas[0], detalhe: linhas[1], ticketNumero: null });
+      setLembrete({ chave: "lembrete", origem: "tickets", titulo: linhas[0], detalhe: linhas[1] });
     }, LEMBRETE_ATRASO_MS);
-  }, [carregado, novidades, classificados, inicioNaTela, naoLidos.length, usuario.id]);
+  }, [
+    carregado,
+    aguardarResumo,
+    resumoTemTickets,
+    novidades,
+    classificados,
+    inicioNaTela,
+    naoLidos.length,
+    outrosAvisos,
+    usuario.id,
+  ]);
 
   // Só o lembrete some sozinho.
   useEffect(() => {
@@ -210,25 +218,20 @@ export function useAvisosTickets({ tocarSom }: { tocarSom: () => void }) {
     return () => clearTimeout(id);
   }, [lembrete]);
 
-  let aviso: AvisoTickets | null = lembrete;
-  if (naoLidos.length === 1) {
-    const [p] = naoLidos;
-    aviso = { chave: "tempo-real", titulo: p.titulo, detalhe: p.detalhe, detalheCortado: p.detalheCortado, ticketNumero: p.ticketNumero };
-  } else if (naoLidos.length > 1) {
-    aviso = { chave: "tempo-real", titulo: `${naoLidos.length} novidades nos seus tickets`, ticketNumero: null };
-  }
-
   const dispensar = useCallback(() => {
     setPendentes([]);
     setLembrete(null);
   }, []);
 
-  const abrir = useCallback(() => {
-    if (!aviso) return;
-    if (aviso.ticketNumero) abrirBalao({ ticket: aviso.ticketNumero });
-    else abrirBalao({ aba: "recebidos" });
-    dispensar();
-  }, [aviso, abrirBalao, dispensar]);
+  /** Abre o ticket (ou o balão em Recebidos, quando nulo) e dispensa os avisos de tickets. */
+  const abrir = useCallback(
+    (ticketNumero: number | null) => {
+      if (ticketNumero) abrirBalao({ ticket: ticketNumero });
+      else abrirBalao({ aba: "recebidos" });
+      dispensar();
+    },
+    [abrirBalao, dispensar],
+  );
 
-  return { aviso, balancos, abrir, dispensar };
+  return { naoLidos, lembrete, balancos, abrir, dispensar };
 }

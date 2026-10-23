@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BarChart3, ClipboardCheck, KeyRound } from "lucide-react";
+import { BarChart3, ClipboardCheck, KeyRound, Users } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Toggle } from "@/components/ui/Toggle";
 import { useToast } from "@/components/ui/Toast";
@@ -9,7 +9,7 @@ import { agruparPermissoes, type PermissoesMarcadas } from "@/lib/permissoes";
 import { carregarPermissoesUsuario, salvarPermissoesUsuario } from "@/lib/admin/usuarioDetalhe";
 import type { UsuarioLista } from "@/lib/admin/usuarios";
 
-const ICONES: Record<string, typeof KeyRound> = { analytics: BarChart3, checklist: ClipboardCheck };
+const ICONES: Record<string, typeof KeyRound> = { analytics: BarChart3, checklist: ClipboardCheck, rh: Users };
 const GRUPOS = agruparPermissoes();
 
 type Props = { usuario: UsuarioLista; onAtualizado: () => Promise<void> };

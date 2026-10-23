@@ -5,7 +5,9 @@ export type MenuIconKind =
   | "financeiro"
   | "compras"
   | "checklist"
+  | "tarefas"
   | "rh"
+  | "monitoramento"
   | "dp"
   | "marketing"
   | "admin";
@@ -63,6 +65,15 @@ export function MenuIcon({ kind, className }: { kind: MenuIconKind; className?: 
           <path d="m9 12 2 2 4-4" />
         </svg>
       );
+    case "tarefas":
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={common}>
+          <path d="m3 6 1.5 1.5L7 5" />
+          <path d="m3 12 1.5 1.5L7 11" />
+          <path d="m3 18 1.5 1.5L7 17" />
+          <path d="M11 6h10M11 12h10M11 18h10" />
+        </svg>
+      );
     case "rh":
       return (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={common}>
@@ -70,6 +81,14 @@ export function MenuIcon({ kind, className }: { kind: MenuIconKind; className?: 
           <circle cx="16" cy="9" r="2.5" />
           <path d="M4 18c.6-2.2 2.4-3.5 4-3.5s3.4 1.3 4 3.5" />
           <path d="M12 18c.5-1.8 2-3 4-3s3.5 1.2 4 3" />
+        </svg>
+      );
+    case "monitoramento":
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={common}>
+          <rect x="4" y="4" width="16" height="16" rx="2" />
+          <path d="m8 12 2 2 4-4" />
+          <path d="M8 17h8" />
         </svg>
       );
     case "dp":

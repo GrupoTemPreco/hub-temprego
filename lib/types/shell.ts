@@ -9,8 +9,8 @@ export type Usuario = {
   email: string | null;
   status: UsuarioStatus | null;
   is_admin: boolean | null;
-  senha: string | null;
   recebe_tickets: boolean | null;
+  acesso_checklist: boolean | null;
 };
 
 export type Permissao = {
@@ -165,5 +165,80 @@ export type DestaqueMenu = {
   fim_em: string | null;
   ativo: boolean;
   criado_por: string | null;
+  criado_em: string;
+};
+
+export type ChecklistCor = "azul" | "verde" | "amarelo" | "laranja" | "vermelho" | "roxo" | "rosa" | "cinza";
+
+export type ChecklistGrupo = {
+  id: string;
+  dono_id: string;
+  nome: string;
+  cor: ChecklistCor;
+  ordem: number;
+  arquivado: boolean;
+  /** Quando a lista foi arquivada; nulo enquanto ativa. */
+  arquivado_em: string | null;
+  criado_em: string;
+};
+
+/** 1 fácil, 2 médio, 3 difícil. */
+export type ChecklistNivel = 1 | 2 | 3;
+/** 1 baixa, 2 média, 3 alta, 4 crítica. */
+export type ChecklistUrgencia = 1 | 2 | 3 | 4;
+export type ChecklistStatus = "a_fazer" | "em_andamento" | "feito";
+
+export type ChecklistItem = {
+  id: string;
+  grupo_id: string;
+  criado_por: string | null;
+  titulo: string;
+  observacao: string | null;
+  nivel: ChecklistNivel;
+  urgencia: ChecklistUrgencia;
+  /** Data sem hora (YYYY-MM-DD). */
+  prazo: string | null;
+  status: ChecklistStatus;
+  fixado: boolean;
+  ordem: number;
+  /** Preenchidos por trigger no banco; o front nunca grava. */
+  concluido_em: string | null;
+  criado_em: string;
+  atualizado_em: string | null;
+};
+
+export type ChecklistMembro = {
+  grupo_id: string;
+  usuario_id: string;
+  pode_editar: boolean;
+  adicionado_em: string;
+  /** Posição do grupo na grade do membro (a do dono fica em checklist_grupos.ordem). */
+  ordem: number | null;
+};
+
+/** "encerrado": outra pessoa do mesmo lote já aceitou. */
+export type ChecklistEnvioStatus = "pendente" | "aceito" | "recusado" | "cancelado" | "encerrado";
+
+export type ChecklistEnvio = {
+  id: string;
+  /** Todos os destinatários de um mesmo envio compartilham o lote. */
+  lote_id: string | null;
+  /** Preenchido quando o envio foi para um setor. */
+  setor_id: string | null;
+  /** Nulo quando o item foi apagado. */
+  item_id: string | null;
+  /** Cópia do título no momento do envio. */
+  titulo: string;
+  de_usuario_id: string;
+  para_usuario_id: string;
+  mensagem: string | null;
+  prazo_sugerido: string | null;
+  status: ChecklistEnvioStatus;
+  resposta: string | null;
+  prazo_resposta: string | null;
+  reenvios: number;
+  reenviado_em: string | null;
+  respondido_em: string | null;
+  ciente_em: string | null;
   criado_em: string;
 };

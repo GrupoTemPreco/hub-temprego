@@ -23,6 +23,8 @@ import { TicketsLista } from "./TicketsLista";
 import { TicketsKanban } from "./TicketsKanban";
 import { TicketsLixeira } from "./TicketsLixeira";
 import { NovoTicketModal } from "./NovoTicketModal";
+import { TicketsAcoesMassa } from "./TicketsAcoesMassa";
+import { useSelecao } from "@/hooks/useSelecao";
 function mensagemErro(err: unknown) {
   return err instanceof Error ? err.message : String(err);
 }
@@ -37,9 +39,18 @@ export function TicketsTab() {
   const [contagem, setContagem] = useState<ContagemAtalhos | null>(null);
   const [criando, setCriando] = useState(false);
   const [limpezas, setLimpezas] = useState(0);
+  // Tickets já vistos nesta aba: a seleção continua valendo para os que saíram da tela com a troca de filtro.
+  const [conhecidos, setConhecidos] = useState<Map<string, Ticket>>(() => new Map());
   const chaveFiltros = JSON.stringify(filtros);
   const chaveConsulta = `${chaveFiltros}|${lixeira}|${visao}`;
   const tickets = resultado?.chave === chaveConsulta ? resultado.lista : null;
+  const idsVisiveis = tickets?.map((t) => t.id) ?? [];
+  // Lista e lixeira têm ações diferentes, então cada uma tem a sua seleção. No kanban não há seleção.
+  const selecaoLista = useSelecao(!lixeira && visao === "lista" ? idsVisiveis : []);
+  const selecaoLixeira = useSelecao(lixeira ? idsVisiveis : []);
+  const selecao = lixeira ? selecaoLixeira : selecaoLista;
+  const selecionados = selecao.ids.map((id) => conhecidos.get(id)).filter((t): t is Ticket => Boolean(t));
+  const comSelecao = lixeira || visao === "lista";
 
   useEffect(() => {
     carregarReferencias()
@@ -58,7 +69,15 @@ export function TicketsTab() {
     const f = JSON.parse(chaveFiltros) as typeof filtros;
     const chave = `${chaveFiltros}|${lixeira}|${visao}`;
     (lixeira ? listarLixeira(f.q) : listarTickets(f, { id: usuario.id, setores: usuario.setores }, visao))
-      .then((lista) => ativo && setResultado({ chave, lista }))
+      .then((lista) => {
+        if (!ativo) return;
+        setResultado({ chave, lista });
+        setConhecidos((prev) => {
+          const mapa = new Map(prev);
+          for (const t of lista) mapa.set(t.id, t);
+          return mapa;
+        });
+      })
       .catch((err) => {
         toast.error(`Erro ao carregar tickets: ${mensagemErro(err)}`);
         if (ativo) setResultado({ chave, lista: [] });
@@ -83,18 +102,27 @@ export function TicketsTab() {
       return tickets.length === 0 ? (
         <EmptyState icon={Trash2} title="A lixeira está vazia" description="Tickets excluídos aparecem aqui." />
       ) : (
-        <TicketsLixeira tickets={tickets} nomes={referencias.nomes} onAbrir={abrir} onAlterado={atualizar} />
+        <TicketsLixeira
+          tickets={tickets}
+          nomes={referencias.nomes}
+          selecao={selecaoLixeira}
+          onAbrir={abrir}
+          onAlterado={atualizar}
+        />
       );
     }
     if (visao === "kanban") {
       return (
-        <TicketsKanban tickets={tickets} nomes={referencias.nomes} mostrarEncerrados={filtros.encerrados} onAbrir={abrir} />
+        <>
+          <p className="px-4 pt-3 text-xs text-white/40">Para ações em massa, use a visualização em lista.</p>
+          <TicketsKanban tickets={tickets} nomes={referencias.nomes} mostrarEncerrados={filtros.encerrados} onAbrir={abrir} />
+        </>
       );
     }
     return tickets.length === 0 ? (
       <EmptyState icon={TicketIcon} title="Nenhum ticket encontrado" description="Ajuste a busca ou os filtros." />
     ) : (
-      <TicketsLista tickets={tickets} nomes={referencias.nomes} onAbrir={abrir} />
+      <TicketsLista tickets={tickets} nomes={referencias.nomes} selecao={selecaoLista} onAbrir={abrir} />
     );
   }
 
@@ -125,6 +153,16 @@ export function TicketsTab() {
       </div>
 
       {renderConteudo()}
+
+      {comSelecao && referencias && (
+        <TicketsAcoesMassa
+          selecionados={selecionados}
+          lixeira={lixeira}
+          referencias={referencias}
+          onLimpar={selecao.limpar}
+          onConcluido={atualizar}
+        />
+      )}
 
       {criando && (
         <NovoTicketModal

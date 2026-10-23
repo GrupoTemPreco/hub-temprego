@@ -4,6 +4,8 @@ import { Check, ShieldCheck, X } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { CheckboxSelecao } from "@/components/ui/CheckboxSelecao";
+import type { Selecao } from "@/hooks/useSelecao";
 import { useUsuarioAtual } from "@/components/hub/UsuarioAtualProvider";
 import { UsuarioStatusBadge } from "../StatusBadges";
 import type { UsuarioLista } from "@/lib/admin/usuarios";
@@ -12,13 +14,14 @@ import type { Setor } from "@/lib/types/shell";
 type Props = {
   usuarios: UsuarioLista[];
   setores: Setor[];
+  selecao: Selecao;
   emAndamentoId: string | null;
   onAbrir: (usuario: UsuarioLista) => void;
   onAprovar: (usuario: UsuarioLista) => void;
   onRejeitar: (usuario: UsuarioLista) => void;
 };
 
-export function UsuariosTabela({ usuarios, setores, emAndamentoId, onAbrir, onAprovar, onRejeitar }: Props) {
+export function UsuariosTabela({ usuarios, setores, selecao, emAndamentoId, onAbrir, onAprovar, onRejeitar }: Props) {
   const usuarioAtualId = useUsuarioAtual().id;
 
   if (usuarios.length === 0) {
@@ -32,6 +35,14 @@ export function UsuariosTabela({ usuarios, setores, emAndamentoId, onAbrir, onAp
       <table className="w-full text-left text-sm">
         <thead className="border-b border-white/10 text-xs uppercase tracking-wide text-white/45">
           <tr>
+            <th className="w-10 py-3 pl-4">
+              <CheckboxSelecao
+                checked={selecao.todosVisiveis}
+                indeterminado={selecao.algunsVisiveis}
+                onChange={selecao.alternarTodosVisiveis}
+                rotulo="Selecionar todos os usuários visíveis"
+              />
+            </th>
             <th className="px-4 py-3 font-medium">Nome</th>
             <th className="px-4 py-3 font-medium">E-mail</th>
             <th className="px-4 py-3 font-medium">Setores</th>
@@ -52,6 +63,13 @@ export function UsuariosTabela({ usuarios, setores, emAndamentoId, onAbrir, onAp
                   pendente ? "bg-amber-500/7 hover:bg-amber-500/12" : "hover:bg-white/4"
                 }`}
               >
+                <td className="py-3 pl-4" onClick={(e) => e.stopPropagation()}>
+                  <CheckboxSelecao
+                    checked={selecao.estaSelecionado(u.id)}
+                    onChange={() => selecao.alternar(u.id)}
+                    rotulo={`Selecionar ${u.nome || u.email || "usuário"}`}
+                  />
+                </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
                     <Avatar nome={u.nome} email={u.email} />

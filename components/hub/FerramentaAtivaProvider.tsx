@@ -9,6 +9,7 @@ type FerramentaAtivaApi = {
   /** Abre a ferramenta na home; se estiver em outra tela (ex.: /admin), volta para "/". */
   abrir: (app: Ferramenta) => void;
   fechar: () => void;
+  /** Fecha a ferramenta e navega para a rota (caminho com query, ex.: "/?aba=checklist"). */
   irPara: (rota: string) => void;
 };
 
@@ -32,9 +33,10 @@ export function FerramentaAtivaProvider({ children }: { children: ReactNode }) {
   const irPara = useCallback(
     (rota: string) => {
       setAtiva(null);
-      if (pathname !== rota) router.push(rota);
+      // Compara com a query: "/" e "/?aba=checklist" são destinos diferentes.
+      if (window.location.pathname + window.location.search !== rota) router.push(rota);
     },
-    [pathname, router],
+    [router],
   );
 
   const api = useMemo(() => ({ ativa, abrir, fechar, irPara }), [ativa, abrir, fechar, irPara]);

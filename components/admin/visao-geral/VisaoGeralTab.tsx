@@ -11,11 +11,14 @@ import {
   carregarUsoArmazenamento,
   type AlertaEspaco,
 } from "@/lib/admin/armazenamento";
+import { LinhaCards } from "@/components/ui/LinhaCards";
+import { useChecklistDados } from "@/components/checklist/useChecklistDados";
+import { PrecisaAtencao } from "@/components/inicio/atencao/PrecisaAtencao";
+import { useTicketsUsuario } from "@/components/tickets/usuario/TicketsUsuarioProvider";
 import type { NavegarAba } from "../abas";
 import { StatCard } from "./StatCard";
-import { AtencaoCard } from "./AtencaoCard";
 import { AtividadeRecenteCard } from "./AtividadeRecenteCard";
-import { MeusTicketsAdmin } from "./MeusTicketsAdmin";
+import { MeusItensAdmin } from "./MeusItensAdmin";
 
 function mensagemErro(err: unknown) {
   return err instanceof Error ? err.message : String(err);
@@ -26,7 +29,12 @@ export function VisaoGeralTab({ onNavegar }: { onNavegar: NavegarAba }) {
   const [resumo, setResumo] = useState<ResumoAdmin | null>(null);
   const [carregando, setCarregando] = useState(true);
   const [alertasEspaco, setAlertasEspaco] = useState<AlertaEspaco[]>([]);
-  const { isAdmin } = useUsuarioAtual();
+  const { id, isAdmin, acessoChecklist } = useUsuarioAtual();
+  // Versão do tempo real dos tickets: as contagens do admin acompanham as mudanças sem recarregar a tela.
+  const { versao } = useTicketsUsuario();
+  // Uma carga só do checklist para "Precisa da sua atenção" e "Meu checklist".
+  const dadosChecklist = useChecklistDados(id, { criarGrupoInicial: false, ativo: acessoChecklist });
+  const checklist = acessoChecklist ? dadosChecklist : null;
 
   // Uso de espaço: só para admin e uma vez por carregamento da aba (a RPC é mais pesada que as contagens).
   useEffect(() => {
@@ -49,7 +57,7 @@ export function VisaoGeralTab({ onNavegar }: { onNavegar: NavegarAba }) {
     return () => {
       ativo = false;
     };
-  }, [toast]);
+  }, [toast, versao]);
 
   if (carregando) return <p className="text-sm text-white/60">Carregando visão geral...</p>;
 
@@ -87,12 +95,12 @@ export function VisaoGeralTab({ onNavegar }: { onNavegar: NavegarAba }) {
         />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <AtencaoCard resumo={resumo} alertasEspaco={alertasEspaco} onNavegar={onNavegar} />
+      <LinhaCards ladoALadoEm="lg">
+        <PrecisaAtencao checklist={checklist} admin={{ resumo, alertasEspaco, onNavegar }} altura="420" />
         <AtividadeRecenteCard />
-      </div>
+      </LinhaCards>
 
-      <MeusTicketsAdmin onNavegar={onNavegar} />
+      <MeusItensAdmin onNavegar={onNavegar} checklist={checklist} />
     </div>
   );
 }

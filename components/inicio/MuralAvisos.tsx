@@ -3,13 +3,12 @@
 import { useNotificacoesUsuario } from "@/components/notificacoes/NotificacoesUsuarioProvider";
 import { useTicketsUsuario } from "@/components/tickets/usuario/TicketsUsuarioProvider";
 import { ordenarParaMural } from "@/lib/notificacoes";
-import { Carrossel } from "./mural/Carrossel";
 import { CardAviso } from "./mural/CardAviso";
 import { CardAvisoTickets } from "./mural/CardAvisoTickets";
-import { ID_SECAO_TICKETS } from "./SecaoMeusTickets";
+import { ID_SECAO_TICKETS } from "./CardMeusTickets";
 
 /**
- * Carrossel com o aviso de tickets (quando houver) e as notificações ativas para a pessoa,
+ * Aviso de tickets (quando houver) e as notificações ativas para a pessoa,
  * de qualquer formato, inclusive as já fechadas.
  */
 export function MuralAvisos() {
@@ -38,10 +37,17 @@ export function MuralAvisos() {
   }
   if (itens.length === 0) return null;
 
+  // Grade de até 3 colunas; com um aviso só, ele ocupa uma coluna sem esticar.
   return (
-    <section>
+    <section aria-label="Mural de avisos">
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-white/50">Mural de avisos</h2>
-      <Carrossel itens={itens} rotulo="Mural de avisos" />
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {itens.map((item) => (
+          <div key={item.id} className="flex min-w-0">
+            {item.conteudo}
+          </div>
+        ))}
+      </div>
     </section>
   );
 }

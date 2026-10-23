@@ -11,7 +11,7 @@ import {
   carregarAtividadeRecente,
   type AtividadeItem,
 } from "@/lib/admin/atividadeRecente";
-import { CardRolavel } from "./CardRolavel";
+import { CardRolavel } from "@/components/ui/CardRolavel";
 
 const DISTANCIA_DO_FIM_PX = 120;
 

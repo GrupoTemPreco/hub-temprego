@@ -4,7 +4,8 @@ export type PermissaoKey =
   | "analytics.compras"
   | "checklist.preencher"
   | "checklist.preencher_supervisao"
-  | "checklist.analise";
+  | "checklist.analise"
+  | "rh.monitoramento";
 
 export type PermissaoDisponivel = {
   key: PermissaoKey;
@@ -49,6 +50,12 @@ export const PERMISSOES_DISPONIVEIS: PermissaoDisponivel[] = [
     label: "Checklist > Análise",
     modulo: "checklist",
     item: "analise",
+  },
+  {
+    key: "rh.monitoramento",
+    label: "RH > Monitoramento de tarefas",
+    modulo: "rh",
+    item: "monitoramento",
   },
 ];
 

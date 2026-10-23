@@ -18,14 +18,17 @@ function corPorTexto(texto: string) {
 type AvatarProps = {
   nome: string | null;
   email?: string | null;
-  size?: "sm" | "lg";
+  size?: "xs" | "sm" | "lg";
+  title?: string;
 };
 
-export function Avatar({ nome, email, size = "sm" }: AvatarProps) {
-  const tamanho = size === "lg" ? "h-12 w-12 text-base" : "h-8 w-8 text-xs";
+const TAMANHOS = { xs: "h-5 w-5 text-[9px]", sm: "h-8 w-8 text-xs", lg: "h-12 w-12 text-base" };
+
+export function Avatar({ nome, email, size = "sm", title }: AvatarProps) {
   return (
     <span
-      className={`inline-flex shrink-0 items-center justify-center rounded-full font-semibold ${tamanho} ${corPorTexto(
+      title={title}
+      className={`inline-flex shrink-0 items-center justify-center rounded-full font-semibold ${TAMANHOS[size]} ${corPorTexto(
         nome || email || "?",
       )}`}
     >

@@ -1,7 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ChecklistPagina } from "@/components/checklist/ChecklistPagina";
+import { useChecklistEnvios } from "@/components/checklist/envios/ChecklistEnviosProvider";
+import { ContadorChecklist } from "@/components/checklist/envios/ContadorChecklist";
+import { ABA_CHECKLIST, rotaChecklist } from "@/lib/telaAtual";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useUsuarioAtual } from "@/components/hub/UsuarioAtualProvider";
 import { useFerramentaAtiva } from "@/components/hub/FerramentaAtivaProvider";
@@ -36,7 +40,10 @@ function AvisoCompras({ onFechar }: { onFechar: () => void }) {
 
 function HomeMobile() {
   const usuario = useUsuarioAtual();
-  const { ativa: active, abrir, fechar } = useFerramentaAtiva();
+  const { ativa: active, abrir, fechar, irPara } = useFerramentaAtiva();
+  const recebidos = useChecklistEnvios().recebidos.length;
+  const aba = useSearchParams().get("aba");
+  const abaChecklist = usuario.acessoChecklist && aba === ABA_CHECKLIST;
   const appChecklist = buscarFerramenta("checklist");
   const podeChecklist = podeAcessar(usuario, appChecklist);
 
@@ -89,9 +96,40 @@ function HomeMobile() {
     );
   }
 
+  if (abaChecklist) {
+    return (
+      <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#020617] text-white">
+        <header className="flex shrink-0 items-center gap-2 border-b border-white/10 px-3 py-3">
+          <button
+            type="button"
+            onClick={() => irPara("/")}
+            className="rounded-lg px-3 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            Voltar
+          </button>
+          <h1 className="font-semibold">Checklist</h1>
+        </header>
+        <div className="min-h-0 flex-1 overflow-y-auto p-4">
+          <ChecklistPagina />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center gap-8 bg-[#020617] px-6">
       <img src="/logoA.png" alt="Logo Tempreço" className="h-16 w-16 object-contain opacity-90" />
+      {usuario.acessoChecklist && (
+        <button
+          type="button"
+          onClick={() => irPara(rotaChecklist(false))}
+          className="flex w-full max-w-xs items-center justify-center gap-3 rounded-xl bg-white/15 py-4 text-lg font-semibold text-white transition-colors hover:bg-white/25"
+        >
+          <MenuIcon kind="tarefas" className="h-7 w-7 shrink-0" />
+          Checklist
+          <ContadorChecklist total={recebidos} />
+        </button>
+      )}
       <button
         type="button"
         onClick={() => {
@@ -109,7 +147,7 @@ function HomeMobile() {
   );
 }
 
-export default function Home() {
+function HomeConteudo() {
   const router = useRouter();
   const usuario = useUsuarioAtual();
   const { ativa: active } = useFerramentaAtiva();
@@ -118,8 +156,8 @@ export default function Home() {
 
   useEffect(() => {
     if (!redirecionarAdmin) return;
-    const ticket = new URLSearchParams(window.location.search).get("ticket");
-    router.replace(ticket ? `/admin?ticket=${encodeURIComponent(ticket)}` : "/admin");
+    // Leva junto ?ticket=, ?aba= e ?item= para o Início do admin.
+    router.replace(`/admin${window.location.search}`);
   }, [redirecionarAdmin, router]);
   const [avisoComprasVisivel, setAvisoComprasVisivel] = useState(active?.id === "compras");
   const [idAnterior, setIdAnterior] = useState(active?.id);
@@ -145,5 +183,13 @@ export default function Home() {
         <InicioUsuario />
       )}
     </main>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={null}>
+      <HomeConteudo />
+    </Suspense>
   );
 }

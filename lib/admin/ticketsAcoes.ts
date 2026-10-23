@@ -32,13 +32,20 @@ export const moverParaLixeira = (ticketId: string, usuarioId: string) =>
 
 export const restaurarTicket = (ticketId: string) => atualizar(ticketId, { excluido_em: null, excluido_por: null });
 
-/** Apaga primeiro os arquivos do bucket; se falhar, o ticket fica. As linhas de ticket_anexos saem em cascata. */
-export async function excluirTicketDefinitivamente(ticket: Pick<Ticket, "id" | "numero" | "titulo">) {
+/**
+ * Apaga primeiro os arquivos do bucket; se falhar, o ticket fica. As linhas de ticket_anexos saem em cascata.
+ * Na exclusão em massa, `registrar: false`: o log é um só para a ação inteira.
+ */
+export async function excluirTicketDefinitivamente(
+  ticket: Pick<Ticket, "id" | "numero" | "titulo">,
+  { registrar = true } = {},
+) {
   await removerArquivosDoTicket(ticket.id);
 
   const { error } = await supabase.from("tickets").delete().eq("id", ticket.id);
   if (error) throw new Error(error.message);
 
+  if (!registrar) return;
   await registrarAcao({
     acao: "excluir_ticket_definitivo",
     alvo_tipo: "ticket",

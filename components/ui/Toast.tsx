@@ -7,9 +7,9 @@ type ToastTipo = "success" | "error";
 type ToastAcao = { rotulo: string; onClick: () => void };
 type ToastItem = { id: number; tipo: ToastTipo; mensagem: string; acao?: ToastAcao };
 
+/** Com `acao`, o toast fica aberto até o usuário clicar nela ou fechar. */
 export type ToastApi = {
-  success: (mensagem: string) => void;
-  /** Com `acao`, o toast fica aberto até o usuário clicar nela ou fechar. */
+  success: (mensagem: string, acao?: ToastAcao) => void;
   error: (mensagem: string, acao?: ToastAcao) => void;
 };
 
@@ -34,7 +34,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
   const api = useMemo<ToastApi>(
     () => ({
-      success: (mensagem) => mostrar("success", mensagem),
+      success: (mensagem, acao) => mostrar("success", mensagem, acao),
       error: (mensagem, acao) => mostrar("error", mensagem, acao),
     }),
     [mostrar],
@@ -67,7 +67,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                     remover(t.id);
                     t.acao?.onClick();
                   }}
-                  className="mt-1.5 block font-medium text-white underline underline-offset-2 hover:text-rose-200"
+                  className={`mt-1.5 block font-medium text-white underline underline-offset-2 ${
+                    t.tipo === "success" ? "hover:text-emerald-200" : "hover:text-rose-200"
+                  }`}
                 >
                   {t.acao.rotulo}
                 </button>
