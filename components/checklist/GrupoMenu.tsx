@@ -1,8 +1,9 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Archive, LogOut, MoreHorizontal, Pencil, Share2 } from "lucide-react";
+import { Archive, LogOut, MoreHorizontal, Pencil, Repeat, Share2 } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { Toggle } from "@/components/ui/Toggle";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
 import type { ChecklistCor, ChecklistGrupo } from "@/lib/types/shell";
@@ -20,26 +21,73 @@ type Props = {
   onArquivar: () => Promise<boolean>;
   onCompartilhar: () => void;
   onSair: () => Promise<boolean>;
+  /** Dono liga ou desliga a lista inteira. Desligar pede confirmação antes. */
+  onListaDiaria: (ligada: boolean) => Promise<boolean>;
 };
 
 const OPCAO = "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-white/10";
 
-export function GrupoMenu({ grupo, dono, compartilhada, onRenomear, onCor, onArquivar, onCompartilhar, onSair }: Props) {
+export function GrupoMenu({
+  grupo,
+  dono,
+  compartilhada,
+  onRenomear,
+  onCor,
+  onArquivar,
+  onCompartilhar,
+  onSair,
+  onListaDiaria,
+}: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [aberto, setAberto] = useState(false);
   const [renomeando, setRenomeando] = useState(false);
-  const [confirmando, setConfirmando] = useState<"arquivar" | "sair" | null>(null);
+  const [confirmando, setConfirmando] = useState<"arquivar" | "sair" | "diaria" | null>(null);
   const [ocupado, setOcupado] = useState(false);
+  const [trocandoLista, setTrocandoLista] = useState(false);
   const fechar = () => setAberto(false);
   useClickOutside(ref, aberto, fechar);
   useEscapeKey(aberto, fechar);
 
   async function confirmar() {
     setOcupado(true);
-    const ok = await (confirmando === "sair" ? onSair() : onArquivar());
+    const ok = await (confirmando === "sair" ? onSair() : confirmando === "diaria" ? onListaDiaria(false) : onArquivar());
     setOcupado(false);
     if (ok) setConfirmando(null);
   }
+
+  function aoMudarListaDiaria(ligada: boolean) {
+    if (!ligada) {
+      fechar();
+      setConfirmando("diaria");
+      return;
+    }
+    setTrocandoLista(true);
+    void onListaDiaria(true).finally(() => setTrocandoLista(false));
+  }
+
+  const aviso =
+    confirmando === "sair"
+      ? {
+          title: `Sair da lista "${grupo.nome}"?`,
+          description: "A lista some da sua tela. Para voltar, o dono precisa compartilhar de novo.",
+          confirmLabel: "Sair da lista",
+          danger: true,
+        }
+      : confirmando === "diaria"
+        ? {
+            title: "Desligar lista diária?",
+            description: "As tarefas desta lista deixam de repetir.",
+            confirmLabel: "Desligar",
+            danger: false,
+          }
+        : {
+            title: `Arquivar a lista "${grupo.nome}"?`,
+            description: `A lista some da tela, mas os itens dela ficam guardados.${
+              compartilhada ? " Os membros desta lista deixam de vê-la enquanto estiver arquivada." : ""
+            }`,
+            confirmLabel: "Arquivar lista",
+            danger: true,
+          };
 
   const abrirDepois = (acao: () => void) => () => {
     fechar();
@@ -72,6 +120,16 @@ export function GrupoMenu({ grupo, dono, compartilhada, onRenomear, onCor, onArq
               <button type="button" className={`${OPCAO} text-white/85`} onClick={abrirDepois(onCompartilhar)}>
                 <Share2 className="h-4 w-4" /> Compartilhar lista
               </button>
+              <div className={`${OPCAO} text-white/85`}>
+                <Repeat className="h-4 w-4" />
+                <span className="flex-1 text-left">Lista diária</span>
+                <Toggle
+                  label="Lista diária"
+                  checked={grupo.diaria}
+                  disabled={trocandoLista}
+                  onChange={aoMudarListaDiaria}
+                />
+              </div>
               <button
                 type="button"
                 className={`${OPCAO} text-rose-300 hover:bg-rose-500/10`}
@@ -103,16 +161,10 @@ export function GrupoMenu({ grupo, dono, compartilhada, onRenomear, onCor, onArq
 
       <ConfirmDialog
         open={confirmando !== null}
-        title={confirmando === "sair" ? `Sair da lista "${grupo.nome}"?` : `Arquivar a lista "${grupo.nome}"?`}
-        description={
-          confirmando === "sair"
-            ? "A lista some da sua tela. Para voltar, o dono precisa compartilhar de novo."
-            : `A lista some da tela, mas os itens dela ficam guardados.${
-                compartilhada ? " Os membros desta lista deixam de vê-la enquanto estiver arquivada." : ""
-              }`
-        }
-        confirmLabel={confirmando === "sair" ? "Sair da lista" : "Arquivar lista"}
-        danger
+        title={aviso.title}
+        description={aviso.description}
+        confirmLabel={aviso.confirmLabel}
+        danger={aviso.danger}
         loading={ocupado}
         onConfirm={confirmar}
         onCancel={() => setConfirmando(null)}

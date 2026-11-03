@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Toggle } from "@/components/ui/Toggle";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { NIVEIS_ITEM, STATUS_ITEM, URGENCIAS_ITEM } from "@/lib/checklistOpcoes";
+import { ROTULO_DIARIA } from "@/lib/checklistDiarias";
 import type { CamposItem } from "@/lib/checklist";
 import type {
   ChecklistGrupo,
@@ -28,6 +29,7 @@ type Form = {
   urgencia: ChecklistUrgencia;
   prazo: string;
   fixado: boolean;
+  diaria: boolean;
 };
 
 function formDe(item: ChecklistItem): Form {
@@ -40,6 +42,7 @@ function formDe(item: ChecklistItem): Form {
     urgencia: item.urgencia,
     prazo: item.prazo ?? "",
     fixado: item.fixado,
+    diaria: item.diaria,
   };
 }
 
@@ -53,10 +56,13 @@ function camposAlterados(item: ChecklistItem, form: Form): CamposItem {
     urgencia: form.urgencia,
     prazo: form.prazo || null,
     fixado: form.fixado,
+    diaria: form.diaria,
   };
-  return Object.fromEntries(
+  const campos = Object.fromEntries(
     Object.entries(depois).filter(([campo, valor]) => item[campo as keyof ChecklistItem] !== valor),
   ) as CamposItem;
+  if (form.grupo_id !== item.grupo_id) campos.diaria = form.diaria;
+  return campos;
 }
 
 type Props = {
@@ -79,6 +85,8 @@ export function ItemDrawer({ item, grupos, somenteLeitura: grupoSoLeitura = fals
   const [salvando, setSalvando] = useState(false);
   const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
   const alterar = (mudancas: Partial<Form>) => setForm((f) => ({ ...f, ...mudancas }));
+  const listaDoFormulario = Boolean(grupos.find((g) => g.id === form.grupo_id)?.diaria);
+  const segueLista = item.diaria || Boolean(grupos.find((g) => g.id === item.grupo_id)?.diaria);
 
   async function salvar() {
     const campos = camposAlterados(item, form);
@@ -109,7 +117,12 @@ export function ItemDrawer({ item, grupos, somenteLeitura: grupoSoLeitura = fals
           <Trash2 className="h-4 w-4" /> Excluir
         </Button>
         {envios && item.status !== "feito" && (
-          <Button variant="ghost" onClick={() => envios.enviar(item)}>
+          <Button
+            variant="ghost"
+            disabled={segueLista}
+            title={segueLista ? "Tarefa diária não pode ser enviada" : undefined}
+            onClick={() => envios.enviar(item)}
+          >
             <Send className="h-4 w-4" /> Enviar para…
           </Button>
         )}
@@ -149,9 +162,21 @@ export function ItemDrawer({ item, grupos, somenteLeitura: grupoSoLeitura = fals
               rotulo="Lista"
               valor={form.grupo_id}
               opcoes={grupos.map((g) => ({ value: g.id, label: g.nome }))}
-              onChange={(grupo_id) => alterar({ grupo_id })}
+              onChange={(grupo_id) => {
+                const destinoDiaria = Boolean(grupos.find((g) => g.id === grupo_id)?.diaria);
+                const origemDiaria = Boolean(grupos.find((g) => g.id === item.grupo_id)?.diaria);
+                if (destinoDiaria) alterar({ grupo_id, diaria: true });
+                else if (origemDiaria) alterar({ grupo_id, diaria: false });
+                else alterar({ grupo_id });
+              }}
             />
-            <CampoSelect rotulo="Status" valor={form.status} opcoes={STATUS_ITEM} onChange={(status) => alterar({ status })} />
+            <CampoSelect
+              rotulo="Status"
+              valor={form.status}
+              opcoes={STATUS_ITEM}
+              onChange={(status) => alterar({ status })}
+              disabled={form.diaria || listaDoFormulario}
+            />
             <CampoSelect rotulo="Nível" valor={form.nivel} opcoes={NIVEIS_ITEM} onChange={(nivel) => alterar({ nivel })} />
             <CampoSelect
               rotulo="Urgência"
@@ -167,6 +192,23 @@ export function ItemDrawer({ item, grupos, somenteLeitura: grupoSoLeitura = fals
                 onChange={(e) => alterar({ prazo: e.target.value })}
               />
             </Campo>
+          </div>
+
+          <div className="flex items-center justify-between gap-4 rounded-lg border border-white/10 p-3">
+            <div>
+              <p className="text-sm font-medium">{ROTULO_DIARIA}</p>
+              <p className="text-xs text-white/50">
+                {listaDoFormulario
+                  ? "Esta tarefa segue a lista diária"
+                  : "Volta pendente quando o dia vira. Desligar mantém o histórico."}
+              </p>
+            </div>
+            <Toggle
+              label={ROTULO_DIARIA}
+              checked={listaDoFormulario || form.diaria}
+              disabled={listaDoFormulario}
+              onChange={(v) => alterar({ diaria: v })}
+            />
           </div>
 
           <div className="flex items-center justify-between gap-4 rounded-lg border border-white/10 p-3">

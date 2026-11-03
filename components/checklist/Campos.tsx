@@ -16,15 +16,17 @@ type CampoSelectProps<T extends string | number> = {
   valor: T;
   opcoes: Array<{ value: T; label: string }>;
   onChange: (valor: T) => void;
+  disabled?: boolean;
 };
 
 /** Select que devolve o valor no tipo original (número continua número). */
-export function CampoSelect<T extends string | number>({ rotulo, valor, opcoes, onChange }: CampoSelectProps<T>) {
+export function CampoSelect<T extends string | number>({ rotulo, valor, opcoes, onChange, disabled }: CampoSelectProps<T>) {
   return (
     <Campo rotulo={rotulo}>
       <select
-        className={CAMPO}
+        className={`${CAMPO} disabled:cursor-not-allowed disabled:opacity-50`}
         value={valor}
+        disabled={disabled}
         onChange={(e) => {
           const escolhida = opcoes.find((o) => String(o.value) === e.target.value);
           if (escolhida) onChange(escolhida.value);

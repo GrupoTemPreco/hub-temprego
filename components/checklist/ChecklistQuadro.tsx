@@ -1,5 +1,6 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -9,6 +10,7 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { SortableContext, rectSortingStrategy, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import { colunasNaTela, type FaixaTela } from "@/lib/checklistColunas";
 import { useToast } from "@/components/ui/Toast";
 import { useUsuarioAtual } from "@/components/hub/UsuarioAtualProvider";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -26,10 +28,36 @@ type Props = {
   grupos: ChecklistGrupo[];
   itens: ChecklistItem[];
   filtros: FiltrosChecklist;
+  /** Preferência salva do usuário. A tela estreita reduz só na hora de desenhar. */
+  colunas: number;
   acoes: AcoesChecklist;
   acessoDe: (grupoId: string) => AcessoGrupo;
   onAbrirItem: (item: ChecklistItem) => void;
 };
+
+const CONSULTA_CELULAR = "(max-width: 767px)";
+const CONSULTA_TABLET = "(max-width: 1279px)";
+
+function lerFaixa(): FaixaTela {
+  if (window.matchMedia(CONSULTA_CELULAR).matches) return "celular";
+  if (window.matchMedia(CONSULTA_TABLET).matches) return "tablet";
+  return "desktop";
+}
+
+function inscreverFaixa(callback: () => void) {
+  const celular = window.matchMedia(CONSULTA_CELULAR);
+  const tablet = window.matchMedia(CONSULTA_TABLET);
+  celular.addEventListener("change", callback);
+  tablet.addEventListener("change", callback);
+  return () => {
+    celular.removeEventListener("change", callback);
+    tablet.removeEventListener("change", callback);
+  };
+}
+
+function useFaixaTela() {
+  return useSyncExternalStore(inscreverFaixa, lerFaixa, () => "desktop" as const);
+}
 
 const chaveAvisoCompartilhado = (usuarioId: string) => `hub:aviso-grupo-compartilhado:${usuarioId}`;
 
@@ -44,8 +72,10 @@ function jaAvisouCompartilhado(usuarioId: string) {
   return false;
 }
 
-export function ChecklistQuadro({ grupos, itens, filtros, acoes, acessoDe, onAbrirItem }: Props) {
+export function ChecklistQuadro({ grupos, itens, filtros, colunas, acoes, acessoDe, onAbrirItem }: Props) {
   const toast = useToast();
+  const faixa = useFaixaTela();
+  const colunasVisiveis = colunasNaTela(colunas, faixa);
   const usuarioId = useUsuarioAtual().id;
   const isMobile = useIsMobile();
   const toque = usePonteiroToque();
@@ -71,7 +101,10 @@ export function ChecklistQuadro({ grupos, itens, filtros, acoes, acessoDe, onAbr
   return (
     <DndContext sensors={sensores} collisionDetection={detectarColisao} {...handlers}>
       <SortableContext items={grupos.map((g) => idGrupo(g.id))} strategy={rectSortingStrategy}>
-        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div
+          className="grid items-start gap-4"
+          style={{ gridTemplateColumns: `repeat(${colunasVisiveis}, minmax(0, 1fr))` }}
+        >
           {grupos.map((grupo) => (
             <GrupoBloco
               key={grupo.id}
@@ -90,7 +123,7 @@ export function ChecklistQuadro({ grupos, itens, filtros, acoes, acessoDe, onAbr
       <DragOverlay>
         {itemAtivo && (
           <div className="rounded-lg border border-blue-500/40 bg-[#0f172a] shadow-2xl">
-            <ItemConteudo item={itemAtivo} />
+            <ItemConteudo item={itemAtivo} ocultarSeloDiaria={grupos.find((g) => g.id === itemAtivo.grupo_id)?.diaria} />
           </div>
         )}
         {grupoAtivo && (

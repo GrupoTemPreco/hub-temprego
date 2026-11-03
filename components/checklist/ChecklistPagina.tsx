@@ -20,6 +20,8 @@ import type { LoteEnvio } from "@/lib/checklistLotes";
 import { PAINEL_ENVIADAS } from "@/lib/telaAtual";
 import { ChecklistFiltros } from "./ChecklistFiltros";
 import { ChecklistQuadro } from "./ChecklistQuadro";
+import { SeletorColunas } from "./SeletorColunas";
+import { useChecklistColunas } from "./useChecklistColunas";
 import { GrupoModal } from "./GrupoModal";
 import { ItemDrawer } from "./ItemDrawer";
 import { useChecklistEnvios } from "./envios/ChecklistEnviosProvider";
@@ -46,6 +48,7 @@ export function ChecklistPagina() {
   const painelUrl = useParametroUrl("painel");
   const enviadasAberto = painelUrl.valor === PAINEL_ENVIADAS;
   const [filtros, setFiltros] = useState<FiltrosChecklist>(FILTROS_PADRAO);
+  const colunas = useChecklistColunas(usuario.id);
   const [painel, setPainel] = useState<Painel | null>(null);
   // Fica fora de `painel` porque pode abrir por cima do Drawer de Enviadas.
   const [cancelando, setCancelando] = useState<LoteEnvio | null>(null);
@@ -124,6 +127,7 @@ export function ChecklistPagina() {
           filtros={filtros}
           onChange={setFiltros}
           acoes={botoes}
+          seletorColunas={<SeletorColunas valor={colunas.colunas} onChange={colunas.definir} />}
           aoLadoDaBusca={
             arquivadas.total > 0 && (
               <Button variant="secondary" size="sm" onClick={() => setArquivadasAberto(true)}>
@@ -146,6 +150,7 @@ export function ChecklistPagina() {
             grupos={grupos}
             itens={itens}
             filtros={filtros}
+            colunas={colunas.colunas}
             acoes={acoesDoQuadro}
             acessoDe={acessoDe}
             onAbrirItem={(item) => itemUrl.abrir(item.id)}

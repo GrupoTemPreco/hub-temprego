@@ -12,6 +12,7 @@ import type { ChecklistGrupo, ChecklistItem } from "@/lib/types/shell";
 import type { AcoesChecklist } from "./useChecklistDados";
 import { idGrupo, idItem, idLista } from "./useArrastoChecklist";
 import { ItemArrastavel } from "./ItemLinha";
+import { DiariaChip } from "./ItemChips";
 import { AdicionarRapido } from "./AdicionarRapido";
 import { ConcluidosSecao } from "./ConcluidosSecao";
 import { GrupoMenu } from "./GrupoMenu";
@@ -48,7 +49,9 @@ export function GrupoBloco({ grupo, acesso, visao, ordemManual, pelaAlca, acoes,
   const autorDe = (item: ChecklistItem) => (acesso.compartilhado && item.criado_por ? nomeDe(item.criado_por) : undefined);
 
   const alternarFeito = (item: ChecklistItem) =>
-    acoes.alterarItem(item.id, { status: item.status === "feito" ? "a_fazer" : "feito" });
+    item.diaria
+      ? acoes.alternarDiaria(item.id, item.status !== "feito")
+      : acoes.alterarItem(item.id, { status: item.status === "feito" ? "a_fazer" : "feito" });
   const alternarFixado = (item: ChecklistItem) => acoes.alterarItem(item.id, { fixado: !item.fixado });
 
   return (
@@ -76,7 +79,12 @@ export function GrupoBloco({ grupo, acesso, visao, ordemManual, pelaAlca, acoes,
           {...(pelaAlca ? {} : { ...attributes, ...listeners })}
           className={`flex min-w-0 flex-1 items-center gap-1.5 ${pelaAlca ? "" : "cursor-grab"}`}
         >
-          <h2 className="truncate text-sm font-semibold text-white">{grupo.nome}</h2>
+          <h2 className="min-w-0 truncate text-sm font-semibold text-white">{grupo.nome}</h2>
+          {grupo.diaria && (
+            <span className="shrink-0">
+              <DiariaChip />
+            </span>
+          )}
           <span title="Pendentes" className="shrink-0 rounded-full bg-white/10 px-1.5 text-xs font-medium text-white/70">
             {visao.totalPendentes}
           </span>
@@ -97,6 +105,7 @@ export function GrupoBloco({ grupo, acesso, visao, ordemManual, pelaAlca, acoes,
           onArquivar={() => acoes.arquivarGrupo(grupo.id)}
           onCompartilhar={() => setCompartilhando(true)}
           onSair={() => acoes.sairDoGrupo(grupo.id)}
+          onListaDiaria={(ligada) => acoes.definirListaDiaria(grupo.id, ligada)}
         />
       </header>
 
@@ -115,6 +124,7 @@ export function GrupoBloco({ grupo, acesso, visao, ordemManual, pelaAlca, acoes,
               onAbrir={() => onAbrirItem(item)}
               onAlternarFeito={() => void alternarFeito(item)}
               onAlternarFixado={() => void alternarFixado(item)}
+              ocultarSeloDiaria={grupo.diaria}
             />
           ))}
           {visao.pendentes.length === 0 && <li className="px-3 py-3 text-xs text-white/40">Nenhum item pendente.</li>}
@@ -122,7 +132,9 @@ export function GrupoBloco({ grupo, acesso, visao, ordemManual, pelaAlca, acoes,
       </SortableContext>
 
       {acesso.podeEditar && (
-        <AdicionarRapido onAdicionar={(titulo) => acoes.adicionarItem(grupo.id, { titulo }).then(Boolean)} />
+        <AdicionarRapido
+          onAdicionar={(titulo) => acoes.adicionarItem(grupo.id, { titulo, diaria: grupo.diaria }).then(Boolean)}
+        />
       )}
 
       <ConcluidosSecao
@@ -130,8 +142,11 @@ export function GrupoBloco({ grupo, acesso, visao, ordemManual, pelaAlca, acoes,
         somenteLeitura={!acesso.podeEditar}
         autorDe={autorDe}
         onAbrir={onAbrirItem}
-        onReabrir={(item) => void acoes.alterarItem(item.id, { status: "a_fazer" })}
+        onReabrir={(item) =>
+          void (item.diaria ? acoes.alternarDiaria(item.id, false) : acoes.alterarItem(item.id, { status: "a_fazer" }))
+        }
         onAlternarFixado={(item) => void alternarFixado(item)}
+        ocultarSeloDiaria={grupo.diaria}
       />
 
       {compartilhando && (

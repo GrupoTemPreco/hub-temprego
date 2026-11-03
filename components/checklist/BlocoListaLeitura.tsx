@@ -3,6 +3,7 @@
 import type { ChecklistGrupo, ChecklistItem } from "@/lib/types/shell";
 import { classeCorGrupo } from "@/lib/checklistOpcoes";
 import { ItemConteudo } from "./ItemLinha";
+import { DiariaChip } from "./ItemChips";
 import { ConcluidosSecao } from "./ConcluidosSecao";
 
 const nada = () => {};
@@ -26,6 +27,7 @@ export function BlocoListaLeitura({ lista, itens, cabecalho = true }: Props) {
           <div className={`h-1.5 rounded-t-xl ${classeCorGrupo(lista.cor)}`} />
           <header className="flex items-center gap-1.5 border-b border-white/10 px-3 py-2">
             <h3 className="truncate text-sm font-semibold text-white">{lista.nome}</h3>
+            {lista.diaria && <DiariaChip />}
             <span title="Pendentes" className="shrink-0 rounded-full bg-white/10 px-1.5 text-xs font-medium text-white/70">
               {pendentes.length}
             </span>
@@ -35,7 +37,7 @@ export function BlocoListaLeitura({ lista, itens, cabecalho = true }: Props) {
       <ul className="divide-y divide-white/5">
         {pendentes.map((item) => (
           <li key={item.id}>
-            <ItemConteudo item={item} somenteLeitura />
+            <ItemConteudo item={item} somenteLeitura ocultarSeloDiaria={lista.diaria} />
           </li>
         ))}
         {pendentes.length === 0 && <li className="px-3 py-3 text-xs text-white/40">Nenhum item pendente.</li>}
@@ -47,6 +49,7 @@ export function BlocoListaLeitura({ lista, itens, cabecalho = true }: Props) {
         onAbrir={nada}
         onReabrir={nada}
         onAlternarFixado={nada}
+        ocultarSeloDiaria={lista.diaria}
       />
     </section>
   );

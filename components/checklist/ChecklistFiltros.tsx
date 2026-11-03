@@ -59,9 +59,11 @@ type Props = {
   acoes?: ReactNode;
   /** Logo depois da busca (ex.: botão "Arquivadas"). */
   aoLadoDaBusca?: ReactNode;
+  /** Seletor de colunas da grade, ao lado da ordenação. */
+  seletorColunas?: ReactNode;
 };
 
-export function ChecklistFiltros({ filtros, onChange, acoes, aoLadoDaBusca }: Props) {
+export function ChecklistFiltros({ filtros, onChange, acoes, aoLadoDaBusca, seletorColunas }: Props) {
   const alterar = (mudancas: Partial<FiltrosChecklist>) => onChange({ ...filtros, ...mudancas });
   const temFiltro =
     filtros.busca.trim() !== "" ||
@@ -98,6 +100,7 @@ export function ChecklistFiltros({ filtros, onChange, acoes, aoLadoDaBusca }: Pr
             </option>
           ))}
         </select>
+        {seletorColunas}
         <button
           type="button"
           aria-pressed={filtros.soComPrazo}

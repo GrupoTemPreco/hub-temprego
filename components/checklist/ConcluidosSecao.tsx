@@ -13,9 +13,18 @@ type Props = {
   onAbrir: (item: ChecklistItem) => void;
   onReabrir: (item: ChecklistItem) => void;
   onAlternarFixado: (item: ChecklistItem) => void;
+  ocultarSeloDiaria?: boolean;
 };
 
-export function ConcluidosSecao({ itens, somenteLeitura, autorDe, onAbrir, onReabrir, onAlternarFixado }: Props) {
+export function ConcluidosSecao({
+  itens,
+  somenteLeitura,
+  autorDe,
+  onAbrir,
+  onReabrir,
+  onAlternarFixado,
+  ocultarSeloDiaria = false,
+}: Props) {
   const [aberto, setAberto] = useState(false);
   if (itens.length === 0) return null;
 
@@ -41,6 +50,7 @@ export function ConcluidosSecao({ itens, somenteLeitura, autorDe, onAbrir, onRea
                 onAbrir={() => onAbrir(item)}
                 onAlternarFeito={() => onReabrir(item)}
                 onAlternarFixado={() => onAlternarFixado(item)}
+                ocultarSeloDiaria={ocultarSeloDiaria}
                 acaoExtra={
                   !somenteLeitura && (
                     <button

@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { formatarData } from "@/lib/format";
 import { classeCorGrupo } from "@/lib/checklistOpcoes";
 import type { ChecklistGrupo } from "@/lib/types/shell";
+import { DiariaChip } from "../ItemChips";
 import { BlocoListaLeitura } from "../BlocoListaLeitura";
 import type { ListasArquivadas } from "./useListasArquivadas";
 
@@ -36,6 +37,7 @@ function LinhaArquivada({ lista, arquivadas, ocupado, onExcluir, onRestaurar }: 
         <span className="flex items-center gap-2">
           <ChevronRight className={`h-4 w-4 shrink-0 text-white/45 transition-transform ${aberta ? "rotate-90" : ""}`} />
           <span className="min-w-0 flex-1 truncate font-semibold text-white">{lista.nome}</span>
+          {lista.diaria && <DiariaChip />}
           {compartilhada && (
             <Badge className="shrink-0 px-1.5 py-0 text-[11px]">
               <Users className="h-3 w-3" /> compartilhada

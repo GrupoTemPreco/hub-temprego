@@ -1,4 +1,4 @@
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Repeat } from "lucide-react";
 import { Badge, type BadgeVariant } from "@/components/ui/Badge";
 import { opcaoNivel, opcaoUrgencia } from "@/lib/checklistOpcoes";
 import { formatarPrazo, situacaoPrazo } from "@/lib/checklistRegras";
@@ -44,6 +44,15 @@ export function EmAndamentoChip() {
   return (
     <Badge variant="info" className={COMPACTO}>
       Em andamento
+    </Badge>
+  );
+}
+
+export function DiariaChip() {
+  return (
+    <Badge variant="info" className={COMPACTO}>
+      <Repeat className="h-3 w-3" />
+      Diária
     </Badge>
   );
 }

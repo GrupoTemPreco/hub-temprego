@@ -6,7 +6,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Pin } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import type { ChecklistItem } from "@/lib/types/shell";
-import { EmAndamentoChip, NivelChip, PrazoChip, UrgenciaChip } from "./ItemChips";
+import { EmAndamentoChip, DiariaChip, NivelChip, PrazoChip, UrgenciaChip } from "./ItemChips";
 import { idItem } from "./useArrastoChecklist";
 import { useAcoesEnvioItem } from "./envios/AcoesEnvioItem";
 import { ItemEnvioChip } from "./envios/ItemEnvioChip";
@@ -26,6 +26,8 @@ type ConteudoProps = AcoesLinha & {
   somenteLeitura?: boolean;
   /** Em grupos compartilhados: nome de quem criou o item (vira as iniciais). */
   autor?: string;
+  /** A lista já mostra o selo; a tarefa diária dela não repete. */
+  ocultarSeloDiaria?: boolean;
 };
 
 export function ItemConteudo({
@@ -37,6 +39,7 @@ export function ItemConteudo({
   acaoExtra,
   somenteLeitura = false,
   autor,
+  ocultarSeloDiaria = false,
 }: ConteudoProps) {
   const feito = item.status === "feito";
   const envios = useAcoesEnvioItem();
@@ -70,6 +73,7 @@ export function ItemConteudo({
           </span>
           <NivelChip nivel={item.nivel} />
           <UrgenciaChip urgencia={item.urgencia} />
+          {item.diaria && !ocultarSeloDiaria && <DiariaChip />}
           {item.prazo && <PrazoChip prazo={item.prazo} feito={feito} />}
           {item.status === "em_andamento" && <EmAndamentoChip />}
           {situacao && <ItemEnvioChip situacao={situacao} />}
@@ -109,9 +113,10 @@ type ArrastavelProps = AcoesLinha & {
   /** Falso em grupo compartilhado só para leitura: sem arrasto e sem ações. */
   editavel: boolean;
   autor?: string;
+  ocultarSeloDiaria?: boolean;
 };
 
-export function ItemArrastavel({ item, pelaAlca, editavel, autor, ...acoes }: ArrastavelProps) {
+export function ItemArrastavel({ item, pelaAlca, editavel, autor, ocultarSeloDiaria, ...acoes }: ArrastavelProps) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
     id: idItem(item.id),
     data: { grupoId: item.grupo_id, editavel },
@@ -143,7 +148,14 @@ export function ItemArrastavel({ item, pelaAlca, editavel, autor, ...acoes }: Ar
       className={isDragging ? "opacity-40" : ""}
       {...(pelaAlca || !editavel ? {} : { ...attributes, ...listeners })}
     >
-      <ItemConteudo item={item} alca={alca} somenteLeitura={!editavel} autor={autor} {...acoes} />
+      <ItemConteudo
+        item={item}
+        alca={alca}
+        somenteLeitura={!editavel}
+        autor={autor}
+        ocultarSeloDiaria={ocultarSeloDiaria}
+        {...acoes}
+      />
     </li>
   );
 }

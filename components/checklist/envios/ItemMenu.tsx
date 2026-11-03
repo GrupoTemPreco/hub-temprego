@@ -59,8 +59,11 @@ export function ItemMenu({ item, situacao }: Props) {
             <>
               <button
                 type="button"
-                className={`${OPCAO} text-white/85`}
+                disabled={item.diaria}
+                title={item.diaria ? "Tarefa diária não pode ser enviada" : undefined}
+                className={`${OPCAO} text-white/85 disabled:cursor-not-allowed disabled:opacity-40`}
                 onClick={() => {
+                  if (item.diaria) return;
                   fechar();
                   acoes.enviar(item);
                 }}

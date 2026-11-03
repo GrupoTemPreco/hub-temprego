@@ -179,6 +179,8 @@ export type ChecklistGrupo = {
   arquivado: boolean;
   /** Quando a lista foi arquivada; nulo enquanto ativa. */
   arquivado_em: string | null;
+  /** Lista inteira repete: as tarefas dela nascem e permanecem diárias. */
+  diaria: boolean;
   criado_em: string;
 };
 
@@ -199,6 +201,8 @@ export type ChecklistItem = {
   /** Data sem hora (YYYY-MM-DD). */
   prazo: string | null;
   status: ChecklistStatus;
+  /** Repete todo dia: a conclusão fica em checklist_tarefa_conclusoes, não neste status. */
+  diaria: boolean;
   fixado: boolean;
   ordem: number;
   /** Preenchidos por trigger no banco; o front nunca grava. */
