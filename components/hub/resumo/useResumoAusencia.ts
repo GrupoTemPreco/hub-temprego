@@ -81,6 +81,8 @@ export function useResumoAusencia() {
       nomeDe: envios.nomeDe,
       recebidos: envios.recebidos,
       lotes: envios.lotes,
+      listasRecebidas: envios.listas.recebidas,
+      lotesLista: envios.listas.lotes,
       tickets: ticketsUsuario.tickets,
       novidades: ticketsUsuario.novidades,
     })

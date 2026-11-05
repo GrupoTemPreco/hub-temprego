@@ -65,12 +65,12 @@ export function formatarPrazo(prazo: string) {
 // Filtros e ordenação
 // ---------------------------------------------------------------------------
 
-export type OrdenacaoChecklist = "manual" | "urgencia" | "prazo";
+export type OrdenacaoChecklist = "manual" | "nivel" | "urgencia" | "prazo";
 
 export type FiltrosChecklist = {
   busca: string;
-  urgencias: ChecklistUrgencia[];
-  niveis: ChecklistNivel[];
+  urgencias: Array<ChecklistUrgencia | null>;
+  niveis: Array<ChecklistNivel | null>;
   soComPrazo: boolean;
   esconderConcluidos: boolean;
   ordenacao: OrdenacaoChecklist;
@@ -81,7 +81,7 @@ export const FILTROS_PADRAO: FiltrosChecklist = {
   urgencias: [],
   niveis: [],
   soComPrazo: false,
-  esconderConcluidos: true,
+  esconderConcluidos: false,
   ordenacao: "manual",
 };
 
@@ -106,9 +106,22 @@ function compararPrazo(a: ChecklistItem, b: ChecklistItem) {
   return a.prazo < b.prazo ? -1 : 1;
 }
 
+/** Maior primeiro; sem valor vai para o fim. */
+function compararDescNullPorUltimo(a: number | null, b: number | null) {
+  if (a == null && b == null) return 0;
+  if (a == null) return 1;
+  if (b == null) return -1;
+  return b - a;
+}
+
 export function ordenarItens(itens: ChecklistItem[], ordenacao: OrdenacaoChecklist) {
   const porOrdem = (a: ChecklistItem, b: ChecklistItem) => a.ordem - b.ordem;
-  if (ordenacao === "urgencia") return [...itens].sort((a, b) => b.urgencia - a.urgencia || porOrdem(a, b));
+  if (ordenacao === "urgencia") {
+    return [...itens].sort((a, b) => compararDescNullPorUltimo(a.urgencia, b.urgencia) || porOrdem(a, b));
+  }
+  if (ordenacao === "nivel") {
+    return [...itens].sort((a, b) => compararDescNullPorUltimo(a.nivel, b.nivel) || porOrdem(a, b));
+  }
   if (ordenacao === "prazo") return [...itens].sort((a, b) => compararPrazo(a, b) || porOrdem(a, b));
   return [...itens].sort(porOrdem);
 }
@@ -122,7 +135,9 @@ export function resumoPendentes(itens: ChecklistItem[], limite = 3, hoje = hojeS
     total: pendentes.length,
     criticos: pendentes.filter((i) => i.urgencia === URGENCIA_CRITICA).length,
     vencendo: pendentes.filter((i) => i.prazo && situacaoPrazo(i.prazo, hoje) !== "normal").length,
-    destaques: [...pendentes].sort((a, b) => b.urgencia - a.urgencia || compararPrazo(a, b)).slice(0, limite),
+    destaques: [...pendentes]
+      .sort((a, b) => compararDescNullPorUltimo(a.urgencia, b.urgencia) || compararPrazo(a, b))
+      .slice(0, limite),
   };
 }
 
@@ -133,17 +148,20 @@ export type VisaoGrupo = {
   concluidos: ChecklistItem[];
   /** Pendentes do grupo, sem considerar filtros. */
   totalPendentes: number;
+  /** Feitos do grupo, sem considerar filtros. */
+  totalFeitos: number;
 };
 
 export function montarVisao(grupoIds: string[], itens: ChecklistItem[], filtros: FiltrosChecklist) {
   const visao = new Map<string, VisaoGrupo>(
-    grupoIds.map((id) => [id, { pendentes: [], concluidos: [], totalPendentes: 0 }]),
+    grupoIds.map((id) => [id, { pendentes: [], concluidos: [], totalPendentes: 0, totalFeitos: 0 }]),
   );
   for (const item of itens) {
     const grupo = visao.get(item.grupo_id);
     if (!grupo) continue;
     const feito = item.status === "feito";
-    if (!feito) grupo.totalPendentes += 1;
+    if (feito) grupo.totalFeitos += 1;
+    else grupo.totalPendentes += 1;
     if (!passaNoFiltro(item, filtros)) continue;
     if (!feito) grupo.pendentes.push(item);
     else if (!filtros.esconderConcluidos) grupo.concluidos.push(item);

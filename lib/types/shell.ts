@@ -181,6 +181,8 @@ export type ChecklistGrupo = {
   arquivado_em: string | null;
   /** Lista inteira repete: as tarefas dela nascem e permanecem diárias. */
   diaria: boolean;
+  /** 0 = domingo ... 6 = sábado. Null = todos os dias. Só vale com `diaria`. */
+  dias_semana: number[] | null;
   criado_em: string;
 };
 
@@ -196,13 +198,17 @@ export type ChecklistItem = {
   criado_por: string | null;
   titulo: string;
   observacao: string | null;
-  nivel: ChecklistNivel;
-  urgencia: ChecklistUrgencia;
+  /** Nulo quando a tarefa ainda não tem nível. */
+  nivel: ChecklistNivel | null;
+  /** Nulo quando a tarefa ainda não tem urgência. */
+  urgencia: ChecklistUrgencia | null;
   /** Data sem hora (YYYY-MM-DD). */
   prazo: string | null;
   status: ChecklistStatus;
   /** Repete todo dia: a conclusão fica em checklist_tarefa_conclusoes, não neste status. */
   diaria: boolean;
+  /** 0 = domingo ... 6 = sábado. Null = todos os dias. Só vale com `diaria`. */
+  dias_semana: number[] | null;
   fixado: boolean;
   ordem: number;
   /** Preenchidos por trigger no banco; o front nunca grava. */
@@ -223,6 +229,9 @@ export type ChecklistMembro = {
 /** "encerrado": outra pessoa do mesmo lote já aceitou. */
 export type ChecklistEnvioStatus = "pendente" | "aceito" | "recusado" | "cancelado" | "encerrado";
 
+/** "primeiro": quem aceitar fica com a original. "todos": cada um recebe uma cópia. */
+export type ChecklistEnvioModo = "primeiro" | "todos";
+
 export type ChecklistEnvio = {
   id: string;
   /** Todos os destinatários de um mesmo envio compartilham o lote. */
@@ -238,8 +247,38 @@ export type ChecklistEnvio = {
   mensagem: string | null;
   prazo_sugerido: string | null;
   status: ChecklistEnvioStatus;
+  /** Ausente em linhas antigas lidas antes da coluna existir. */
+  modo: ChecklistEnvioModo;
+  /** Cópia criada no aceite do modo "todos"; nulo nos demais. */
+  copia_item_id: string | null;
   resposta: string | null;
   prazo_resposta: string | null;
+  reenvios: number;
+  reenviado_em: string | null;
+  respondido_em: string | null;
+  ciente_em: string | null;
+  criado_em: string;
+};
+
+/** Envio da lista inteira (checklist_envios_lista); mesmo ciclo do envio de tarefa, sem prazo. */
+export type ChecklistEnvioLista = {
+  id: string;
+  lote_id: string;
+  /** Nulo quando a lista foi excluída. */
+  grupo_id: string | null;
+  /** Cópia do nome da lista no momento do envio. */
+  nome: string;
+  qtd_tarefas: number;
+  de_usuario_id: string;
+  para_usuario_id: string;
+  setor_id: string | null;
+  mensagem: string | null;
+  status: ChecklistEnvioStatus;
+  /** Ausente em linhas antigas lidas antes da coluna existir. */
+  modo: ChecklistEnvioModo;
+  /** Cópia criada no aceite do modo "todos"; nulo nos demais. */
+  copia_grupo_id: string | null;
+  resposta: string | null;
   reenvios: number;
   reenviado_em: string | null;
   respondido_em: string | null;

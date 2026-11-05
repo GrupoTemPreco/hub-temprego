@@ -11,7 +11,7 @@ export function Campo({ rotulo, children }: { rotulo: string; children: ReactNod
   );
 }
 
-type CampoSelectProps<T extends string | number> = {
+type CampoSelectProps<T extends string | number | null> = {
   rotulo: string;
   valor: T;
   opcoes: Array<{ value: T; label: string }>;
@@ -19,21 +19,21 @@ type CampoSelectProps<T extends string | number> = {
   disabled?: boolean;
 };
 
-/** Select que devolve o valor no tipo original (número continua número). */
-export function CampoSelect<T extends string | number>({ rotulo, valor, opcoes, onChange, disabled }: CampoSelectProps<T>) {
+/** Select que devolve o valor no tipo original (número continua número; nulo vira "Nenhum"). */
+export function CampoSelect<T extends string | number | null>({ rotulo, valor, opcoes, onChange, disabled }: CampoSelectProps<T>) {
   return (
     <Campo rotulo={rotulo}>
       <select
         className={`${CAMPO} disabled:cursor-not-allowed disabled:opacity-50`}
-        value={valor}
+        value={valor ?? ""}
         disabled={disabled}
         onChange={(e) => {
-          const escolhida = opcoes.find((o) => String(o.value) === e.target.value);
+          const escolhida = opcoes.find((o) => String(o.value ?? "") === e.target.value);
           if (escolhida) onChange(escolhida.value);
         }}
       >
         {opcoes.map((o) => (
-          <option key={String(o.value)} value={o.value}>
+          <option key={String(o.value)} value={o.value ?? ""}>
             {o.label}
           </option>
         ))}

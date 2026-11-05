@@ -5,7 +5,7 @@ import { Plus } from "lucide-react";
 
 type Props = { onAdicionar: (titulo: string) => Promise<boolean> };
 
-/** Enter cria o item só com o título; nível e urgência ficam no padrão. */
+/** Enter cria o item só com o título; nível e urgência ficam vazios. */
 export function AdicionarRapido({ onAdicionar }: Props) {
   const [titulo, setTitulo] = useState("");
   const [salvando, setSalvando] = useState(false);

@@ -5,8 +5,10 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Pin } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
+import { TextoCortado } from "@/components/ui/Tooltip";
 import type { ChecklistItem } from "@/lib/types/shell";
-import { EmAndamentoChip, DiariaChip, NivelChip, PrazoChip, UrgenciaChip } from "./ItemChips";
+import { mostraSeloProprio, situacaoRecorrencia, temDiasEspecificos, textoProxima, type RepeticaoLista } from "@/lib/checklistDiarias";
+import { AtrasadaChip, EmAndamentoChip, DiariaChip, NivelChip, PrazoChip, ProximaTexto, UrgenciaChip } from "./ItemChips";
 import { idItem } from "./useArrastoChecklist";
 import { useAcoesEnvioItem } from "./envios/AcoesEnvioItem";
 import { ItemEnvioChip } from "./envios/ItemEnvioChip";
@@ -26,8 +28,8 @@ type ConteudoProps = AcoesLinha & {
   somenteLeitura?: boolean;
   /** Em grupos compartilhados: nome de quem criou o item (vira as iniciais). */
   autor?: string;
-  /** A lista já mostra o selo; a tarefa diária dela não repete. */
-  ocultarSeloDiaria?: boolean;
+  /** Repetição da lista: ela já mostra o selo, e a tarefa com os mesmos dias não repete. */
+  repeticaoLista?: RepeticaoLista | null;
 };
 
 export function ItemConteudo({
@@ -39,7 +41,7 @@ export function ItemConteudo({
   acaoExtra,
   somenteLeitura = false,
   autor,
-  ocultarSeloDiaria = false,
+  repeticaoLista = null,
 }: ConteudoProps) {
   const feito = item.status === "feito";
   const envios = useAcoesEnvioItem();
@@ -47,6 +49,11 @@ export function ItemConteudo({
   // Enquanto aguarda resposta, o item só pode ser arrastado e aberto para leitura.
   const aguardando = situacao?.tipo === "aguardando";
   const travado = aguardando || somenteLeitura;
+  const recorrencia = situacaoRecorrencia(item);
+  const semOcorrencia = recorrencia?.tipo === "sem_ocorrencia";
+  const diasEspecificos = temDiasEspecificos(item);
+  const mostrarSelo = mostraSeloProprio(item, repeticaoLista);
+  const proxima = recorrencia && recorrencia.tipo !== "pendente" && diasEspecificos ? recorrencia.proxima : null;
   return (
     <div
       onClick={onAbrir}
@@ -56,9 +63,11 @@ export function ItemConteudo({
       {!somenteLeitura && (
         <input
           type="checkbox"
-          checked={feito}
-          disabled={aguardando}
-          title={aguardando ? "Aguardando resposta do envio" : undefined}
+          checked={feito && !semOcorrencia}
+          disabled={aguardando || semOcorrencia}
+          title={
+            aguardando ? "Aguardando resposta do envio" : semOcorrencia && proxima ? textoProxima(proxima) : undefined
+          }
           aria-label={feito ? `Reabrir "${item.titulo}"` : `Concluir "${item.titulo}"`}
           onClick={(e) => e.stopPropagation()}
           onChange={() => onAlternarFeito?.()}
@@ -68,15 +77,17 @@ export function ItemConteudo({
       {autor && <Avatar nome={autor} size="xs" title={`Criado por ${autor}`} />}
       <div className={`min-w-0 flex-1 ${aguardando ? "opacity-55" : ""}`}>
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className={`min-w-0 max-w-full truncate text-sm ${feito ? "text-white/45 line-through" : "text-white/90"}`}>
+          <TextoCortado className={`min-w-0 max-w-full truncate text-sm ${feito ? "text-white/45 line-through" : "text-white/90"}`}>
             {item.titulo}
-          </span>
+          </TextoCortado>
           <NivelChip nivel={item.nivel} />
           <UrgenciaChip urgencia={item.urgencia} />
-          {item.diaria && !ocultarSeloDiaria && <DiariaChip />}
+          {mostrarSelo && <DiariaChip dias={item.dias_semana} />}
+          {recorrencia?.tipo === "pendente" && recorrencia.atrasada && <AtrasadaChip ocorrencia={recorrencia.ocorrencia} />}
           {item.prazo && <PrazoChip prazo={item.prazo} feito={feito} />}
           {item.status === "em_andamento" && <EmAndamentoChip />}
           {situacao && <ItemEnvioChip situacao={situacao} />}
+          {proxima && <ProximaTexto data={proxima} />}
         </div>
         {item.observacao && <p className="mt-0.5 truncate text-xs text-white/45">{item.observacao}</p>}
       </div>
@@ -113,10 +124,10 @@ type ArrastavelProps = AcoesLinha & {
   /** Falso em grupo compartilhado só para leitura: sem arrasto e sem ações. */
   editavel: boolean;
   autor?: string;
-  ocultarSeloDiaria?: boolean;
+  repeticaoLista?: RepeticaoLista | null;
 };
 
-export function ItemArrastavel({ item, pelaAlca, editavel, autor, ocultarSeloDiaria, ...acoes }: ArrastavelProps) {
+export function ItemArrastavel({ item, pelaAlca, editavel, autor, repeticaoLista, ...acoes }: ArrastavelProps) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
     id: idItem(item.id),
     data: { grupoId: item.grupo_id, editavel },
@@ -153,7 +164,7 @@ export function ItemArrastavel({ item, pelaAlca, editavel, autor, ocultarSeloDia
         alca={alca}
         somenteLeitura={!editavel}
         autor={autor}
-        ocultarSeloDiaria={ocultarSeloDiaria}
+        repeticaoLista={repeticaoLista}
         {...acoes}
       />
     </li>

@@ -18,6 +18,16 @@ const PLURAL: Record<TipoResumo, (n: number) => string> = {
   ticket: (n) => `${n} tickets com novidade`,
 };
 
+const SUFIXO_ENVIO: Partial<Record<TipoResumo, string>> = { recebida: "recebidas", aceita: "aceitas", recusada: "recusadas" };
+
+/** "3 listas recebidas" ou "4 tarefas e listas recebidas" quando há envio de lista no meio. */
+function textoPlural(tipo: TipoResumo, doTipo: EntradaResumo[]) {
+  const listas = doTipo.filter((e) => e.lista).length;
+  const sufixo = SUFIXO_ENVIO[tipo];
+  if (!sufixo || listas === 0) return PLURAL[tipo](doTipo.length);
+  return `${doTipo.length} ${listas === doTipo.length ? "listas" : "tarefas e listas"} ${sufixo}`;
+}
+
 type Params = {
   entradas: EntradaResumo[];
   /** Chaves (envio, lote, lista, ticket) que já estão no cartão de tempo real. */
@@ -35,9 +45,16 @@ export function useCartaoResumo({ entradas, chavesNoCartao, removerTipo, limpar 
 
   /** Some sozinho o que já foi resolvido em outro lugar (aceita, lida, com ciência). */
   function aindaVale(e: EntradaResumo) {
-    if (e.tipo === "recebida") return !envios.carregado || envios.recebidos.some((r) => r.id === e.envioId);
+    if (e.tipo === "recebida") {
+      const pendentes = e.lista ? envios.listas.recebidas : envios.recebidos;
+      return !envios.carregado || pendentes.some((r) => r.id === e.envioId);
+    }
     if (e.tipo === "aceita" || e.tipo === "recusada") {
-      const lote = envios.lotes.find((l) => l.id === e.loteId);
+      const lote = (e.lista ? envios.listas.lotes : envios.lotes).find((l) => l.id === e.loteId);
+      if (e.envioId) {
+        const linha = lote?.envios.find((x) => x.id === e.envioId);
+        return !envios.carregado || Boolean(linha && !linha.ciente_em);
+      }
       return !envios.carregado || Boolean(lote && !lote.ciente);
     }
     if (e.tipo === "ticket") return !tickets.carregado || tickets.novidades.has(e.ticketId!);
@@ -50,8 +67,17 @@ export function useCartaoResumo({ entradas, chavesNoCartao, removerTipo, limpar 
   function abrir(tipo: TipoResumo, doTipo: EntradaResumo[]) {
     const [uma] = doTipo;
     const so = doTipo.length === 1;
+    // Envios de lista não aparecem em Enviadas: as respostas deles levam ao checklist.
+    const soListas = doTipo.every((e) => e.lista);
     if (tipo === "ticket") tickets.abrirBalao(so ? { ticket: uma.ticketNumero! } : { aba: "recebidos" });
-    else if (tipo === "aceita") irPara(rotaChecklist(usuario.isAdmin, undefined, PAINEL_ENVIADAS));
+    else if ((tipo === "aceita" || tipo === "recusada") && soListas) irPara(rotaChecklist(usuario.isAdmin));
+    else if (tipo === "aceita") {
+      irPara(
+        so && uma.envioId && uma.itemId
+          ? rotaChecklist(usuario.isAdmin, uma.itemId)
+          : rotaChecklist(usuario.isAdmin, undefined, PAINEL_ENVIADAS),
+      );
+    }
     else if (tipo === "recusada") {
       irPara(so && uma.itemId ? rotaChecklist(usuario.isAdmin, uma.itemId) : rotaChecklist(usuario.isAdmin, undefined, PAINEL_ENVIADAS));
     } else irPara(rotaChecklist(usuario.isAdmin));
@@ -61,15 +87,16 @@ export function useCartaoResumo({ entradas, chavesNoCartao, removerTipo, limpar 
   const linhas = ORDEM.flatMap((tipo) => {
     const doTipo = vigentes.filter((e) => e.tipo === tipo);
     if (doTipo.length === 0) return [];
-    return [{ chave: tipo, texto: doTipo.length === 1 ? doTipo[0].frase : PLURAL[tipo](doTipo.length), onAbrir: () => abrir(tipo, doTipo) }];
+    return [{ chave: tipo, texto: doTipo.length === 1 ? doTipo[0].frase : textoPlural(tipo, doTipo), onAbrir: () => abrir(tipo, doTipo) }];
   });
 
   /** "Ok": dá ciência dos aceites e recusas mostrados e dispensa o resumo. */
   function ok() {
-    const lotes = vigentes.flatMap((e) =>
-      e.tipo === "aceita" || e.tipo === "recusada" ? envios.lotes.filter((l) => l.id === e.loteId) : [],
-    );
-    lotes.forEach((l) => void envios.marcarCiente(l));
+    const respostas = vigentes.filter((e) => e.tipo === "aceita" || e.tipo === "recusada");
+    const deTarefa = respostas.filter((e) => !e.lista).map((e) => e.loteId);
+    const deLista = respostas.filter((e) => e.lista).map((e) => e.loteId);
+    envios.lotes.filter((l) => deTarefa.includes(l.id)).forEach((l) => void envios.marcarCiente(l));
+    envios.listas.lotes.filter((l) => deLista.includes(l.id)).forEach((l) => void envios.listas.marcarCiente(l));
     limpar();
   }
 

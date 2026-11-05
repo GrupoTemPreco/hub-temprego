@@ -79,7 +79,11 @@ export function useChecklistRealtime(p: Params) {
           if (id) setGrupos((prev) => prev.filter((g) => g.id !== id));
           return;
         }
-        if (novo.dono_id !== usuarioId && !souMembro(novo.id)) return;
+        if (novo.dono_id !== usuarioId && !souMembro(novo.id)) {
+          // Ex.: lista enviada e aceita por outra pessoa (o dono mudou).
+          if (grupoIdsRef.current.has(novo.id)) tirarGrupo(novo.id);
+          return;
+        }
         const conhecido = grupoIdsRef.current.has(novo.id);
         grupoIdsRef.current.add(novo.id);
         setGrupos((prev) => organizarGrupos(upsertPorId(prev, novo)));

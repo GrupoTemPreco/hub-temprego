@@ -2,7 +2,8 @@ import { listarGruposPorIds } from "@/lib/checklist";
 import { listarParticipacoes } from "@/lib/checklistMembros";
 import { ultimoEnvioEm } from "@/lib/checklistEnvios";
 import type { LoteEnvio } from "@/lib/checklistLotes";
-import type { ChecklistEnvio, Ticket } from "@/lib/types/shell";
+import type { LoteLista } from "@/lib/checklistEnviosLista";
+import type { ChecklistEnvio, ChecklistEnvioLista, Ticket } from "@/lib/types/shell";
 import { paraUmaPessoa } from "@/components/checklist/envios/textosLote";
 
 export type TipoResumo = "recebida" | "aceita" | "recusada" | "lista" | "ticket";
@@ -19,6 +20,8 @@ export type EntradaResumo = {
   envioId?: string;
   loteId?: string;
   itemId?: string;
+  /** Envio da lista inteira (não de uma tarefa). */
+  lista?: boolean;
   ticketId?: string;
   ticketNumero?: number;
 };
@@ -35,22 +38,34 @@ type Fontes = {
   nomeDe: (usuarioId: string | null) => string;
   recebidos: ChecklistEnvio[];
   lotes: LoteEnvio[];
+  listasRecebidas: ChecklistEnvioLista[];
+  lotesLista: LoteLista[];
   tickets: Ticket[];
   novidades: Set<string>;
 };
 
 const depoisDe = (iso: string | null | undefined, desde: number) => Boolean(iso) && new Date(iso!).getTime() > desde;
 
-/** a) Recebidas ainda pendentes, criadas ou reenviadas depois do "desde". */
+/** a) Recebidas (tarefas e listas) ainda pendentes, criadas ou reenviadas depois do "desde". */
 function recebidas(f: Fontes, desde: number): EntradaResumo[] {
-  return f.recebidos
+  const tarefas = f.recebidos
     .filter((e) => depoisDe(ultimoEnvioEm(e), desde))
-    .map((e) => ({
+    .map((e): EntradaResumo => ({
       chave: chaveEnvio(e.id),
       tipo: "recebida",
       frase: `${f.nomeDe(e.de_usuario_id)} te enviou "${e.titulo}"`,
       envioId: e.id,
     }));
+  const listas = f.listasRecebidas
+    .filter((e) => depoisDe(ultimoEnvioEm(e), desde))
+    .map((e): EntradaResumo => ({
+      chave: chaveEnvio(e.id),
+      tipo: "recebida",
+      frase: `${f.nomeDe(e.de_usuario_id)} te enviou a lista "${e.nome}"`,
+      envioId: e.id,
+      lista: true,
+    }));
+  return [...tarefas, ...listas];
 }
 
 /**
@@ -59,6 +74,22 @@ function recebidas(f: Fontes, desde: number): EntradaResumo[] {
  */
 function respostas(f: Fontes): EntradaResumo[] {
   return f.lotes.flatMap((l): EntradaResumo[] => {
+    if (l.modo === "todos") {
+      return l.envios.flatMap((e): EntradaResumo[] => {
+        if (e.ciente_em || (e.status !== "aceito" && e.status !== "recusado")) return [];
+        const aceito = e.status === "aceito";
+        return [
+          {
+            chave: `${aceito ? "aceito" : "recusado"}:${e.id}`,
+            tipo: aceito ? "aceita" : "recusada",
+            frase: `${f.nomeDe(e.para_usuario_id)} ${aceito ? "aceitou" : "recusou"} "${l.titulo}"`,
+            loteId: l.id,
+            envioId: e.id,
+            itemId: l.itemId ?? undefined,
+          },
+        ];
+      });
+    }
     if (l.ciente) return [];
     if (l.status === "aceito") {
       return [{ chave: chaveLote(l.id), tipo: "aceita", frase: `${f.nomeDe(l.aceito!.para_usuario_id)} aceitou "${l.titulo}"`, loteId: l.id }];
@@ -68,6 +99,38 @@ function respostas(f: Fontes): EntradaResumo[] {
       return [
         { chave: chaveLote(l.id), tipo: "recusada", frase: `${quem} "${l.titulo}"`, loteId: l.id, itemId: l.itemId ?? undefined },
       ];
+    }
+    return [];
+  });
+}
+
+/** b) e c) para envios de lista. */
+function respostasDeListas(f: Fontes): EntradaResumo[] {
+  return f.lotesLista.flatMap((l): EntradaResumo[] => {
+    if (l.modo === "todos") {
+      return l.envios.flatMap((e): EntradaResumo[] => {
+        if (e.ciente_em || (e.status !== "aceito" && e.status !== "recusado")) return [];
+        const aceito = e.status === "aceito";
+        return [
+          {
+            chave: `${aceito ? "aceito" : "recusado"}:${e.id}`,
+            tipo: aceito ? "aceita" : "recusada",
+            frase: `${f.nomeDe(e.para_usuario_id)} ${aceito ? "aceitou" : "recusou"} a lista "${l.nome}"`,
+            loteId: l.id,
+            envioId: e.id,
+            lista: true,
+          },
+        ];
+      });
+    }
+    if (l.ciente) return [];
+    const base = { chave: chaveLote(l.id), loteId: l.id, lista: true };
+    if (l.status === "aceito") {
+      return [{ ...base, tipo: "aceita", frase: `${f.nomeDe(l.aceito!.para_usuario_id)} aceitou a lista "${l.nome}"` }];
+    }
+    if (l.status === "recusado") {
+      const quem = paraUmaPessoa(l) ? `${f.nomeDe(l.envios[0].para_usuario_id)} recusou` : "Todos recusaram";
+      return [{ ...base, tipo: "recusada", frase: `${quem} a lista "${l.nome}"` }];
     }
     return [];
   });
@@ -102,7 +165,7 @@ function tickets(f: Fontes): EntradaResumo[] {
 export async function montarResumo(f: Fontes): Promise<EntradaResumo[]> {
   const desde = new Date(f.desde).getTime();
   const doChecklist = f.checklistAtivo
-    ? [...recebidas(f, desde), ...respostas(f), ...(await listas(f, desde).catch(() => []))]
+    ? [...recebidas(f, desde), ...respostas(f), ...respostasDeListas(f), ...(await listas(f, desde).catch(() => []))]
     : [];
   return [...doChecklist, ...tickets(f)];
 }

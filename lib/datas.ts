@@ -52,3 +52,15 @@ export function formatarDataHoraSP(iso: string | null | undefined): string {
   if (!iso) return "—";
   return new Date(iso).toLocaleString("pt-BR", { timeZone: FUSO, dateStyle: "short", timeStyle: "short" });
 }
+
+/** "05/11/2026" no fuso de São Paulo. */
+export function formatarDataSP(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("pt-BR", { timeZone: FUSO, day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
+/** "05/11" no fuso de São Paulo. */
+export function formatarDiaMesSP(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("pt-BR", { timeZone: FUSO, day: "2-digit", month: "2-digit" });
+}

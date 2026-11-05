@@ -43,16 +43,20 @@ export function PrecisaAtencao({ checklist, admin, altura }: Props) {
         setores: usuario.setores,
         acessoChecklist,
         recebidos: envios.recebidos,
+        listasRecebidas: envios.listas.recebidas,
         lotes: envios.lotes,
         itensChecklist: itensChecklist ?? [],
         tickets,
       }),
-    [usuario.id, usuario.setores, acessoChecklist, envios.recebidos, envios.lotes, itensChecklist, tickets],
+    [usuario.id, usuario.setores, acessoChecklist, envios.recebidos, envios.listas.recebidas, envios.lotes, itensChecklist, tickets],
   );
 
   const contexto: ContextoLinhas = {
     nomeDe: envios.nomeDe,
-    abrirChecklist: (itemId) => router.push(rotaChecklist(usuario.isAdmin, itemId), { scroll: false }),
+    abrirChecklist: (itemId, ancora) => {
+      const rota = rotaChecklist(usuario.isAdmin, itemId);
+      router.push(ancora ? `${rota}#${ancora}` : rota, { scroll: false });
+    },
     abrirEnviadas: () => router.push(rotaChecklist(usuario.isAdmin, undefined, PAINEL_ENVIADAS), { scroll: false }),
     abrirTicket: (numero) => ticketUrl.abrir(numero),
     desfixar: (itemId) => void checklist?.acoes.alterarItem(itemId, { fixado: false }, "Não foi possível desfixar"),

@@ -1,6 +1,6 @@
 "use client";
 
-import { Ban, Check, Clock, XCircle } from "lucide-react";
+import { Ban, Check, Clock, Send, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { useAgora } from "@/hooks/useAgora";
@@ -10,14 +10,15 @@ import type { LoteEnvio, SituacaoEnvioItem } from "@/lib/checklistLotes";
 import { useChecklistEnvios } from "./ChecklistEnviosProvider";
 import { useAcoesEnvioItem } from "./AcoesEnvioItem";
 import { BotaoReenviar } from "./BotaoReenviar";
-import { STATUS_DESTINATARIO, destinoDoLote, motivosRecusa, rotuloRecusa } from "./textosLote";
+import { STATUS_DESTINATARIO, destinoDoLote, motivosRecusa, rotuloProgressoTodos, rotuloRecusa, situacaoPessoaTodos } from "./textosLote";
 
 const BOTAO_PEQUENO =
   "inline-flex items-center gap-1.5 rounded-md border border-white/15 bg-white/5 px-2.5 py-1 text-xs font-medium text-white/85 hover:bg-white/10";
 
-function Destinatarios({ lote }: { lote: LoteEnvio }) {
-  const { nomeDe } = useChecklistEnvios();
-  if (lote.envios.length < 2) return null;
+function Destinatarios({ lote, todos }: { lote: LoteEnvio; todos?: boolean }) {
+  const { nomeDe, progressoDoLote } = useChecklistEnvios();
+  const progresso = todos ? progressoDoLote(lote.id) : [];
+  if (lote.envios.length < 2 && !todos) return null;
   return (
     <ul className="space-y-1">
       {lote.envios.map((e) => (
@@ -26,7 +27,7 @@ function Destinatarios({ lote }: { lote: LoteEnvio }) {
             {nomeDe(e.para_usuario_id)}
           </span>
           <Badge variant={STATUS_DESTINATARIO[e.status].cor} className="shrink-0 px-1.5 py-0 text-[11px]">
-            {STATUS_DESTINATARIO[e.status].texto}
+            {todos ? situacaoPessoaTodos(e, progresso) : STATUS_DESTINATARIO[e.status].texto}
           </Badge>
         </li>
       ))}
@@ -34,12 +35,40 @@ function Destinatarios({ lote }: { lote: LoteEnvio }) {
   );
 }
 
+function AcoesPendentes({ lote }: { lote: LoteEnvio }) {
+  const acoes = useAcoesEnvioItem();
+  if (lote.pendentes.length === 0) return null;
+  return (
+    <div className="flex flex-wrap gap-2 pt-1">
+      <BotaoReenviar lote={lote} className={BOTAO_PEQUENO} />
+      <button type="button" className={`${BOTAO_PEQUENO} text-rose-300`} onClick={() => acoes?.cancelar(lote)}>
+        <Ban className="h-3.5 w-3.5" /> Cancelar envio
+      </button>
+    </div>
+  );
+}
+
 /** Quadro no topo do Drawer quando o item foi enviado: aguardando resposta ou recusado por todos. */
 export function ItemDrawerEnvio({ situacao }: { situacao: SituacaoEnvioItem }) {
   const envios = useChecklistEnvios();
-  const acoes = useAcoesEnvioItem();
   const agora = useAgora();
   const { lote } = situacao;
+
+  if (situacao.tipo === "todos") {
+    return (
+      <div className="space-y-2 rounded-lg border border-blue-400/25 bg-blue-500/8 p-3 text-sm">
+        <p className="flex items-center gap-2 font-medium text-white">
+          <Send className="h-4 w-4 text-blue-300" />
+          {rotuloProgressoTodos(lote, envios.progressoDoLote(lote.id))}
+        </p>
+        <Destinatarios lote={lote} todos />
+        {lote.mensagem && <p className="text-white/65">&ldquo;{lote.mensagem}&rdquo;</p>}
+        {lote.prazoSugerido && <p className="text-xs text-white/50">Prazo sugerido: {formatarPrazo(lote.prazoSugerido)}</p>}
+        <p className="text-xs text-white/50">A original continua com você; conclua quando quiser.</p>
+        <AcoesPendentes lote={lote} />
+      </div>
+    );
+  }
 
   if (situacao.tipo === "aguardando") {
     return (
@@ -52,12 +81,7 @@ export function ItemDrawerEnvio({ situacao }: { situacao: SituacaoEnvioItem }) {
         {lote.mensagem && <p className="text-white/65">&ldquo;{lote.mensagem}&rdquo;</p>}
         {lote.prazoSugerido && <p className="text-xs text-white/50">Prazo sugerido: {formatarPrazo(lote.prazoSugerido)}</p>}
         <p className="text-xs text-white/50">Enquanto aguarda resposta, o item não pode ser editado, concluído nem excluído.</p>
-        <div className="flex flex-wrap gap-2 pt-1">
-          <BotaoReenviar lote={lote} className={BOTAO_PEQUENO} />
-          <button type="button" className={`${BOTAO_PEQUENO} text-rose-300`} onClick={() => acoes?.cancelar(lote)}>
-            <Ban className="h-3.5 w-3.5" /> Cancelar envio
-          </button>
-        </div>
+        <AcoesPendentes lote={lote} />
       </div>
     );
   }

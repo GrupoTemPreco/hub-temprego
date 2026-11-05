@@ -10,9 +10,23 @@ export type AcessoGrupo = {
   compartilhado: boolean;
   /** Membros do grupo (sem o dono), na ordem em que foram adicionados. */
   membros: ChecklistMembro[];
+  /** Lista enviada pelo dono, aguardando resposta: ninguém marca, edita ou arrasta tarefas. */
+  aguardandoEnvio: boolean;
 };
 
-const SEM_ACESSO: AcessoGrupo = { dono: false, donoId: "", podeEditar: false, compartilhado: false, membros: [] };
+const SEM_ACESSO: AcessoGrupo = {
+  dono: false,
+  donoId: "",
+  podeEditar: false,
+  compartilhado: false,
+  membros: [],
+  aguardandoEnvio: false,
+};
+
+/** Enquanto a lista aguarda resposta do envio, o acesso vira só leitura. */
+export function travarSeAguardando(acesso: AcessoGrupo, aguardando: boolean): AcessoGrupo {
+  return aguardando ? { ...acesso, podeEditar: false, aguardandoEnvio: true } : acesso;
+}
 
 export function membrosPorGrupo(membros: ChecklistMembro[]) {
   const mapa = new Map<string, ChecklistMembro[]>();
@@ -32,6 +46,7 @@ export function calcularAcesso(grupo: ChecklistGrupo | undefined, membros: Check
     podeEditar: dono || Boolean(meu?.pode_editar),
     compartilhado: membros.length > 0,
     membros,
+    aguardandoEnvio: false,
   };
 }
 

@@ -1,6 +1,7 @@
 import { CheckCircle2 } from "lucide-react";
 import { Badge, type BadgeVariant } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { TextoCortado } from "@/components/ui/Tooltip";
 import { formatarDataHoraSP } from "@/lib/datas";
 import { concluidasNoPeriodo, formatarHoras, horasEntre, situacaoEntrega, type SituacaoEntrega } from "@/lib/rhRegras";
 import type { ChecklistGrupo } from "@/lib/types/shell";
@@ -40,7 +41,9 @@ export function AbaConcluidasRh({ listas, itens, dias, agora }: Props) {
             const chip = CHIP[situacaoEntrega(item)];
             return (
               <tr key={item.id} className="border-b border-white/5">
-                <td className="max-w-64 truncate px-3 py-2.5 font-medium text-white/90">{item.titulo}</td>
+                <TextoCortado as="td" className="max-w-64 truncate px-3 py-2.5 font-medium text-white/90">
+                  {item.titulo}
+                </TextoCortado>
                 <td className="px-3 py-2.5 text-white/65">{nomeLista(item.grupo_id)}</td>
                 <td className="whitespace-nowrap px-3 py-2.5 text-white/60">{formatarDataHoraSP(item.inicio_em)}</td>
                 <td className="whitespace-nowrap px-3 py-2.5 text-white/60">{formatarDataHoraSP(item.concluido_em)}</td>

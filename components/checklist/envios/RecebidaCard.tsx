@@ -4,6 +4,7 @@ import { Building2, CalendarDays, Check, RotateCw, Users, X } from "lucide-react
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { TextoCortado } from "@/components/ui/Tooltip";
 import { tempoRelativo } from "@/lib/format";
 import { formatarPrazo } from "@/lib/checklistRegras";
 import { ultimoEnvioEm } from "@/lib/checklistEnvios";
@@ -26,10 +27,12 @@ export function RecebidaCard({ envio, item, remetente, seloDestino, agora, onAce
   return (
     <article className="flex flex-col gap-2 rounded-xl border border-blue-400/25 bg-blue-500/5 p-3">
       <div className="flex items-start justify-between gap-2">
-        <h3 className="min-w-0 font-semibold text-white">{item?.titulo ?? envio.titulo}</h3>
+        <TextoCortado as="h3" className="min-w-0 font-semibold text-white">
+          {item?.titulo ?? envio.titulo}
+        </TextoCortado>
         <div className="flex shrink-0 flex-wrap justify-end gap-1">
           {seloDestino && (
-            <Badge variant="info" className="shrink-0">
+            <Badge variant="info" className="max-w-[16rem] shrink whitespace-normal text-right">
               {envio.setor_id ? <Building2 className="h-3 w-3" /> : <Users className="h-3 w-3" />} {seloDestino}
             </Badge>
           )}

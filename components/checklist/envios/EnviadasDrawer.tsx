@@ -12,7 +12,7 @@ import { DIAS_ENVIADAS } from "@/lib/checklistEnvios";
 import type { LoteEnvio } from "@/lib/checklistLotes";
 import { useChecklistEnvios } from "./ChecklistEnviosProvider";
 import { BotaoReenviar } from "./BotaoReenviar";
-import { STATUS_DESTINATARIO, destinoDoLote, statusGeral } from "./textosLote";
+import { STATUS_DESTINATARIO, destinoDoLote, situacaoPessoaTodos, statusGeral } from "./textosLote";
 
 const BOTAO =
   "inline-flex items-center gap-1.5 rounded-md border border-white/15 bg-white/5 px-2.5 py-1 text-xs font-medium text-white/85 hover:bg-white/10";
@@ -20,13 +20,15 @@ const BOTAO =
 /** Aguardando e respostas sem "Ok" aparecem mesmo que o envio seja anterior à janela de 30 dias. */
 function naJanela(lote: LoteEnvio, agora: number) {
   const limite = agora - DIAS_ENVIADAS * 86_400_000;
-  const semOk = (lote.status === "aceito" || lote.status === "recusado") && !lote.ciente;
-  return lote.status === "aguardando" || semOk || new Date(lote.criadoEm).getTime() >= limite;
+  const semOk = lote.modo !== "todos" && (lote.status === "aceito" || lote.status === "recusado") && !lote.ciente;
+  const todosAtivo = lote.modo === "todos" && lote.pendentes.length > 0;
+  return lote.status === "aguardando" || semOk || todosAtivo || new Date(lote.criadoEm).getTime() >= limite;
 }
 
 /** Status de cada destinatário, com resposta e prazo quando houver. */
 function DetalheDestinatarios({ lote }: { lote: LoteEnvio }) {
-  const { nomeDe } = useChecklistEnvios();
+  const { nomeDe, progressoDoLote } = useChecklistEnvios();
+  const progresso = lote.modo === "todos" ? progressoDoLote(lote.id) : [];
   return (
     <ul className="space-y-1.5 rounded-md bg-white/3 p-2.5">
       {lote.envios.map((e) => (
@@ -34,7 +36,7 @@ function DetalheDestinatarios({ lote }: { lote: LoteEnvio }) {
           <div className="flex items-center justify-between gap-2">
             <span className="truncate text-white/85">{nomeDe(e.para_usuario_id)}</span>
             <Badge variant={STATUS_DESTINATARIO[e.status].cor} className="shrink-0 px-1.5 py-0 text-[11px]">
-              {STATUS_DESTINATARIO[e.status].texto}
+              {lote.modo === "todos" ? situacaoPessoaTodos(e, progresso) : STATUS_DESTINATARIO[e.status].texto}
             </Badge>
           </div>
           {e.resposta && <p className="text-white/65">&ldquo;{e.resposta}&rdquo;</p>}
@@ -48,8 +50,9 @@ function DetalheDestinatarios({ lote }: { lote: LoteEnvio }) {
 function LinhaLote({ lote, onCancelar }: { lote: LoteEnvio; onCancelar: (lote: LoteEnvio) => void }) {
   const envios = useChecklistEnvios();
   const [aberto, setAberto] = useState(false);
-  const status = statusGeral(lote, envios);
-  const semOk = (lote.status === "aceito" || lote.status === "recusado") && !lote.ciente;
+  const status = statusGeral(lote, envios, lote.modo === "todos" ? envios.progressoDoLote(lote.id) : []);
+  const semOk = lote.modo !== "todos" && (lote.status === "aceito" || lote.status === "recusado") && !lote.ciente;
+  const comPendentes = lote.status === "aguardando" || (lote.modo === "todos" && lote.pendentes.length > 0);
 
   return (
     <li className="space-y-2 px-5 py-3">
@@ -71,14 +74,14 @@ function LinhaLote({ lote, onCancelar }: { lote: LoteEnvio; onCancelar: (lote: L
 
       {aberto && <DetalheDestinatarios lote={lote} />}
 
-      {(semOk || lote.status === "aguardando") && (
+      {(semOk || comPendentes) && (
         <div className="flex flex-wrap gap-2 pl-5">
           {semOk && (
             <button type="button" className={BOTAO} onClick={() => void envios.marcarCiente(lote)}>
               <Check className="h-3.5 w-3.5" /> Ok
             </button>
           )}
-          {lote.status === "aguardando" && (
+          {comPendentes && (
             <>
               <BotaoReenviar lote={lote} className={BOTAO} />
               <button type="button" className={`${BOTAO} text-rose-300`} onClick={() => onCancelar(lote)}>

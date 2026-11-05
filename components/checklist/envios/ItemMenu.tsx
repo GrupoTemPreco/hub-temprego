@@ -25,7 +25,8 @@ export function ItemMenu({ item, situacao }: Props) {
   useEscapeKey(aberto, fechar);
   if (!acoes) return null;
 
-  const aguardando = situacao?.tipo === "aguardando";
+  const aguardando =
+    situacao?.tipo === "aguardando" || (situacao?.tipo === "todos" && situacao.lote.pendentes.length > 0);
 
   return (
     <div ref={ref} className="relative shrink-0" onClick={(e) => e.stopPropagation()}>
@@ -60,7 +61,7 @@ export function ItemMenu({ item, situacao }: Props) {
               <button
                 type="button"
                 disabled={item.diaria}
-                title={item.diaria ? "Tarefa diária não pode ser enviada" : undefined}
+                title={item.diaria ? "Tarefa recorrente não pode ser enviada" : undefined}
                 className={`${OPCAO} text-white/85 disabled:cursor-not-allowed disabled:opacity-40`}
                 onClick={() => {
                   if (item.diaria) return;

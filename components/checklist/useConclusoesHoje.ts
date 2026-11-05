@@ -1,40 +1,53 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { desmarcarConclusaoDeHoje, listarConclusoesDeHoje, marcarConclusaoDeHoje } from "@/lib/checklistDiarias";
+import {
+  chaveConclusao,
+  desmarcarConclusao,
+  listarConclusoesRecentes,
+  marcarConclusoes,
+  type LinhaConclusao,
+} from "@/lib/checklistDiarias";
 import { hojeSP } from "@/lib/checklistRegras";
 
 const INTERVALO_MS = 30_000;
 
-/** Conclusões de hoje e a virada do dia em São Paulo (relógio ou aba que volta a ficar visível). */
+type Mapa = Map<string, string | null>;
+
+/**
+ * Conclusões dos últimos 7 dias das tarefas recorrentes e a virada do dia em São Paulo
+ * (relógio ou aba que volta a ficar visível). Quem decide se está feita é a ocorrência atual.
+ */
 export function useConclusoesHoje(usuarioId: string, ativo: boolean) {
-  const [feitas, setFeitas] = useState<Set<string>>(() => new Set());
+  const [conclusoes, setConclusoes] = useState<Mapa>(() => new Map());
+  const [dia, setDia] = useState(() => hojeSP());
   const epoca = useRef(0);
 
-  const substituir = useCallback((ids: Iterable<string>, lida: number) => {
+  const substituir = useCallback((mapa: Mapa, lida: number) => {
     if (lida !== epoca.current) return;
-    setFeitas(new Set(ids));
+    setConclusoes(new Map(mapa));
   }, []);
 
   const epocaAtual = useCallback(() => epoca.current, []);
 
   const recarregar = useCallback(async (limpar = false) => {
     const lida = ++epoca.current;
-    if (limpar) setFeitas(new Set());
-    const ids = await listarConclusoesDeHoje();
+    if (limpar) setConclusoes(new Map());
+    const mapa = await listarConclusoesRecentes();
     if (lida !== epoca.current) return;
-    setFeitas(new Set(ids));
+    setConclusoes(mapa);
   }, []);
 
   useEffect(() => {
     if (!ativo) return;
-    let dia = hojeSP();
+    let atual = hojeSP();
     const conferirDia = () => {
       const agora = hojeSP();
-      if (agora === dia) return;
+      if (agora === atual) return;
       void recarregar(true)
         .then(() => {
-          dia = agora;
+          atual = agora;
+          setDia(agora);
         })
         .catch((err) => console.error("[checklist] Falha ao recarregar o dia:", err));
     };
@@ -49,50 +62,45 @@ export function useConclusoesHoje(usuarioId: string, ativo: boolean) {
     };
   }, [ativo, recarregar]);
 
-  const incluir = useCallback((ids: string[]) => {
-    if (ids.length === 0) return;
+  const incluir = useCallback((linhas: LinhaConclusao[]) => {
+    if (linhas.length === 0) return;
     epoca.current += 1;
-    setFeitas((prev) => juntar(prev, ids));
+    setConclusoes((prev) => alterar(prev, linhas, true));
   }, []);
 
-  const retirar = useCallback((ids: string[]) => {
-    if (ids.length === 0) return;
+  const retirar = useCallback((linhas: LinhaConclusao[]) => {
+    if (linhas.length === 0) return;
     epoca.current += 1;
-    setFeitas((prev) => {
-      const proximo = new Set(prev);
-      for (const id of ids) proximo.delete(id);
-      return proximo;
-    });
+    setConclusoes((prev) => alterar(prev, linhas, false));
   }, []);
 
+  /** Marca ou desmarca a conclusão de `data` (a ocorrência atual da tarefa). */
   const alternar = useCallback(
-    async (tarefaId: string, concluir: boolean) => {
-      const hoje = hojeSP();
+    async (tarefaId: string, data: string, concluir: boolean) => {
+      const linha = [{ tarefaId, data }];
       epoca.current += 1;
-      setFeitas((prev) => alterarConjunto(prev, tarefaId, concluir));
+      setConclusoes((prev) => alterar(prev, linha, concluir));
       try {
-        if (concluir) await marcarConclusaoDeHoje(tarefaId, usuarioId, hoje);
-        else await desmarcarConclusaoDeHoje(tarefaId, hoje);
+        if (concluir) await marcarConclusoes(linha, usuarioId);
+        else await desmarcarConclusao(tarefaId, data);
       } catch (err) {
-        setFeitas((prev) => alterarConjunto(prev, tarefaId, !concluir));
+        setConclusoes((prev) => alterar(prev, linha, !concluir));
         throw err;
       }
     },
     [usuarioId],
   );
 
-  return { feitas, substituir, epocaAtual, recarregar, incluir, retirar, alternar };
+  return { conclusoes, dia, substituir, epocaAtual, recarregar, incluir, retirar, alternar };
 }
 
-function alterarConjunto(atual: Set<string>, id: string, incluir: boolean) {
-  const proximo = new Set(atual);
-  if (incluir) proximo.add(id);
-  else proximo.delete(id);
-  return proximo;
-}
-
-function juntar(atual: Set<string>, ids: string[]) {
-  const proximo = new Set(atual);
-  for (const id of ids) proximo.add(id);
+function alterar(atual: Mapa, linhas: LinhaConclusao[], incluir: boolean) {
+  const proximo = new Map(atual);
+  const agora = new Date().toISOString();
+  for (const { tarefaId, data } of linhas) {
+    const chave = chaveConclusao(tarefaId, data);
+    if (!incluir) proximo.delete(chave);
+    else if (!proximo.has(chave)) proximo.set(chave, agora);
+  }
   return proximo;
 }

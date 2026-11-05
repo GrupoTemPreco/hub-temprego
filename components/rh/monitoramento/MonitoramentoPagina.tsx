@@ -10,7 +10,7 @@ import { calcularTotais, maisEmDia, pontosDeAtencao } from "@/lib/rhRegras";
 import { NumerosRh } from "./NumerosRh";
 import { MaisEmDiaCard, PontosAtencaoCard } from "./CardsRh";
 import { TabelaUsuariosRh } from "./TabelaUsuariosRh";
-import { UsuarioRhDrawer } from "./UsuarioRhDrawer";
+import { UsuarioRhModal } from "./UsuarioRhModal";
 
 const PERIODO_PADRAO: PeriodoRh = 30;
 
@@ -39,7 +39,7 @@ export function MonitoramentoPagina() {
   const totais = useMemo(() => (usuarios ? calcularTotais(usuarios, agora) : null), [usuarios, agora]);
   const pontos = useMemo(() => (usuarios ? pontosDeAtencao(usuarios, agora) : []), [usuarios, agora]);
   const ranking = useMemo(() => (usuarios ? maisEmDia(usuarios) : []), [usuarios]);
-  // O detalhe acompanha o período escolhido sem fechar o Drawer.
+  // O detalhe acompanha o período escolhido sem fechar o modal.
   const abertoAtual = aberto ? usuarios?.find((u) => u.usuario_id === aberto.usuario_id) ?? aberto : null;
 
   return (
@@ -81,7 +81,7 @@ export function MonitoramentoPagina() {
       )}
 
       {abertoAtual && (
-        <UsuarioRhDrawer
+        <UsuarioRhModal
           key={abertoAtual.usuario_id}
           usuario={abertoAtual}
           dias={dias}

@@ -1,14 +1,15 @@
-import { CalendarClock, CheckCircle2, Clock, Inbox, ListChecks, MessageSquare, Pin, XCircle } from "lucide-react";
+import { CalendarClock, CheckCircle2, Clock, Inbox, ListChecks, MessageSquare, Pin, Repeat, XCircle } from "lucide-react";
 import { formatarPrazo } from "@/lib/checklistRegras";
+import { ocorrenciaAtual, rotuloDias, textoEra } from "@/lib/checklistDiarias";
 import type { ItemAtencao, MotivoItemChecklist } from "@/lib/precisaAtencao";
 import type { LoteEnvio } from "@/lib/checklistLotes";
 import { textoPrazoCombinado } from "@/components/checklist/envios/avisosDoEnvio";
-import { motivosRecusa, rotuloRecusa } from "@/components/checklist/envios/textosLote";
+import { motivosRecusa, rotuloRecusa, textoTarefas } from "@/components/checklist/envios/textosLote";
 import type { LinhaAtencaoDados } from "./LinhaAtencao";
 
 export type ContextoLinhas = {
   nomeDe: (usuarioId: string | null) => string;
-  abrirChecklist: (itemId?: string) => void;
+  abrirChecklist: (itemId?: string, ancora?: string) => void;
   abrirEnviadas: () => void;
   abrirTicket: (numero: number) => void;
   desfixar: (itemId: string) => void;
@@ -19,6 +20,7 @@ export type ContextoLinhas = {
 
 const MOTIVOS: Record<MotivoItemChecklist, Pick<LinhaAtencaoDados, "icone" | "cor" | "chip">> = {
   vencido: { icone: CalendarClock, cor: "bg-rose-500/15 text-rose-400", chip: { texto: "Vencido", cor: "danger" } },
+  atrasada: { icone: Repeat, cor: "bg-rose-500/15 text-rose-400", chip: { texto: "Atrasada", cor: "danger" } },
   critico: { icone: ListChecks, cor: "bg-rose-500/15 text-rose-400", chip: { texto: "Crítico", cor: "danger" } },
   proximo: { icone: CalendarClock, cor: "bg-amber-500/15 text-amber-400", chip: { texto: "Vence em breve", cor: "warning" } },
   fixado: { icone: Pin, cor: "bg-amber-500/15 text-amber-300", chip: { texto: "Fixado", cor: "neutral" } },
@@ -35,6 +37,16 @@ export function linhaPessoal(i: ItemAtencao, ctx: ContextoLinhas): LinhaAtencaoD
         detalhe: `Tarefa recebida de ${ctx.nomeDe(i.envio.de_usuario_id)}`,
         chip: { texto: "Recebida", cor: "info" },
         onAbrir: () => ctx.abrirChecklist(),
+      };
+    case "lista-recebida":
+      return {
+        id: i.id,
+        icone: Inbox,
+        cor: "bg-blue-500/15 text-blue-400",
+        texto: i.envio.nome,
+        detalhe: `Lista recebida de ${ctx.nomeDe(i.envio.de_usuario_id)} · ${textoTarefas(i.envio.qtd_tarefas)}`,
+        chip: { texto: "Recebida", cor: "info" },
+        onAbrir: () => ctx.abrirChecklist(undefined, `lista-recebida-${i.envio.id}`),
       };
     case "recusada": {
       const { lote } = i;
@@ -67,11 +79,12 @@ export function linhaPessoal(i: ItemAtencao, ctx: ContextoLinhas): LinhaAtencaoD
     case "checklist": {
       const { item, motivo } = i;
       const podeAlterar = ctx.podeAlterar(item.id);
+      const ocorrencia = motivo === "atrasada" ? ocorrenciaAtual(item) : null;
       return {
         id: i.id,
         ...MOTIVOS[motivo],
         texto: item.titulo,
-        detalhe: item.prazo ? `Prazo ${formatarPrazo(item.prazo)}` : "Sem prazo",
+        detalhe: ocorrencia ? `${rotuloDias(item.dias_semana)} · ${textoEra(ocorrencia)}` : item.prazo ? `Prazo ${formatarPrazo(item.prazo)}` : "Sem prazo",
         onAbrir: () => ctx.abrirChecklist(item.id),
         acao:
           motivo === "fixado"

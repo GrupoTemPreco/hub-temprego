@@ -3,13 +3,14 @@
 import type { ReactNode } from "react";
 import { CalendarDays, Search, X } from "lucide-react";
 import { Toggle } from "@/components/ui/Toggle";
-import { NIVEIS_ITEM, URGENCIAS_ITEM } from "@/lib/checklistOpcoes";
+import { FILTRO_NIVEIS, FILTRO_URGENCIAS } from "@/lib/checklistOpcoes";
 import { FILTROS_PADRAO, type FiltrosChecklist, type OrdenacaoChecklist } from "@/lib/checklistRegras";
 
 const CAMPO = "rounded-md border border-white/10 px-2.5 py-1.5 text-sm outline-none focus:border-blue-500";
 
 const ORDENACOES: Array<{ value: OrdenacaoChecklist; label: string }> = [
   { value: "manual", label: "Manual" },
+  { value: "nivel", label: "Nível" },
   { value: "urgencia", label: "Urgência" },
   { value: "prazo", label: "Prazo" },
 ];
@@ -132,13 +133,13 @@ export function ChecklistFiltros({ filtros, onChange, acoes, aoLadoDaBusca, sele
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <GrupoPilulas
           rotulo="Urgência"
-          opcoes={URGENCIAS_ITEM}
+          opcoes={FILTRO_URGENCIAS}
           valores={filtros.urgencias}
           onChange={(urgencias) => alterar({ urgencias })}
         />
         <GrupoPilulas
           rotulo="Nível"
-          opcoes={NIVEIS_ITEM}
+          opcoes={FILTRO_NIVEIS}
           valores={filtros.niveis}
           onChange={(niveis) => alterar({ niveis })}
         />

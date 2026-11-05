@@ -21,7 +21,7 @@ export function AdminShell() {
   const searchParams = useSearchParams();
   const usuario = useUsuarioAtual();
   const aba = parseAba(searchParams.get("aba"), usuario.acessoChecklist);
-  const recebidos = useChecklistEnvios().recebidos.length;
+  const recebidos = useChecklistEnvios().qtdRecebidos;
   const abas = abasDisponiveis(usuario.acessoChecklist).map((a) =>
     a.id === "checklist" ? { ...a, count: recebidos } : a,
   );

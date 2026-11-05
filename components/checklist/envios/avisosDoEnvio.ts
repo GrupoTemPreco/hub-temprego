@@ -19,15 +19,16 @@ function avisoParaQuemEnviou(envio: ChecklistEnvio, antes: ChecklistEnvio | unde
   if (antes?.status !== "pendente") return null;
   const loteId = idDoLote(envio);
   const recebidoEm = new Date().toISOString();
+  const todos = envio.modo === "todos";
 
   if (envio.status === "aceito") {
     const setor = envio.setor_id ? ` (enviada para ${ctx.nomeSetor(envio.setor_id)})` : "";
     const resposta = envio.resposta ? `"${envio.resposta}" · ` : "";
     return {
-      chave: `aceito:${loteId}`,
+      chave: todos ? `aceito:${envio.id}` : `aceito:${loteId}`,
       titulo: `${ctx.nomeDe(envio.para_usuario_id)} aceitou ${envio.titulo}${setor}`,
       detalhe: `${resposta}${textoPrazoCombinado(envio)}`,
-      destino: { tipo: "enviadas" },
+      destino: todos && envio.item_id ? { tipo: "item" as const, itemId: envio.item_id } : { tipo: "enviadas" as const },
       loteId,
       cienteAoDispensar: true,
       recebidoEm,
@@ -35,6 +36,17 @@ function avisoParaQuemEnviou(envio: ChecklistEnvio, antes: ChecklistEnvio | unde
   }
 
   if (envio.status === "recusado") {
+    if (todos) {
+      return {
+        chave: `recusado:${envio.id}`,
+        titulo: `${ctx.nomeDe(envio.para_usuario_id)} recusou ${envio.titulo}`,
+        detalhe: envio.resposta || undefined,
+        destino: envio.item_id ? { tipo: "item" as const, itemId: envio.item_id } : { tipo: "checklist" as const },
+        loteId,
+        cienteAoDispensar: true,
+        recebidoEm,
+      } satisfies AvisoChecklist;
+    }
     // Recusa individual não avisa; só quando o lote inteiro ficou recusado.
     const doLote = [...ctx.enviadosAntes.filter((e) => idDoLote(e) === loteId && e.id !== envio.id), envio];
     const [lote] = agruparLotes(doLote);

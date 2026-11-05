@@ -11,8 +11,8 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useUsuarioAtual } from "@/components/hub/UsuarioAtualProvider";
 import { COR_GRUPO_PADRAO, NOME_GRUPO_INICIAL, type CamposItem } from "@/lib/checklist";
-import { FILTROS_PADRAO, ordemNoFim, type FiltrosChecklist } from "@/lib/checklistRegras";
-import type { ChecklistEnvio, ChecklistItem } from "@/lib/types/shell";
+import { FILTROS_PADRAO, montarVisao, ordemNoFim, type FiltrosChecklist } from "@/lib/checklistRegras";
+import type { ChecklistEnvio, ChecklistEnvioLista, ChecklistItem } from "@/lib/types/shell";
 import { useChecklistDados } from "./useChecklistDados";
 import { useItemNaUrl, useParametroUrl } from "./useItemNaUrl";
 import { destinoDoLote } from "./envios/textosLote";
@@ -20,6 +20,7 @@ import type { LoteEnvio } from "@/lib/checklistLotes";
 import { PAINEL_ENVIADAS } from "@/lib/telaAtual";
 import { ChecklistFiltros } from "./ChecklistFiltros";
 import { ChecklistQuadro } from "./ChecklistQuadro";
+import { useListasMinimizadas } from "./useListasMinimizadas";
 import { SeletorColunas } from "./SeletorColunas";
 import { useChecklistColunas } from "./useChecklistColunas";
 import { GrupoModal } from "./GrupoModal";
@@ -30,13 +31,15 @@ import { RecebidasSecao } from "./envios/RecebidasSecao";
 import { EnviarItemModal } from "./envios/EnviarItemModal";
 import { NovaSolicitacaoModal } from "./envios/NovaSolicitacaoModal";
 import { ResponderEnvioModal } from "./envios/ResponderEnvioModal";
+import { ResponderListaModal } from "./envios/ResponderListaModal";
 import { EnviadasDrawer } from "./envios/EnviadasDrawer";
 
 type Painel =
   | { tipo: "novo-grupo" }
   | { tipo: "enviar"; item: ChecklistItem }
   | { tipo: "nova-solicitacao" }
-  | { tipo: "responder"; envio: ChecklistEnvio; aceitar: boolean };
+  | { tipo: "responder"; envio: ChecklistEnvio; aceitar: boolean }
+  | { tipo: "responder-lista"; envio: ChecklistEnvioLista; aceitar: boolean };
 
 /** Conteúdo da aba Checklist do Início. Exige <Suspense> acima (?item= e ?painel= na URL). */
 export function ChecklistPagina() {
@@ -49,6 +52,16 @@ export function ChecklistPagina() {
   const enviadasAberto = painelUrl.valor === PAINEL_ENVIADAS;
   const [filtros, setFiltros] = useState<FiltrosChecklist>(FILTROS_PADRAO);
   const colunas = useChecklistColunas(usuario.id);
+  const buscaListas = useMemo(() => {
+    if (filtros.busca.trim() === "") return { ativa: false };
+    const visao = montarVisao(grupos.map((g) => g.id), itens, filtros);
+    const comResultado = new Set(
+      [...visao].filter(([, v]) => v.pendentes.length + v.concluidos.length > 0).map(([id]) => id),
+    );
+    return { ativa: true, comResultado };
+  }, [filtros, grupos, itens]);
+  const listasMinimizadas = useListasMinimizadas(usuario.id, buscaListas);
+  const idsGrupos = grupos.map((g) => g.id);
   const [painel, setPainel] = useState<Painel | null>(null);
   // Fica fora de `painel` porque pode abrir por cima do Drawer de Enviadas.
   const [cancelando, setCancelando] = useState<LoteEnvio | null>(null);
@@ -121,6 +134,7 @@ export function ChecklistPagina() {
         <RecebidasSecao
           onAceitar={(envio) => setPainel({ tipo: "responder", envio, aceitar: true })}
           onRecusar={(envio) => setPainel({ tipo: "responder", envio, aceitar: false })}
+          onResponderLista={(envio, aceitar) => setPainel({ tipo: "responder-lista", envio, aceitar })}
         />
 
         <ChecklistFiltros
@@ -129,12 +143,21 @@ export function ChecklistPagina() {
           acoes={botoes}
           seletorColunas={<SeletorColunas valor={colunas.colunas} onChange={colunas.definir} />}
           aoLadoDaBusca={
-            arquivadas.total > 0 && (
-              <Button variant="secondary" size="sm" onClick={() => setArquivadasAberto(true)}>
-                <Archive className="h-3.5 w-3.5" /> Arquivadas
-                <span className="rounded-full bg-white/15 px-1.5 text-[11px]">{arquivadas.total}</span>
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => listasMinimizadas.definirTodas(idsGrupos, !listasMinimizadas.todasMinimizadas(idsGrupos))}
+              >
+                {listasMinimizadas.todasMinimizadas(idsGrupos) ? "Expandir todas" : "Minimizar todas"}
               </Button>
-            )
+              {arquivadas.total > 0 && (
+                <Button variant="secondary" size="sm" onClick={() => setArquivadasAberto(true)}>
+                  <Archive className="h-3.5 w-3.5" /> Arquivadas
+                  <span className="rounded-full bg-white/15 px-1.5 text-[11px]">{arquivadas.total}</span>
+                </Button>
+              )}
+            </>
           }
         />
         {!usuario.isAdmin && <p className="-mt-3 mb-4 text-xs text-white/40">Seu checklist pode ser visualizado pelo RH.</p>}
@@ -154,6 +177,7 @@ export function ChecklistPagina() {
             acoes={acoesDoQuadro}
             acessoDe={acessoDe}
             onAbrirItem={(item) => itemUrl.abrir(item.id)}
+            listasMinimizadas={listasMinimizadas}
           />
         )}
 
@@ -191,6 +215,16 @@ export function ChecklistPagina() {
             onRespondido={(envio) => {
               if (painel.aceitar && envio.item_id) void acoes.trazerItem(envio.item_id);
             }}
+            onClose={fecharPainel}
+          />
+        )}
+        {painel?.tipo === "responder-lista" && (
+          <ResponderListaModal
+            envio={painel.envio}
+            aceitar={painel.aceitar}
+            onAceita={(grupoId) =>
+              void acoes.trazerGrupo(grupoId).catch((err) => console.error("[checklist] Falha ao trazer a lista aceita:", err))
+            }
             onClose={fecharPainel}
           />
         )}

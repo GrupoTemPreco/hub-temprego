@@ -36,10 +36,32 @@ export function classeCorGrupo(cor: string) {
   return CORES_GRUPO.find((c) => c.value === cor)?.classe ?? "bg-slate-400";
 }
 
-export function opcaoNivel(nivel: number) {
-  return NIVEIS_ITEM.find((n) => n.value === nivel) ?? NIVEIS_ITEM[0];
+export const NIVEIS_COM_NENHUM: Array<{ value: ChecklistNivel | null; label: string }> = [
+  { value: null, label: "Nenhum" },
+  ...NIVEIS_ITEM,
+];
+
+export const URGENCIAS_COM_NENHUM: Array<{ value: ChecklistUrgencia | null; label: string }> = [
+  { value: null, label: "Nenhum" },
+  ...URGENCIAS_ITEM,
+];
+
+export const FILTRO_NIVEIS: Array<{ value: ChecklistNivel | null; label: string }> = [
+  { value: null, label: "Sem nível" },
+  ...NIVEIS_ITEM,
+];
+
+export const FILTRO_URGENCIAS: Array<{ value: ChecklistUrgencia | null; label: string }> = [
+  { value: null, label: "Sem urgência" },
+  ...URGENCIAS_ITEM,
+];
+
+export function opcaoNivel(nivel: number | null | undefined) {
+  if (nivel == null) return undefined;
+  return NIVEIS_ITEM.find((n) => n.value === nivel);
 }
 
-export function opcaoUrgencia(urgencia: number) {
-  return URGENCIAS_ITEM.find((u) => u.value === urgencia) ?? URGENCIAS_ITEM[1];
+export function opcaoUrgencia(urgencia: number | null | undefined) {
+  if (urgencia == null) return undefined;
+  return URGENCIAS_ITEM.find((u) => u.value === urgencia);
 }

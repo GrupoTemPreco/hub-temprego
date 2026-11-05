@@ -1,17 +1,20 @@
 import { hojeSP, situacaoPrazo } from "@/lib/checklistRegras";
+import { situacaoRecorrencia } from "@/lib/checklistDiarias";
 import { aceiteNaoVisto, recusaNaoVista, ultimoLotePorItem, type LoteEnvio } from "@/lib/checklistLotes";
 import { estaAtrasado, ticketComigo } from "@/lib/tickets";
-import type { ChecklistEnvio, ChecklistItem, Ticket } from "@/lib/types/shell";
+import type { ChecklistEnvio, ChecklistEnvioLista, ChecklistItem, Ticket } from "@/lib/types/shell";
 
 const URGENCIA_CRITICA = 4;
 
-export type MotivoItemChecklist = "vencido" | "critico" | "proximo" | "fixado";
+export type MotivoItemChecklist = "vencido" | "atrasada" | "critico" | "proximo" | "fixado";
 
-/** Motivo mais forte para um item pendente aparecer: vencido, crítico, vence em breve, fixado. */
+/** Motivo mais forte para um item pendente aparecer: vencido, recorrente atrasada, crítico, vence em breve, fixado. */
 export function motivoAtencaoItem(item: ChecklistItem, hoje = hojeSP()): MotivoItemChecklist | null {
   if (item.status === "feito") return null;
   const prazo = item.prazo ? situacaoPrazo(item.prazo, hoje) : null;
   if (prazo === "vencido") return "vencido";
+  const recorrencia = situacaoRecorrencia(item, hoje);
+  if (recorrencia?.tipo === "pendente" && recorrencia.atrasada) return "atrasada";
   if (item.urgencia === URGENCIA_CRITICA) return "critico";
   if (prazo === "proximo") return "proximo";
   if (item.fixado) return "fixado";
@@ -20,6 +23,7 @@ export function motivoAtencaoItem(item: ChecklistItem, hoje = hojeSP()): MotivoI
 
 export type ItemAtencao =
   | { tipo: "recebida"; id: string; envio: ChecklistEnvio }
+  | { tipo: "lista-recebida"; id: string; envio: ChecklistEnvioLista }
   | { tipo: "recusada"; id: string; lote: LoteEnvio }
   | { tipo: "aceita"; id: string; lote: LoteEnvio }
   | { tipo: "checklist"; id: string; motivo: MotivoItemChecklist; item: ChecklistItem }
@@ -33,6 +37,7 @@ export type ItemAtencao =
 function peso(i: ItemAtencao) {
   switch (i.tipo) {
     case "recebida":
+    case "lista-recebida":
       return 0;
     case "ticket-atrasado":
       return 1;
@@ -42,7 +47,7 @@ function peso(i: ItemAtencao) {
     case "aceita":
       return 4;
     case "checklist":
-      return { vencido: 1, critico: 2, proximo: 5, fixado: 6 }[i.motivo];
+      return { vencido: 1, atrasada: 1, critico: 2, proximo: 5, fixado: 6 }[i.motivo];
   }
 }
 
@@ -51,6 +56,8 @@ type Fontes = {
   setores: string[];
   acessoChecklist: boolean;
   recebidos: ChecklistEnvio[];
+  /** Listas enviadas para o usuário e ainda sem resposta. */
+  listasRecebidas: ChecklistEnvioLista[];
   /** Envios do usuário agrupados por lote: uma linha por envio, não por destinatário. */
   lotes: LoteEnvio[];
   itensChecklist: ChecklistItem[];
@@ -67,6 +74,7 @@ function itensDoChecklist(f: Fontes): ItemAtencao[] {
 
   return [
     ...f.recebidos.map((envio) => ({ tipo: "recebida" as const, id: `recebida-${envio.id}`, envio })),
+    ...f.listasRecebidas.map((envio) => ({ tipo: "lista-recebida" as const, id: `lista-recebida-${envio.id}`, envio })),
     ...recusadas.map((lote) => ({ tipo: "recusada" as const, id: `recusada-${lote.id}`, lote })),
     ...f.lotes.filter(aceiteNaoVisto).map((lote) => ({ tipo: "aceita" as const, id: `aceita-${lote.id}`, lote })),
     ...pendentes.flatMap((item) => {

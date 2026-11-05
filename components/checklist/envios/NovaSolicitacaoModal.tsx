@@ -6,7 +6,7 @@ import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
 import { NOME_GRUPO_INICIAL } from "@/lib/checklist";
-import { NIVEIS_ITEM, URGENCIAS_ITEM } from "@/lib/checklistOpcoes";
+import { NIVEIS_COM_NENHUM, URGENCIAS_COM_NENHUM } from "@/lib/checklistOpcoes";
 import type { ChecklistGrupo, ChecklistNivel, ChecklistUrgencia } from "@/lib/types/shell";
 import type { AcoesChecklist } from "../useChecklistDados";
 import { CAMPO, Campo, CampoSelect } from "../Campos";
@@ -26,8 +26,8 @@ export function NovaSolicitacaoModal({ grupos, acoes, garantirGrupo, onClose }: 
   const envios = useChecklistEnvios();
   const [titulo, setTitulo] = useState("");
   const [observacao, setObservacao] = useState("");
-  const [nivel, setNivel] = useState<ChecklistNivel>(1);
-  const [urgencia, setUrgencia] = useState<ChecklistUrgencia>(2);
+  const [nivel, setNivel] = useState<ChecklistNivel | null>(null);
+  const [urgencia, setUrgencia] = useState<ChecklistUrgencia | null>(null);
   const [grupoId, setGrupoId] = useState<string | null>(grupos[0]?.id ?? null);
   const [envio, setEnvio] = useState(() => formEnvioInicial());
   const [enviando, setEnviando] = useState(false);
@@ -42,8 +42,8 @@ export function NovaSolicitacaoModal({ grupos, acoes, garantirGrupo, onClose }: 
       const item = await acoes.adicionarItem(destino, {
         titulo: titulo.trim(),
         observacao: observacao.trim() || null,
-        nivel,
-        urgencia,
+        ...(nivel != null ? { nivel } : {}),
+        ...(urgencia != null ? { urgencia } : {}),
       });
       if (!item) return;
       const dados = dadosDoEnvio(item.id, envio);
@@ -84,8 +84,8 @@ export function NovaSolicitacaoModal({ grupos, acoes, garantirGrupo, onClose }: 
             <input autoFocus className={CAMPO} value={titulo} onChange={(e) => setTitulo(e.target.value)} />
           </Campo>
           <div className="grid grid-cols-2 gap-3">
-            <CampoSelect rotulo="Nível" valor={nivel} opcoes={NIVEIS_ITEM} onChange={setNivel} />
-            <CampoSelect rotulo="Urgência" valor={urgencia} opcoes={URGENCIAS_ITEM} onChange={setUrgencia} />
+            <CampoSelect rotulo="Nível" valor={nivel} opcoes={NIVEIS_COM_NENHUM} onChange={setNivel} />
+            <CampoSelect rotulo="Urgência" valor={urgencia} opcoes={URGENCIAS_COM_NENHUM} onChange={setUrgencia} />
           </div>
           <Campo rotulo="Observação">
             <textarea

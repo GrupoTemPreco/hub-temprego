@@ -1,28 +1,30 @@
 import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { listarMembros, listarParticipacoes } from "@/lib/checklistMembros";
-import { listarConclusoesDeHoje } from "@/lib/checklistDiarias";
+import { listarConclusoesRecentes } from "@/lib/checklistDiarias";
 import type { ChecklistCor, ChecklistGrupo, ChecklistItem, ChecklistMembro } from "@/lib/types/shell";
 
-export const COLUNAS_GRUPO = "id, dono_id, nome, cor, ordem, arquivado, arquivado_em, diaria, criado_em";
+export const COLUNAS_GRUPO = "id, dono_id, nome, cor, ordem, arquivado, arquivado_em, diaria, dias_semana, criado_em";
 const COLUNAS_ITEM =
-  "id, grupo_id, criado_por, titulo, observacao, nivel, urgencia, prazo, status, diaria, fixado, ordem, concluido_em, criado_em, atualizado_em";
+  "id, grupo_id, criado_por, titulo, observacao, nivel, urgencia, prazo, status, diaria, dias_semana, fixado, ordem, concluido_em, criado_em, atualizado_em";
 
 export const NOME_GRUPO_INICIAL = "Minhas tarefas";
 export const COR_GRUPO_PADRAO: ChecklistCor = "azul";
 
-export type CamposGrupo = Partial<Pick<ChecklistGrupo, "nome" | "cor" | "ordem" | "arquivado" | "arquivado_em" | "diaria">>;
+export type CamposGrupo = Partial<
+  Pick<ChecklistGrupo, "nome" | "cor" | "ordem" | "arquivado" | "arquivado_em" | "diaria" | "dias_semana">
+>;
 
 /** atualizado_em e concluido_em ficam fora: quem preenche é o trigger do banco. */
 export type CamposItem = Partial<
   Pick<
     ChecklistItem,
-    "grupo_id" | "titulo" | "observacao" | "nivel" | "urgencia" | "prazo" | "status" | "diaria" | "fixado" | "ordem"
+    "grupo_id" | "titulo" | "observacao" | "nivel" | "urgencia" | "prazo" | "status" | "diaria" | "dias_semana" | "fixado" | "ordem"
   >
 >;
 
-export type NovoItem = Pick<ChecklistItem, "grupo_id" | "titulo" | "nivel" | "urgencia" | "ordem" | "criado_por"> &
-  Partial<Pick<ChecklistItem, "observacao" | "diaria">>;
+export type NovoItem = Pick<ChecklistItem, "grupo_id" | "titulo" | "ordem" | "criado_por"> &
+  Partial<Pick<ChecklistItem, "observacao" | "nivel" | "urgencia" | "diaria" | "dias_semana">>;
 
 function falhar(error: { message: string } | null) {
   if (error) throw new Error(error.message);
@@ -115,8 +117,8 @@ export type CargaChecklist = {
   grupos: ChecklistGrupo[];
   itens: ChecklistItem[];
   membros: ChecklistMembro[];
-  /** Ids com conclusão na data de hoje (São Paulo). */
-  feitasHoje: string[];
+  /** Conclusões dos últimos 7 dias (São Paulo), pela chave `tarefa|data`. */
+  conclusoes: Map<string, string | null>;
 };
 
 // Evita criar "Minhas tarefas" duas vezes quando a página monta duas vezes seguidas (StrictMode).
@@ -141,15 +143,15 @@ export function carregarChecklist(donoId: string, criarInicial = true) {
     );
     const grupos = [...proprios, ...compartilhados];
     const ids = grupos.map((g) => g.id);
-    const [itens, membrosDasListas, feitasHoje] = await Promise.all([
+    const [itens, membrosDasListas, conclusoes] = await Promise.all([
       listarItens(ids),
       listarMembros(ids),
-      listarConclusoesDeHoje(),
+      listarConclusoesRecentes(),
     ]);
     // Participações em listas arquivadas ficam guardadas: quando o dono restaurar, o tempo real
     // reconhece o usuário como membro e a lista volta para ele.
     const membros = [...membrosDasListas, ...participacoes.filter((p) => !ids.includes(p.grupo_id))];
-    return { grupos, itens, membros, feitasHoje };
+    return { grupos, itens, membros, conclusoes };
   })().finally(() => carregamentos.delete(chave));
 
   carregamentos.set(chave, promessa);

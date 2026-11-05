@@ -4,10 +4,11 @@ import { useRouter } from "next/navigation";
 import { ChevronRight, ListChecks } from "lucide-react";
 import { AcaoCard, CardRolavel, VazioCard } from "@/components/ui/CardRolavel";
 import { useUsuarioAtual } from "@/components/hub/UsuarioAtualProvider";
+import { TextoCortado } from "@/components/ui/Tooltip";
 import { resumoPendentes } from "@/lib/checklistRegras";
 import { rotaChecklist } from "@/lib/telaAtual";
 import type { DadosChecklist } from "./useChecklistDados";
-import { PrazoChip, UrgenciaChip } from "./ItemChips";
+import { DiariaChip, PrazoChip, UrgenciaChip } from "./ItemChips";
 
 const LIMITE_ITENS = 6;
 
@@ -62,7 +63,8 @@ export function MeuChecklistCard({ checklist }: { checklist: DadosChecklist }) {
                     onClick={() => abrir(item.id)}
                     className="flex w-full items-center gap-2 rounded-md px-1 py-1.5 text-left text-sm text-white/85 hover:bg-white/5"
                   >
-                    <span className="min-w-0 flex-1 truncate">{item.titulo}</span>
+                    <TextoCortado className="min-w-0 flex-1 truncate">{item.titulo}</TextoCortado>
+                    {item.diaria && <DiariaChip dias={item.dias_semana} />}
                     <UrgenciaChip urgencia={item.urgencia} />
                     {item.prazo && <PrazoChip prazo={item.prazo} feito={false} />}
                   </button>

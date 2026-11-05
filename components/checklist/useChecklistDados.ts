@@ -19,26 +19,34 @@ import {
 import {
   camposParaGravar,
   comStatusDoDia,
-  desligarItensDaLista,
+  conclusaoAoReprogramar,
   diariaAoMudarDeLista,
-  idsConcluidasHoje,
-  ligarItensDaLista,
-  marcarConclusoesDeHoje,
+  feitaNaOcorrencia,
+  marcarConclusoes,
+  ocorrenciaAtual,
+  qtdConcluidasAntesDeHoje,
 } from "@/lib/checklistDiarias";
 import { alterarMembro, listarMembros } from "@/lib/checklistMembros";
-import { calcularAcesso, gruposNaOrdemDaGrade, membrosPorGrupo, type AcessoGrupo } from "@/lib/checklistAcesso";
-import { ordemNoFim } from "@/lib/checklistRegras";
+import {
+  calcularAcesso,
+  gruposNaOrdemDaGrade,
+  membrosPorGrupo,
+  travarSeAguardando,
+  type AcessoGrupo,
+} from "@/lib/checklistAcesso";
+import { hojeSP, ordemNoFim } from "@/lib/checklistRegras";
 import type { ChecklistCor, ChecklistGrupo, ChecklistItem, ChecklistMembro } from "@/lib/types/shell";
 import { upsertMembro, upsertPorId, useChecklistRealtime } from "./useChecklistRealtime";
 import { useAcoesMembros, type AcoesMembros } from "./useAcoesMembros";
 import { useConclusoesHoje } from "./useConclusoesHoje";
+import { aplicarRepeticaoLista, type NovaRepeticaoLista } from "./repeticaoLista";
 
 export type DadosNovoItem = Pick<ChecklistItem, "titulo"> &
-  Partial<Pick<ChecklistItem, "nivel" | "urgencia" | "observacao" | "diaria">>;
+  Partial<Pick<ChecklistItem, "nivel" | "urgencia" | "observacao" | "diaria" | "dias_semana">>;
 
 export type AcoesChecklist = AcoesMembros & {
   alterarItem: (id: string, campos: CamposItem, erro?: string) => Promise<boolean>;
-  /** Marca ou desmarca a conclusão de hoje de uma tarefa diária. Não mexe no status da linha. */
+  /** Marca ou desmarca a ocorrência atual de uma tarefa recorrente. Não mexe no status da linha. */
   alternarDiaria: (id: string, concluir: boolean) => Promise<boolean>;
   adicionarItem: (grupoId: string, dados: DadosNovoItem) => Promise<ChecklistItem | null>;
   removerItem: (id: string) => Promise<boolean>;
@@ -52,8 +60,12 @@ export type AcoesChecklist = AcoesMembros & {
   moverGrupo: (id: string, ordem: number) => Promise<boolean>;
   /** Relê um item do banco (ex.: tarefa recém-aceita, que a RPC moveu para um grupo do usuário). */
   trazerItem: (id: string) => Promise<void>;
-  /** Liga ou desliga a lista inteira. Desligar aplica a regra do dia em cada tarefa. */
-  definirListaDiaria: (grupoId: string, ligada: boolean) => Promise<boolean>;
+  /** Lê do banco a lista, as tarefas e os membros (ex.: lista restaurada ou recém-aceita). */
+  trazerGrupo: (id: string) => Promise<void>;
+  /** Liga, troca os dias ou desliga a repetição da lista inteira (as tarefas ficam com os dias dela). */
+  definirRepeticaoLista: (grupoId: string, nova: NovaRepeticaoLista) => Promise<boolean>;
+  /** Tarefas da lista feitas, mas não hoje (ao ligar a repetição elas voltam pendentes). */
+  contarConcluidasAntesDeHoje: (grupoId: string) => number;
 };
 
 /** Só grupos ativos ficam no estado. */
@@ -74,7 +86,8 @@ export type DadosChecklist = ReturnType<typeof useChecklistDados>;
  */
 export function useChecklistDados(usuarioId: string, { criarGrupoInicial = true, ativo: habilitado = true } = {}) {
   const toast = useToast();
-  const { aoItemSair } = useChecklistEnvios();
+  const { aoItemSair, listas: enviosLista } = useChecklistEnvios();
+  const { aoListaSair, situacaoDaLista } = enviosLista;
   const conclusoes = useConclusoesHoje(usuarioId, habilitado);
   const [todosGrupos, setGrupos] = useState<ChecklistGrupo[]>([]);
   const [itens, setItens] = useState<ChecklistItem[]>([]);
@@ -104,7 +117,7 @@ export function useChecklistDados(usuarioId: string, { criarGrupoInicial = true,
         setGrupos(organizarGrupos(dados.grupos));
         setItens(dados.itens);
         setMembros(dados.membros);
-        conclusoes.substituir(dados.feitasHoje, lida);
+        conclusoes.substituir(dados.conclusoes, lida);
       })
       .catch((err) => ativo && setErro(mensagem(err)))
       .finally(() => ativo && setCarregando(false));
@@ -116,6 +129,17 @@ export function useChecklistDados(usuarioId: string, { criarGrupoInicial = true,
   // Envio aceito: a RPC passou o item para o grupo de outra pessoa. O Realtime de checklist_itens
   // pode nem chegar (o item deixa de ser visível para quem enviou), então o aviso do envio também tira.
   useEffect(() => aoItemSair((id) => setItens((prev) => prev.filter((i) => i.id !== id))), [aoItemSair]);
+  // Lista aceita por quem recebeu: o dono mudou e ela sai da grade de quem enviou, com as tarefas.
+  useEffect(
+    () =>
+      aoListaSair((grupoId) => {
+        grupoIdsRef.current.delete(grupoId);
+        setGrupos((prev) => prev.filter((g) => g.id !== grupoId));
+        setItens((prev) => prev.filter((i) => i.grupo_id !== grupoId));
+        setMembros((prev) => prev.filter((m) => m.grupo_id !== grupoId));
+      }),
+    [aoListaSair],
+  );
 
   useChecklistRealtime({
     usuarioId,
@@ -133,17 +157,17 @@ export function useChecklistDados(usuarioId: string, { criarGrupoInicial = true,
   // "Precisa da sua atenção" e contadores do Início usam só estes.
   const itensAtivos = useMemo(() => {
     const ativas = new Set(todosGrupos.map((g) => g.id));
-    return itens.filter((i) => ativas.has(i.grupo_id)).map((item) => comStatusDoDia(item, conclusoes.feitas));
-  }, [itens, todosGrupos, conclusoes.feitas]);
+    const hoje = conclusoes.dia;
+    return itens.filter((i) => ativas.has(i.grupo_id)).map((item) => comStatusDoDia(item, conclusoes.conclusoes, hoje));
+  }, [itens, todosGrupos, conclusoes.conclusoes, conclusoes.dia]);
   const porGrupo = useMemo(() => membrosPorGrupo(membros), [membros]);
   const acessoDe = useCallback(
     (grupoId: string): AcessoGrupo =>
-      calcularAcesso(
-        todosGrupos.find((g) => g.id === grupoId),
-        porGrupo.get(grupoId) ?? [],
-        usuarioId,
+      travarSeAguardando(
+        calcularAcesso(todosGrupos.find((g) => g.id === grupoId), porGrupo.get(grupoId) ?? [], usuarioId),
+        situacaoDaLista(grupoId)?.tipo === "aguardando",
       ),
-    [todosGrupos, porGrupo, usuarioId],
+    [todosGrupos, porGrupo, usuarioId, situacaoDaLista],
   );
 
   const acoesMembros = useAcoesMembros({ usuarioId, setMembros, setGrupos, setItens, grupoIdsRef });
@@ -153,24 +177,34 @@ export function useChecklistDados(usuarioId: string, { criarGrupoInicial = true,
     if (!antes) return false;
     const destinoId = campos.grupo_id ?? antes.grupo_id;
     const origemDiaria = Boolean(todosGrupos.find((g) => g.id === antes.grupo_id)?.diaria);
-    const destinoDiaria = Boolean(todosGrupos.find((g) => g.id === destinoId)?.diaria);
-    const feitaHoje = conclusoes.feitas.has(id);
-    const gravar = camposParaGravar(antes, diariaAoMudarDeLista(antes, campos, origemDiaria, destinoDiaria, feitaHoje), feitaHoje);
+    const destino = todosGrupos.find((g) => g.id === destinoId) ?? null;
+    const hoje = hojeSP();
+    const feitaAgora = feitaNaOcorrencia(antes, conclusoes.conclusoes, hoje);
+    const gravar = camposParaGravar(antes, diariaAoMudarDeLista(antes, campos, origemDiaria, destino, feitaAgora), feitaAgora);
     if (Object.keys(gravar).length === 0) return true;
+    const nova = conclusaoAoReprogramar(antes, { ...antes, ...gravar }, conclusoes.conclusoes, hoje);
+    const novas = nova ? [nova] : [];
     setItens((prev) => prev.map((i) => (i.id === id ? { ...i, ...gravar } : i)));
+    conclusoes.incluir(novas);
     try {
       await atualizarItem(id, gravar);
+      await marcarConclusoes(novas, usuarioId);
       return true;
     } catch (err) {
       setItens((prev) => prev.map((i) => (i.id === id ? antes : i)));
+      conclusoes.retirar(novas);
       toast.error(`${erroMsg}: ${mensagem(err)}`);
       return false;
     }
   };
 
   const alternarDiaria: AcoesChecklist["alternarDiaria"] = async (id, concluir) => {
+    const item = itens.find((i) => i.id === id);
+    const data = item ? ocorrenciaAtual(item, hojeSP()) : null;
+    // Sem ocorrência ainda (antes do primeiro dia programado), não há o que marcar.
+    if (!data) return false;
     try {
-      await conclusoes.alternar(id, concluir);
+      await conclusoes.alternar(id, data, concluir);
       return true;
     } catch (err) {
       toast.error(`Não foi possível atualizar a tarefa diária: ${mensagem(err)}`);
@@ -180,13 +214,14 @@ export function useChecklistDados(usuarioId: string, { criarGrupoInicial = true,
 
   const adicionarItem: AcoesChecklist["adicionarItem"] = async (grupoId, dados) => {
     try {
+      const { nivel, urgencia, ...resto } = dados;
       const novo = await criarItem({
-        nivel: 1,
-        urgencia: 2,
-        ...dados,
+        ...resto,
         grupo_id: grupoId,
         ordem: ordemNoFim(itens.filter((i) => i.grupo_id === grupoId)),
         criado_por: usuarioId,
+        ...(nivel != null ? { nivel } : {}),
+        ...(urgencia != null ? { urgencia } : {}),
       });
       setItens((prev) => upsertPorId(prev, novo));
       return novo;
@@ -263,56 +298,35 @@ export function useChecklistDados(usuarioId: string, { criarGrupoInicial = true,
   const arquivarGrupo: AcoesChecklist["arquivarGrupo"] = (id) =>
     alterarGrupo(id, { arquivado: true, arquivado_em: new Date().toISOString() }, "Não foi possível arquivar a lista");
 
-  const definirListaDiaria: AcoesChecklist["definirListaDiaria"] = async (grupoId, ligada) => {
-    const grupo = todosGrupos.find((g) => g.id === grupoId);
-    if (!grupo || grupo.diaria === ligada) return true;
-    const antesItens = itens.filter((i) => i.grupo_id === grupoId);
-    const feitas = antesItens.filter((i) => conclusoes.feitas.has(i.id)).map((i) => i.id);
-    const feitasSet = new Set(feitas);
-    const concluidasHoje = ligada ? idsConcluidasHoje(antesItens) : [];
-    const novasConclusoes = concluidasHoje.filter((id) => !feitasSet.has(id));
-    setGrupos((prev) => prev.map((g) => (g.id === grupoId ? { ...g, diaria: ligada } : g)));
-    setItens((prev) =>
-      prev.map((i) => {
-        if (i.grupo_id !== grupoId) return i;
-        if (ligada) return { ...i, diaria: true };
-        return { ...i, diaria: false, status: feitasSet.has(i.id) ? "feito" : "a_fazer" };
-      }),
-    );
-    if (ligada) conclusoes.incluir(novasConclusoes);
+  const definirRepeticaoLista: AcoesChecklist["definirRepeticaoLista"] = async (grupoId, nova) => {
     try {
-      if (ligada) {
-        await ligarItensDaLista(grupoId);
-        await marcarConclusoesDeHoje(concluidasHoje, usuarioId);
-      } else await desligarItensDaLista(grupoId, feitas);
-      await atualizarGrupo(grupoId, { diaria: ligada });
+      await aplicarRepeticaoLista({ usuarioId, grupos: todosGrupos, itens, conclusoes, setGrupos, setItens }, grupoId, nova);
       return true;
     } catch (err) {
-      if (ligada) conclusoes.retirar(novasConclusoes);
-      setGrupos((prev) => prev.map((g) => (g.id === grupoId ? grupo : g)));
-      const porId = new Map(antesItens.map((i) => [i.id, i]));
-      setItens((prev) => prev.map((i) => porId.get(i.id) ?? i));
-      toast.error(`Não foi possível atualizar a lista diária: ${mensagem(err)}`);
+      toast.error(`Não foi possível atualizar a repetição da lista: ${mensagem(err)}`);
       return false;
     }
+  };
+
+  const trazerGrupo: AcoesChecklist["trazerGrupo"] = async (id) => {
+    const [[grupo], itensDaLista, membrosDaLista] = await Promise.all([
+      listarGruposPorIds([id]),
+      listarItens([id]),
+      listarMembros([id]),
+    ]);
+    if (!grupo) return;
+    grupoIdsRef.current.add(id);
+    setGrupos((prev) => organizarGrupos(upsertPorId(prev, grupo)));
+    setItens((prev) => itensDaLista.reduce(upsertPorId, prev));
+    setMembros((prev) => [...prev.filter((m) => m.grupo_id !== id), ...membrosDaLista]);
+    await conclusoes.recarregar().catch((err) => console.error("[checklist] Falha ao recarregar o dia:", err));
   };
 
   const restaurarGrupo: AcoesChecklist["restaurarGrupo"] = async (id) => {
     try {
       // Volta no fim da grade; os membros voltam a vê-la porque a participação não foi apagada.
       await atualizarGrupo(id, { arquivado: false, arquivado_em: null, ordem: ordemNoFim(grupos) });
-      const [[grupo], itensDaLista, membrosDaLista] = await Promise.all([
-        listarGruposPorIds([id]),
-        listarItens([id]),
-        listarMembros([id]),
-      ]);
-      if (grupo) {
-        grupoIdsRef.current.add(id);
-        setGrupos((prev) => organizarGrupos(upsertPorId(prev, grupo)));
-        setItens((prev) => itensDaLista.reduce(upsertPorId, prev));
-        setMembros((prev) => [...prev.filter((m) => m.grupo_id !== id), ...membrosDaLista]);
-        await conclusoes.recarregar().catch((err) => console.error("[checklist] Falha ao recarregar o dia:", err));
-      }
+      await trazerGrupo(id);
       return true;
     } catch (err) {
       toast.error(`Não foi possível restaurar a lista: ${mensagem(err)}`);
@@ -332,9 +346,16 @@ export function useChecklistDados(usuarioId: string, { criarGrupoInicial = true,
     restaurarGrupo,
     moverGrupo,
     trazerItem,
-    definirListaDiaria,
+    trazerGrupo,
+    definirRepeticaoLista,
+    contarConcluidasAntesDeHoje: (grupoId) =>
+      qtdConcluidasAntesDeHoje(
+        itensAtivos.filter((i) => i.grupo_id === grupoId),
+        conclusoes.conclusoes,
+        conclusoes.dia,
+      ),
   };
-  /** Só os grupos do próprio usuário (ex.: destino ao aceitar uma tarefa, como a RPC exige). */
-  const gruposProprios = grupos.filter((g) => g.dono_id === usuarioId);
+  /** Só os grupos do próprio usuário (ex.: destino ao aceitar uma tarefa, como a RPC exige), menos os enviados aguardando resposta. */
+  const gruposProprios = grupos.filter((g) => g.dono_id === usuarioId && situacaoDaLista(g.id)?.tipo !== "aguardando");
   return { grupos, gruposProprios, itens: itensAtivos, carregando, erro, acoes, acessoDe };
 }

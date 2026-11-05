@@ -22,7 +22,9 @@ import type { ChecklistGrupo, ChecklistItem } from "@/lib/types/shell";
 import type { AcoesChecklist } from "./useChecklistDados";
 import { detectarColisao, idGrupo, useArrastoChecklist } from "./useArrastoChecklist";
 import { GrupoBloco } from "./GrupoBloco";
+import { useChecklistEnvios } from "./envios/ChecklistEnviosProvider";
 import { ItemConteudo } from "./ItemLinha";
+import type { ListasMinimizadas } from "./useListasMinimizadas";
 
 type Props = {
   grupos: ChecklistGrupo[];
@@ -33,6 +35,7 @@ type Props = {
   acoes: AcoesChecklist;
   acessoDe: (grupoId: string) => AcessoGrupo;
   onAbrirItem: (item: ChecklistItem) => void;
+  listasMinimizadas: ListasMinimizadas;
 };
 
 const CONSULTA_CELULAR = "(max-width: 767px)";
@@ -72,8 +75,9 @@ function jaAvisouCompartilhado(usuarioId: string) {
   return false;
 }
 
-export function ChecklistQuadro({ grupos, itens, filtros, colunas, acoes, acessoDe, onAbrirItem }: Props) {
+export function ChecklistQuadro({ grupos, itens, filtros, colunas, acoes, acessoDe, onAbrirItem, listasMinimizadas }: Props) {
   const toast = useToast();
+  const envios = useChecklistEnvios();
   const faixa = useFaixaTela();
   const colunasVisiveis = colunasNaTela(colunas, faixa);
   const usuarioId = useUsuarioAtual().id;
@@ -97,6 +101,10 @@ export function ChecklistQuadro({ grupos, itens, filtros, colunas, acoes, acesso
     },
     moverGrupo: (id, ordem) => void acoes.moverGrupo(id, ordem),
   });
+  // Listas com alguma tarefa aguardando resposta de envio (o envio da lista inteira fica bloqueado).
+  const comEnvioPendente = new Set(
+    itens.filter((i) => envios.situacaoDoItem(i.id)?.tipo === "aguardando").map((i) => i.grupo_id),
+  );
 
   return (
     <DndContext sensors={sensores} collisionDetection={detectarColisao} {...handlers}>
@@ -105,25 +113,32 @@ export function ChecklistQuadro({ grupos, itens, filtros, colunas, acoes, acesso
           className="grid items-start gap-4"
           style={{ gridTemplateColumns: `repeat(${colunasVisiveis}, minmax(0, 1fr))` }}
         >
-          {grupos.map((grupo) => (
-            <GrupoBloco
-              key={grupo.id}
-              grupo={grupo}
-              acesso={acessoDe(grupo.id)}
-              visao={visao.get(grupo.id)!}
-              ordemManual={filtros.ordenacao === "manual"}
-              pelaAlca={pelaAlca}
-              acoes={acoes}
-              onAbrirItem={onAbrirItem}
-            />
-          ))}
+          {grupos.map((grupo) => {
+            const doGrupo = visao.get(grupo.id)!;
+            const minimizada = listasMinimizadas.estaMinimizada(grupo.id);
+            return (
+              <GrupoBloco
+                key={grupo.id}
+                grupo={grupo}
+                acesso={acessoDe(grupo.id)}
+                visao={doGrupo}
+                ordemManual={filtros.ordenacao === "manual"}
+                pelaAlca={pelaAlca}
+                acoes={acoes}
+                onAbrirItem={onAbrirItem}
+                minimizada={minimizada}
+                onAlternarMinimizada={() => listasMinimizadas.definir(grupo.id, !minimizada)}
+                tarefaComEnvioPendente={comEnvioPendente.has(grupo.id)}
+              />
+            );
+          })}
         </div>
       </SortableContext>
 
       <DragOverlay>
         {itemAtivo && (
           <div className="rounded-lg border border-blue-500/40 bg-[#0f172a] shadow-2xl">
-            <ItemConteudo item={itemAtivo} ocultarSeloDiaria={grupos.find((g) => g.id === itemAtivo.grupo_id)?.diaria} />
+            <ItemConteudo item={itemAtivo} repeticaoLista={grupos.find((g) => g.id === itemAtivo.grupo_id)} />
           </div>
         )}
         {grupoAtivo && (

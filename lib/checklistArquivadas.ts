@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { COLUNAS_GRUPO, listarItens } from "@/lib/checklist";
-import { comStatusDoDia, listarConclusoesDeHoje } from "@/lib/checklistDiarias";
+import { comStatusDoDia, listarConclusoesRecentes } from "@/lib/checklistDiarias";
 import { listarMembros } from "@/lib/checklistMembros";
 import type { ChecklistGrupo, ChecklistItem, ChecklistMembro } from "@/lib/types/shell";
 
@@ -23,9 +23,8 @@ export async function carregarArquivadas(donoId: string): Promise<CargaArquivada
   falhar(error);
   const listas = (data ?? []) as ChecklistGrupo[];
   const ids = listas.map((l) => l.id);
-  const [itens, membros, feitasHoje] = await Promise.all([listarItens(ids), listarMembros(ids), listarConclusoesDeHoje()]);
-  const feitas = new Set(feitasHoje);
-  return { listas, itens: itens.map((item) => comStatusDoDia(item, feitas)), membros };
+  const [itens, membros, conclusoes] = await Promise.all([listarItens(ids), listarMembros(ids), listarConclusoesRecentes()]);
+  return { listas, itens: itens.map((item) => comStatusDoDia(item, conclusoes)), membros };
 }
 
 /** Algum dos itens tem envio aguardando resposta? (bloqueia a exclusão definitiva) */

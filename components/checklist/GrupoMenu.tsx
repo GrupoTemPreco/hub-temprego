@@ -1,14 +1,17 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Archive, LogOut, MoreHorizontal, Pencil, Repeat, Share2 } from "lucide-react";
+import { Archive, Ban, LogOut, MoreHorizontal, Pencil, Repeat, Send, Share2 } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { Toggle } from "@/components/ui/Toggle";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
 import type { ChecklistCor, ChecklistGrupo } from "@/lib/types/shell";
 import { GrupoModal } from "./GrupoModal";
+import { RepetirListaModal } from "./RepetirListaModal";
 import { SeletorCor } from "./SeletorCor";
+import { ignorarRecolher } from "./TopoLista";
+import { BotaoReenviarBase } from "./envios/BotaoReenviar";
+import type { NovaRepeticaoLista } from "./repeticaoLista";
 
 type Props = {
   grupo: ChecklistGrupo;
@@ -21,8 +24,22 @@ type Props = {
   onArquivar: () => Promise<boolean>;
   onCompartilhar: () => void;
   onSair: () => Promise<boolean>;
-  /** Dono liga ou desliga a lista inteira. Desligar pede confirmação antes. */
-  onListaDiaria: (ligada: boolean) => Promise<boolean>;
+  /** Dono: repetição da lista inteira. O modal confirma desligar, mudar os dias e ligar com feitas antigas. */
+  onRepetir: (nova: NovaRepeticaoLista) => Promise<boolean>;
+  qtdConcluidasAntesDeHoje: number;
+  envio: EnvioDaLista;
+};
+
+/** Envio da lista inteira (só o dono). Aguardando resposta, o menu só reenvia ou cancela. */
+export type EnvioDaLista = {
+  aguardando: { destino: string; ultimoEnvioEm: string } | null;
+  /** Modo "todos": a lista segue editável mesmo com pendentes. */
+  todos: boolean;
+  /** Motivo de não poder enviar agora (ex.: tarefa com envio pendente); nulo quando pode. */
+  bloqueio: string | null;
+  onEnviar: () => void;
+  onReenviar: () => Promise<boolean>;
+  onCancelar: () => Promise<boolean>;
 };
 
 const OPCAO = "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-white/10";
@@ -36,33 +53,31 @@ export function GrupoMenu({
   onArquivar,
   onCompartilhar,
   onSair,
-  onListaDiaria,
+  onRepetir,
+  qtdConcluidasAntesDeHoje,
+  envio,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [aberto, setAberto] = useState(false);
   const [renomeando, setRenomeando] = useState(false);
-  const [confirmando, setConfirmando] = useState<"arquivar" | "sair" | "diaria" | null>(null);
+  const [repetindo, setRepetindo] = useState(false);
+  const [confirmando, setConfirmando] = useState<"arquivar" | "sair" | "cancelar-envio" | null>(null);
   const [ocupado, setOcupado] = useState(false);
-  const [trocandoLista, setTrocandoLista] = useState(false);
+  // Guardado ao abrir a confirmação: o texto não muda enquanto o cancelamento termina.
+  const [destinoCancelar, setDestinoCancelar] = useState("");
   const fechar = () => setAberto(false);
   useClickOutside(ref, aberto, fechar);
   useEscapeKey(aberto, fechar);
 
   async function confirmar() {
     setOcupado(true);
-    const ok = await (confirmando === "sair" ? onSair() : confirmando === "diaria" ? onListaDiaria(false) : onArquivar());
+    const ok = await (confirmando === "sair"
+      ? onSair()
+      : confirmando === "cancelar-envio"
+        ? envio.onCancelar()
+        : onArquivar());
     setOcupado(false);
     if (ok) setConfirmando(null);
-  }
-
-  function aoMudarListaDiaria(ligada: boolean) {
-    if (!ligada) {
-      fechar();
-      setConfirmando("diaria");
-      return;
-    }
-    setTrocandoLista(true);
-    void onListaDiaria(true).finally(() => setTrocandoLista(false));
   }
 
   const aviso =
@@ -73,12 +88,14 @@ export function GrupoMenu({
           confirmLabel: "Sair da lista",
           danger: true,
         }
-      : confirmando === "diaria"
+      : confirmando === "cancelar-envio"
         ? {
-            title: "Desligar lista diária?",
-            description: "As tarefas desta lista deixam de repetir.",
-            confirmLabel: "Desligar",
-            danger: false,
+            title: "Cancelar envio?",
+            description: envio.todos
+              ? `Só quem ainda não respondeu deixa de ver o pedido. Quem já aceitou fica com a cópia da lista "${grupo.nome}".`
+              : `A lista "${grupo.nome}" deixa de aguardar resposta de ${destinoCancelar} e volta ao normal.`,
+            confirmLabel: "Cancelar envio",
+            danger: true,
           }
         : {
             title: `Arquivar a lista "${grupo.nome}"?`,
@@ -95,7 +112,7 @@ export function GrupoMenu({
   };
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative" {...ignorarRecolher}>
       <button
         type="button"
         onClick={() => setAberto((v) => !v)}
@@ -108,7 +125,27 @@ export function GrupoMenu({
 
       {aberto && (
         <div className="absolute right-0 top-full z-20 mt-1 w-56 space-y-1 rounded-lg border border-white/15 bg-[#0f172a] p-2 shadow-xl">
-          {dono ? (
+          {dono && envio.aguardando && !envio.todos ? (
+            <>
+              <BotaoReenviarBase
+                ultimoEnvioEm={envio.aguardando.ultimoEnvioEm}
+                reenviar={envio.onReenviar}
+                textoOk="Lista reenviada."
+                className={`${OPCAO} text-white/85`}
+                onFeito={fechar}
+              />
+              <button
+                type="button"
+                className={`${OPCAO} text-rose-300 hover:bg-rose-500/10`}
+                onClick={abrirDepois(() => {
+                  setDestinoCancelar(envio.aguardando?.destino ?? "");
+                  setConfirmando("cancelar-envio");
+                })}
+              >
+                <Ban className="h-4 w-4" /> Cancelar envio
+              </button>
+            </>
+          ) : dono ? (
             <>
               <button type="button" className={`${OPCAO} text-white/85`} onClick={abrirDepois(() => setRenomeando(true))}>
                 <Pencil className="h-4 w-4" /> Renomear lista
@@ -120,16 +157,39 @@ export function GrupoMenu({
               <button type="button" className={`${OPCAO} text-white/85`} onClick={abrirDepois(onCompartilhar)}>
                 <Share2 className="h-4 w-4" /> Compartilhar lista
               </button>
-              <div className={`${OPCAO} text-white/85`}>
-                <Repeat className="h-4 w-4" />
-                <span className="flex-1 text-left">Lista diária</span>
-                <Toggle
-                  label="Lista diária"
-                  checked={grupo.diaria}
-                  disabled={trocandoLista}
-                  onChange={aoMudarListaDiaria}
-                />
-              </div>
+              {envio.aguardando && envio.todos && (
+                <>
+                  <BotaoReenviarBase
+                    ultimoEnvioEm={envio.aguardando.ultimoEnvioEm}
+                    reenviar={envio.onReenviar}
+                    textoOk="Lista reenviada."
+                    className={`${OPCAO} text-white/85`}
+                    onFeito={fechar}
+                  />
+                  <button
+                    type="button"
+                    className={`${OPCAO} text-rose-300 hover:bg-rose-500/10`}
+                    onClick={abrirDepois(() => {
+                      setDestinoCancelar(envio.aguardando?.destino ?? "");
+                      setConfirmando("cancelar-envio");
+                    })}
+                  >
+                    <Ban className="h-4 w-4" /> Cancelar envio
+                  </button>
+                </>
+              )}
+              <button
+                type="button"
+                disabled={Boolean(envio.bloqueio) || Boolean(envio.aguardando)}
+                title={envio.bloqueio ?? (envio.aguardando ? "Essa lista já tem um envio pendente" : undefined)}
+                className={`${OPCAO} text-white/85 disabled:cursor-not-allowed disabled:opacity-40`}
+                onClick={abrirDepois(envio.onEnviar)}
+              >
+                <Send className="h-4 w-4" /> Enviar lista
+              </button>
+              <button type="button" className={`${OPCAO} text-white/85`} onClick={abrirDepois(() => setRepetindo(true))}>
+                <Repeat className="h-4 w-4" /> Repetir lista…
+              </button>
               <button
                 type="button"
                 className={`${OPCAO} text-rose-300 hover:bg-rose-500/10`}
@@ -156,6 +216,15 @@ export function GrupoMenu({
           nomeInicial={grupo.nome}
           onSalvar={(nome) => (nome === grupo.nome ? Promise.resolve(true) : onRenomear(nome))}
           onClose={() => setRenomeando(false)}
+        />
+      )}
+
+      {repetindo && (
+        <RepetirListaModal
+          grupo={grupo}
+          qtdConcluidasAntesDeHoje={qtdConcluidasAntesDeHoje}
+          onSalvar={onRepetir}
+          onClose={() => setRepetindo(false)}
         />
       )}
 

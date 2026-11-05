@@ -1,6 +1,7 @@
 import { Inbox, Send } from "lucide-react";
 import type { ComponentType } from "react";
 import { Badge } from "@/components/ui/Badge";
+import { TextoCortado } from "@/components/ui/Tooltip";
 import { formatarDataHoraSP } from "@/lib/datas";
 import { formatarHoras, horasEntre } from "@/lib/rhRegras";
 import type { EnvioRh } from "@/lib/rhMonitoramento";
@@ -26,7 +27,7 @@ function SecaoEnvios({ titulo, icone: Icone, envios, outraParte }: SecaoProps) {
           {envios.map((e) => (
             <li key={e.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2.5">
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-medium text-white/90">{e.titulo}</span>
+                <TextoCortado className="block truncate text-sm font-medium text-white/90">{e.titulo}</TextoCortado>
                 <span className="block truncate text-xs text-white/50">
                   {outraParte(e)} · {formatarDataHoraSP(e.criado_em)}
                 </span>

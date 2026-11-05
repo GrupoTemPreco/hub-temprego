@@ -12,6 +12,7 @@ import {
   listarEnviados,
   listarLote,
   listarPessoas,
+  listarProgressoLote,
   listarRecebidosPendentes,
   listarSetoresComMembros,
   marcarCienteLote,
@@ -22,15 +23,20 @@ import {
   responderEnvio,
   type NovoEnvio,
   type PessoaChecklist,
+  type ProgressoEnvioLote,
   type RespostaEnvio,
   type SetorChecklist,
 } from "@/lib/checklistEnvios";
-import { agruparLotes, situacaoDoLote, ultimoLotePorItem, type LoteEnvio, type SituacaoEnvioItem } from "@/lib/checklistLotes";
+import { agruparLotes, situacaoDoItem as montarSituacaoItem, ultimoLotePorItem, type LoteEnvio, type SituacaoEnvioItem } from "@/lib/checklistLotes";
 import { PAINEL_ENVIADAS, rotaChecklist } from "@/lib/telaAtual";
 import type { ChecklistEnvio } from "@/lib/types/shell";
 import { avisoDoEnvio } from "./avisosDoEnvio";
 import { useAvisosChecklist, type AvisoChecklist } from "./useAvisosChecklist";
 import { useAvisoListaCompartilhada } from "./useAvisoListaCompartilhada";
+import { useEnviosLista, type EnviosListaApi } from "./useEnviosLista";
+import { useOrigensRecebidas } from "../useOrigensRecebidas";
+import type { OrigemRecebida } from "@/lib/checklistOrigem";
+import type { Nomes } from "./textosLote";
 
 /** "ja-aceita": outra pessoa do mesmo envio aceitou antes (a RPC recusou o aceite). */
 export type ResultadoResposta = "ok" | "ja-aceita" | "erro";
@@ -42,6 +48,10 @@ type ChecklistEnviosApi = {
   carregado: boolean;
   /** Pendentes enviados para o usuário. */
   recebidos: ChecklistEnvio[];
+  /** Tarefas e listas recebidas aguardando resposta (contadores). */
+  qtdRecebidos: number;
+  /** Envio da lista inteira: mesmo ciclo do envio de tarefa, em tabela própria. */
+  listas: EnviosListaApi;
   /** Envios do usuário agrupados por lote (últimos 30 dias, pendentes e respostas sem "Ok"). */
   lotes: LoteEnvio[];
   /** Pessoas aprovadas com acesso ao checklist, exceto o próprio usuário. */
@@ -50,7 +60,12 @@ type ChecklistEnviosApi = {
   setores: SetorChecklist[];
   nomeDe: (usuarioId: string | null) => string;
   nomeSetor: (setorId: string | null) => string;
+  /** Envio aceito em que o usuário é o destinatário (transferência ou cópia). */
+  origemDaTarefa: (itemId: string) => OrigemRecebida | null;
+  origemDaLista: (grupoId: string) => OrigemRecebida | null;
   situacaoDoItem: (itemId: string) => SituacaoEnvioItem | null;
+  /** Conclusão das cópias no modo "todos", por lote. */
+  progressoDoLote: (loteId: string) => ProgressoEnvioLote[];
   enviar: (dados: NovoEnvio) => Promise<boolean>;
   /** Reenviar e cancelar valem para todos os pendentes do lote. */
   reenviar: (lote: LoteEnvio) => Promise<boolean>;
@@ -91,6 +106,7 @@ export function ChecklistEnviosProvider({ children }: { children: ReactNode }) {
   const [setoresBrutos, setSetoresBrutos] = useState<Array<{ id: string; nome: string; membros: string[] }>>([]);
   const [recebidos, setRecebidos] = useState<ChecklistEnvio[]>([]);
   const [enviados, setEnviados] = useState<ChecklistEnvio[]>([]);
+  const [progresso, setProgresso] = useState<Record<string, ProgressoEnvioLote[]>>({});
   // Só assina depois da carga: o que já existia ao abrir a página não vira aviso nem toca som.
   const [carregado, setCarregado] = useState(false);
   const { lista: listaAvisos, balancos, adicionar: adicionarAviso, remover: removerAvisos, limpar: limparAvisos } =
@@ -115,6 +131,27 @@ export function ChecklistEnviosProvider({ children }: { children: ReactNode }) {
     (id: string | null) => setoresBrutos.find((s) => s.id === id)?.nome ?? "Setor",
     [setoresBrutos],
   );
+  /** Nomes do momento, para avisos que chegam pelo tempo real. */
+  const nomesAtuais = useCallback((): Nomes => {
+    const { pessoas: ps, setoresBrutos: ss } = refs.current;
+    return {
+      nomeDe: (id) => {
+        const p = ps.find((x) => x.id === id);
+        return p?.nome || p?.email || "Alguém";
+      },
+      nomeSetor: (id) => ss.find((s) => s.id === id)?.nome ?? "Setor",
+    };
+  }, []);
+  const origens = useOrigensRecebidas(usuario.id, ativo, nomeDe);
+  const listas = useEnviosLista({
+    ativo,
+    usuarioId: usuario.id,
+    pronto: carregado,
+    nomes: nomesAtuais,
+    adicionarAviso,
+    removerAvisos,
+    tocar,
+  });
 
   const aoItemSair = useCallback((ouvinte: (itemId: string) => void) => {
     ouvintesSaida.current.add(ouvinte);
@@ -159,7 +196,13 @@ export function ChecklistEnviosProvider({ children }: { children: ReactNode }) {
 
       if (souRemetente) {
         setEnviados((prev) => upsert(prev, envio));
-        if (antes?.status === "pendente" && envio.status === "aceito" && envio.item_id) {
+        if (
+          antes?.status === "pendente" &&
+          envio.status === "aceito" &&
+          envio.item_id &&
+          envio.modo !== "todos" &&
+          !envio.copia_item_id
+        ) {
           ouvintesSaida.current.forEach((o) => o(envio.item_id!));
         }
       } else if (envio.status === "pendente") {
@@ -212,6 +255,37 @@ export function ChecklistEnviosProvider({ children }: { children: ReactNode }) {
 
   const lotes = useMemo(() => agruparLotes(enviados), [enviados]);
   const ultimos = useMemo(() => ultimoLotePorItem(lotes), [lotes]);
+  const chaveProgresso = useMemo(
+    () =>
+      enviados
+        .filter((e) => e.modo === "todos" && e.lote_id)
+        .map((e) => `${e.lote_id}:${e.status}:${e.copia_item_id ?? ""}`)
+        .sort()
+        .join("|"),
+    [enviados],
+  );
+
+  useEffect(() => {
+    if (!ativo || !carregado || !chaveProgresso) {
+      setProgresso({});
+      return;
+    }
+    const ids = [...new Set(chaveProgresso.split("|").map((p) => p.split(":")[0]))];
+    let vivo = true;
+    const carregar = () => {
+      Promise.all(ids.map((id) => listarProgressoLote(id).then((linhas) => [id, linhas] as const)))
+        .then((pares) => {
+          if (vivo) setProgresso(Object.fromEntries(pares));
+        })
+        .catch((err) => console.error("[checklist-envios] Falha ao carregar progresso:", err));
+    };
+    carregar();
+    const t = window.setInterval(carregar, 60_000);
+    return () => {
+      vivo = false;
+      window.clearInterval(t);
+    };
+  }, [ativo, carregado, chaveProgresso]);
 
   /** Ok do cartão: dispensa os avisos e dá ciência dos aceites que estavam nele. */
   const dispensarAvisos = useCallback(() => {
@@ -222,7 +296,8 @@ export function ChecklistEnviosProvider({ children }: { children: ReactNode }) {
         .then((linhas) => setEnviados((prev) => linhas.reduce(upsert, prev)))
         .catch((err) => console.error("[checklist-envios] Falha ao confirmar aceite:", err));
     }
-  }, [listaAvisos, limparAvisos, lotes]);
+    for (const lote of listas.lotes.filter((l) => aceites.includes(l.id))) void listas.marcarCiente(lote);
+  }, [listaAvisos, limparAvisos, lotes, listas]);
 
   const abrirAviso = useCallback(
     (aviso: AvisoChecklist | null) => {
@@ -263,8 +338,10 @@ export function ChecklistEnviosProvider({ children }: { children: ReactNode }) {
   const api = useMemo<ChecklistEnviosApi>(
     () => ({
       ativo,
-      carregado,
+      carregado: carregado && listas.carregado,
       recebidos: ativo ? recebidos : [],
+      qtdRecebidos: ativo ? recebidos.length + listas.recebidas.length : 0,
+      listas,
       lotes: ativo ? lotes : [],
       destinatarios: pessoas.filter((p) => podeReceber(p, usuario.id)),
       setores: setoresBrutos.map((s) => ({
@@ -274,7 +351,10 @@ export function ChecklistEnviosProvider({ children }: { children: ReactNode }) {
       })),
       nomeDe,
       nomeSetor,
-      situacaoDoItem: (itemId) => situacaoDoLote(ultimos.get(itemId)),
+      origemDaTarefa: origens.daTarefa,
+      origemDaLista: origens.daLista,
+      situacaoDoItem: (itemId) => montarSituacaoItem(ultimos.get(itemId)),
+      progressoDoLote: (loteId) => progresso[loteId] ?? [],
       enviar: (dados) =>
         executar(async () => listarLote(await enviarTarefa(dados)), "Não foi possível enviar a tarefa"),
       reenviar: (lote) => executar(() => reenviarLote(lote), "Não foi possível reenviar"),
@@ -288,13 +368,16 @@ export function ChecklistEnviosProvider({ children }: { children: ReactNode }) {
       ativo,
       carregado,
       recebidos,
+      listas,
       lotes,
       pessoas,
       setoresBrutos,
       usuario.id,
       nomeDe,
       nomeSetor,
+      origens,
       ultimos,
+      progresso,
       executar,
       marcarCiente,
       responder,

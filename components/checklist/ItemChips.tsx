@@ -2,11 +2,13 @@ import { CalendarDays, Repeat } from "lucide-react";
 import { Badge, type BadgeVariant } from "@/components/ui/Badge";
 import { opcaoNivel, opcaoUrgencia } from "@/lib/checklistOpcoes";
 import { formatarPrazo, situacaoPrazo } from "@/lib/checklistRegras";
+import { rotuloDias, textoAtrasada, textoProxima } from "@/lib/checklistDiarias";
 
 const COMPACTO = "px-1.5 py-0 text-[11px]";
 
-export function NivelChip({ nivel }: { nivel: number }) {
+export function NivelChip({ nivel }: { nivel: number | null }) {
   const opcao = opcaoNivel(nivel);
+  if (!opcao) return null;
   return (
     <Badge variant={opcao.cor} className={COMPACTO}>
       {opcao.label}
@@ -14,8 +16,9 @@ export function NivelChip({ nivel }: { nivel: number }) {
   );
 }
 
-export function UrgenciaChip({ urgencia }: { urgencia: number }) {
+export function UrgenciaChip({ urgencia }: { urgencia: number | null }) {
   const opcao = opcaoUrgencia(urgencia);
+  if (!opcao) return null;
   return (
     <Badge variant={opcao.cor} className={COMPACTO}>
       {opcao.label}
@@ -48,11 +51,24 @@ export function EmAndamentoChip() {
   );
 }
 
-export function DiariaChip() {
+/** "Diária", "Toda quarta", "Dias úteis" ou "Seg, Qua, Sex". */
+export function DiariaChip({ dias = null }: { dias?: readonly number[] | null }) {
   return (
     <Badge variant="info" className={COMPACTO}>
       <Repeat className="h-3 w-3" />
-      Diária
+      {rotuloDias(dias)}
     </Badge>
   );
+}
+
+export function AtrasadaChip({ ocorrencia }: { ocorrencia: string }) {
+  return (
+    <Badge variant="danger" className={COMPACTO}>
+      {textoAtrasada(ocorrencia)}
+    </Badge>
+  );
+}
+
+export function ProximaTexto({ data }: { data: string }) {
+  return <span className="text-[11px] text-white/45">{textoProxima(data)}</span>;
 }

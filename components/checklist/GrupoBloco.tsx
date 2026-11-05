@@ -1,24 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy, type SortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
 import { classeCorGrupo } from "@/lib/checklistOpcoes";
 import type { AcessoGrupo } from "@/lib/checklistAcesso";
+import { camposDaLista } from "@/lib/checklistDiarias";
 import type { VisaoGrupo } from "@/lib/checklistRegras";
 import type { ChecklistGrupo, ChecklistItem } from "@/lib/types/shell";
 import type { AcoesChecklist } from "./useChecklistDados";
 import { idGrupo, idItem, idLista } from "./useArrastoChecklist";
 import { ItemArrastavel } from "./ItemLinha";
 import { DiariaChip } from "./ItemChips";
+import { RecebidaDeLista } from "./RecebidaDe";
 import { AdicionarRapido } from "./AdicionarRapido";
 import { ConcluidosSecao } from "./ConcluidosSecao";
-import { GrupoMenu } from "./GrupoMenu";
+import { GrupoMenu, type EnvioDaLista } from "./GrupoMenu";
 import { useChecklistEnvios } from "./envios/ChecklistEnviosProvider";
+import { ListaEnvioChip } from "./envios/ItemEnvioChip";
+import { EnviarListaModal } from "./envios/EnviarListaModal";
+import { ListaProgressoModal } from "./envios/ListaProgressoModal";
+import { destinoDoLote } from "./envios/textosLote";
 import { AvataresMembros } from "./membros/AvataresMembros";
 import { CompartilharGrupoModal } from "./membros/CompartilharGrupoModal";
+import { TopoLista, contagemLista, ignorarRecolher } from "./TopoLista";
 
 /** Fora da ordenação manual os itens não se reposicionam dentro do grupo. */
 const semReordenar: SortingStrategy = () => null;
@@ -31,11 +38,47 @@ type Props = {
   pelaAlca: boolean;
   acoes: AcoesChecklist;
   onAbrirItem: (item: ChecklistItem) => void;
+  minimizada: boolean;
+  onAlternarMinimizada: () => void;
+  /** Alguma tarefa da lista (sem filtros) aguarda resposta de um envio: a lista não pode ser enviada. */
+  tarefaComEnvioPendente: boolean;
 };
 
-export function GrupoBloco({ grupo, acesso, visao, ordemManual, pelaAlca, acoes, onAbrirItem }: Props) {
-  const { nomeDe } = useChecklistEnvios();
+export function GrupoBloco({
+  grupo,
+  acesso,
+  visao,
+  ordemManual,
+  pelaAlca,
+  acoes,
+  onAbrirItem,
+  minimizada,
+  onAlternarMinimizada,
+  tarefaComEnvioPendente,
+}: Props) {
+  const { nomeDe, nomeSetor, listas, origemDaLista } = useChecklistEnvios();
+  const origemLista = origemDaLista(grupo.id);
   const [compartilhando, setCompartilhando] = useState(false);
+  const [enviandoLista, setEnviandoLista] = useState(false);
+  const [progressoAberto, setProgressoAberto] = useState(false);
+  const situacaoEnvio = acesso.dono ? listas.situacaoDaLista(grupo.id) : null;
+  const todos = situacaoEnvio?.tipo === "todos";
+  const lotePendente =
+    situacaoEnvio &&
+    (situacaoEnvio.tipo === "aguardando" || (situacaoEnvio.tipo === "todos" && situacaoEnvio.lote.pendentes.length > 0))
+      ? situacaoEnvio.lote
+      : null;
+  const travada = situacaoEnvio?.tipo === "aguardando" ? situacaoEnvio.lote : null;
+  const envioDaLista: EnvioDaLista = {
+    aguardando: lotePendente
+      ? { destino: destinoDoLote(lotePendente, { nomeDe, nomeSetor }), ultimoEnvioEm: lotePendente.ultimoEnvioEm }
+      : null,
+    todos: Boolean(todos),
+    bloqueio: tarefaComEnvioPendente ? "Alguma tarefa desta lista tem um envio pendente" : null,
+    onEnviar: () => setEnviandoLista(true),
+    onReenviar: () => (lotePendente ? listas.reenviar(lotePendente) : Promise.resolve(false)),
+    onCancelar: () => (lotePendente ? listas.cancelar(lotePendente) : Promise.resolve(false)),
+  };
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
     id: idGrupo(grupo.id),
   });
@@ -44,6 +87,19 @@ export function GrupoBloco({ grupo, acesso, visao, ordemManual, pelaAlca, acoes,
     data: { grupoId: grupo.id, editavel: acesso.podeEditar },
     disabled: !acesso.podeEditar,
   });
+  // Minimizada, a faixa inteira é a área de soltar (a lista some). O efeito roda depois
+  // do ref da <ul>, para os dois não se apagarem no mesmo commit.
+  const secaoRef = useRef<HTMLElement | null>(null);
+  const refSecao = useCallback(
+    (node: HTMLElement | null) => {
+      secaoRef.current = node;
+      setNodeRef(node);
+    },
+    [setNodeRef],
+  );
+  useLayoutEffect(() => {
+    if (minimizada) setListaRef(secaoRef.current);
+  }, [minimizada, setListaRef]);
   // Avatares: para o dono, os membros; para o membro, o dono e os outros membros.
   const pessoas = acesso.dono ? acesso.membros.map((m) => m.usuario_id) : [acesso.donoId, ...acesso.membros.map((m) => m.usuario_id)];
   const autorDe = (item: ChecklistItem) => (acesso.compartilhado && item.criado_por ? nomeDe(item.criado_por) : undefined);
@@ -56,18 +112,19 @@ export function GrupoBloco({ grupo, acesso, visao, ordemManual, pelaAlca, acoes,
 
   return (
     <section
-      ref={setNodeRef}
+      ref={refSecao}
       style={{ transform: CSS.Translate.toString(transform), transition }}
       className={`rounded-xl border border-white/10 bg-white/3 ${isDragging ? "opacity-40" : ""}`}
     >
-      <div className={`h-1.5 rounded-t-xl ${classeCorGrupo(grupo.cor)}`} />
-      <header className="flex items-center gap-2 border-b border-white/10 px-3 py-2">
+      <div className={`h-1.5 rounded-t-xl ${travada ? "bg-white/20" : classeCorGrupo(grupo.cor)}`} />
+      <TopoLista className="gap-2" minimizada={minimizada} onAlternar={onAlternarMinimizada}>
         {pelaAlca && (
           <button
             ref={setActivatorNodeRef}
             type="button"
             aria-label="Arrastar lista"
             className="-ml-1 shrink-0 touch-none rounded p-0.5 text-white/40 hover:text-white/80"
+            {...ignorarRecolher}
             {...attributes}
             {...listeners}
           >
@@ -79,23 +136,51 @@ export function GrupoBloco({ grupo, acesso, visao, ordemManual, pelaAlca, acoes,
           {...(pelaAlca ? {} : { ...attributes, ...listeners })}
           className={`flex min-w-0 flex-1 items-center gap-1.5 ${pelaAlca ? "" : "cursor-grab"}`}
         >
-          <h2 className="min-w-0 truncate text-sm font-semibold text-white">{grupo.nome}</h2>
-          {grupo.diaria && (
-            <span className="shrink-0">
-              <DiariaChip />
+          <h2 className={`min-w-0 truncate text-sm font-semibold ${travada ? "text-white/50" : "text-white"}`}>{grupo.nome}</h2>
+          {origemLista && (
+            <span className="min-w-0" {...ignorarRecolher}>
+              <RecebidaDeLista origem={origemLista} />
             </span>
           )}
-          <span title="Pendentes" className="shrink-0 rounded-full bg-white/10 px-1.5 text-xs font-medium text-white/70">
-            {visao.totalPendentes}
-          </span>
+          {grupo.diaria && (
+            <span className="shrink-0" {...ignorarRecolher}>
+              <DiariaChip dias={grupo.dias_semana} />
+            </span>
+          )}
+          {situacaoEnvio && (
+            <span className="shrink-0" {...ignorarRecolher}>
+              <ListaEnvioChip
+                situacao={situacaoEnvio}
+                onAbrirProgresso={todos ? () => setProgressoAberto(true) : undefined}
+              />
+            </span>
+          )}
+          {minimizada ? (
+            <span className="shrink-0 text-xs text-white/55">{contagemLista(visao.totalPendentes, visao.totalFeitos)}</span>
+          ) : (
+            <span
+              title="Pendentes"
+              className="shrink-0 rounded-full bg-white/10 px-1.5 text-xs font-medium text-white/70"
+              {...ignorarRecolher}
+            >
+              {visao.totalPendentes}
+            </span>
+          )}
           {!acesso.dono && (
-            <span className="shrink-0 truncate rounded-full border border-white/10 px-1.5 text-[11px] text-white/55">
+            <span
+              className="shrink-0 truncate rounded-full border border-white/10 px-1.5 text-[11px] text-white/55"
+              {...ignorarRecolher}
+            >
               de {nomeDe(acesso.donoId).split(/\s+/)[0]}
               {!acesso.podeEditar && " · só leitura"}
             </span>
           )}
         </div>
-        <AvataresMembros usuarioIds={pessoas} />
+        {pessoas.length > 0 && (
+          <span {...ignorarRecolher}>
+            <AvataresMembros usuarioIds={pessoas} />
+          </span>
+        )}
         <GrupoMenu
           grupo={grupo}
           dono={acesso.dono}
@@ -105,49 +190,70 @@ export function GrupoBloco({ grupo, acesso, visao, ordemManual, pelaAlca, acoes,
           onArquivar={() => acoes.arquivarGrupo(grupo.id)}
           onCompartilhar={() => setCompartilhando(true)}
           onSair={() => acoes.sairDoGrupo(grupo.id)}
-          onListaDiaria={(ligada) => acoes.definirListaDiaria(grupo.id, ligada)}
+          onRepetir={(nova) => acoes.definirRepeticaoLista(grupo.id, nova)}
+          qtdConcluidasAntesDeHoje={acoes.contarConcluidasAntesDeHoje(grupo.id)}
+          envio={envioDaLista}
         />
-      </header>
+      </TopoLista>
 
-      <SortableContext
-        items={visao.pendentes.map((i) => idItem(i.id))}
-        strategy={ordemManual ? verticalListSortingStrategy : semReordenar}
-      >
-        <ul ref={setListaRef} className="min-h-10 divide-y divide-white/5">
-          {visao.pendentes.map((item) => (
-            <ItemArrastavel
-              key={item.id}
-              item={item}
-              pelaAlca={pelaAlca}
-              editavel={acesso.podeEditar}
-              autor={autorDe(item)}
-              onAbrir={() => onAbrirItem(item)}
-              onAlternarFeito={() => void alternarFeito(item)}
-              onAlternarFixado={() => void alternarFixado(item)}
-              ocultarSeloDiaria={grupo.diaria}
+      {!minimizada && (
+        <div className={travada ? "opacity-50 grayscale" : undefined}>
+          <SortableContext
+            items={visao.pendentes.map((i) => idItem(i.id))}
+            strategy={ordemManual ? verticalListSortingStrategy : semReordenar}
+          >
+            <ul ref={setListaRef} className="min-h-10 divide-y divide-white/5">
+              {visao.pendentes.map((item) => (
+                <ItemArrastavel
+                  key={item.id}
+                  item={item}
+                  pelaAlca={pelaAlca}
+                  editavel={acesso.podeEditar}
+                  autor={autorDe(item)}
+                  onAbrir={() => onAbrirItem(item)}
+                  onAlternarFeito={() => void alternarFeito(item)}
+                  onAlternarFixado={() => void alternarFixado(item)}
+                  repeticaoLista={grupo}
+                />
+              ))}
+              {visao.pendentes.length === 0 && <li className="px-3 py-3 text-xs text-white/40">Nenhum item pendente.</li>}
+            </ul>
+          </SortableContext>
+
+          {acesso.podeEditar && (
+            <AdicionarRapido
+              onAdicionar={(titulo) =>
+                acoes.adicionarItem(grupo.id, { titulo, ...(grupo.diaria ? camposDaLista(grupo) : {}) }).then(Boolean)
+              }
             />
-          ))}
-          {visao.pendentes.length === 0 && <li className="px-3 py-3 text-xs text-white/40">Nenhum item pendente.</li>}
-        </ul>
-      </SortableContext>
+          )}
 
-      {acesso.podeEditar && (
-        <AdicionarRapido
-          onAdicionar={(titulo) => acoes.adicionarItem(grupo.id, { titulo, diaria: grupo.diaria }).then(Boolean)}
-        />
+          <ConcluidosSecao
+            itens={visao.concluidos}
+            somenteLeitura={!acesso.podeEditar}
+            autorDe={autorDe}
+            onAbrir={onAbrirItem}
+            onReabrir={(item) =>
+              void (item.diaria ? acoes.alternarDiaria(item.id, false) : acoes.alterarItem(item.id, { status: "a_fazer" }))
+            }
+            onAlternarFixado={(item) => void alternarFixado(item)}
+            repeticaoLista={grupo}
+          />
+        </div>
       )}
 
-      <ConcluidosSecao
-        itens={visao.concluidos}
-        somenteLeitura={!acesso.podeEditar}
-        autorDe={autorDe}
-        onAbrir={onAbrirItem}
-        onReabrir={(item) =>
-          void (item.diaria ? acoes.alternarDiaria(item.id, false) : acoes.alterarItem(item.id, { status: "a_fazer" }))
-        }
-        onAlternarFixado={(item) => void alternarFixado(item)}
-        ocultarSeloDiaria={grupo.diaria}
-      />
+      {progressoAberto && situacaoEnvio?.tipo === "todos" && (
+        <ListaProgressoModal lote={situacaoEnvio.lote} onClose={() => setProgressoAberto(false)} />
+      )}
+
+      {enviandoLista && (
+        <EnviarListaModal
+          grupo={grupo}
+          qtdTarefas={visao.totalPendentes + visao.totalFeitos}
+          compartilhada={acesso.compartilhado}
+          onClose={() => setEnviandoLista(false)}
+        />
+      )}
 
       {compartilhando && (
         <CompartilharGrupoModal

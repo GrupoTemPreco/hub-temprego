@@ -6,8 +6,8 @@ import { Drawer } from "@/components/ui/Drawer";
 import { Button } from "@/components/ui/Button";
 import { Toggle } from "@/components/ui/Toggle";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { NIVEIS_ITEM, STATUS_ITEM, URGENCIAS_ITEM } from "@/lib/checklistOpcoes";
-import { ROTULO_DIARIA } from "@/lib/checklistDiarias";
+import { NIVEIS_COM_NENHUM, STATUS_ITEM, URGENCIAS_COM_NENHUM } from "@/lib/checklistOpcoes";
+import { mesmosDias } from "@/lib/checklistDiarias";
 import type { CamposItem } from "@/lib/checklist";
 import type {
   ChecklistGrupo,
@@ -17,19 +17,22 @@ import type {
   ChecklistUrgencia,
 } from "@/lib/types/shell";
 import { CAMPO, Campo, CampoSelect } from "./Campos";
+import { CampoRepetir, camposDaRepeticao, repeticaoDe, repeticaoValida, type Repeticao } from "./CampoRepetir";
 import { useAcoesEnvioItem } from "./envios/AcoesEnvioItem";
 import { ItemDrawerEnvio } from "./envios/ItemDrawerEnvio";
+import { RecebidaDeTarefa } from "./RecebidaDe";
+import { useChecklistEnvios } from "./envios/ChecklistEnviosProvider";
 
 type Form = {
   titulo: string;
   observacao: string;
   grupo_id: string;
   status: ChecklistStatus;
-  nivel: ChecklistNivel;
-  urgencia: ChecklistUrgencia;
+  nivel: ChecklistNivel | null;
+  urgencia: ChecklistUrgencia | null;
   prazo: string;
   fixado: boolean;
-  diaria: boolean;
+  repeticao: Repeticao;
 };
 
 function formDe(item: ChecklistItem): Form {
@@ -42,11 +45,12 @@ function formDe(item: ChecklistItem): Form {
     urgencia: item.urgencia,
     prazo: item.prazo ?? "",
     fixado: item.fixado,
-    diaria: item.diaria,
+    repeticao: repeticaoDe(item),
   };
 }
 
 function camposAlterados(item: ChecklistItem, form: Form): CamposItem {
+  const repetir = camposDaRepeticao(form.repeticao);
   const depois: CamposItem = {
     titulo: form.titulo.trim(),
     observacao: form.observacao.trim() || null,
@@ -56,12 +60,16 @@ function camposAlterados(item: ChecklistItem, form: Form): CamposItem {
     urgencia: form.urgencia,
     prazo: form.prazo || null,
     fixado: form.fixado,
-    diaria: form.diaria,
+    diaria: repetir.diaria,
   };
   const campos = Object.fromEntries(
     Object.entries(depois).filter(([campo, valor]) => item[campo as keyof ChecklistItem] !== valor),
   ) as CamposItem;
-  if (form.grupo_id !== item.grupo_id) campos.diaria = form.diaria;
+  if (!mesmosDias(item.dias_semana, repetir.dias_semana)) campos.dias_semana = repetir.dias_semana;
+  if (form.grupo_id !== item.grupo_id) {
+    campos.diaria = repetir.diaria;
+    campos.dias_semana = repetir.dias_semana;
+  }
   return campos;
 }
 
@@ -78,6 +86,7 @@ type Props = {
 
 /** Use `key={item.id}` para o formulário recomeçar ao trocar de item. */
 export function ItemDrawer({ item, grupos, somenteLeitura: grupoSoLeitura = false, onClose, onSalvar, onExcluir }: Props) {
+  const { origemDaTarefa } = useChecklistEnvios();
   const envios = useAcoesEnvioItem();
   const situacao = envios?.situacao(item) ?? null;
   const somenteLeitura = grupoSoLeitura || situacao?.tipo === "aguardando";
@@ -116,11 +125,11 @@ export function ItemDrawer({ item, grupos, somenteLeitura: grupoSoLeitura = fals
         <Button variant="ghost" className="text-rose-300 hover:text-rose-200" onClick={() => setConfirmandoExclusao(true)}>
           <Trash2 className="h-4 w-4" /> Excluir
         </Button>
-        {envios && item.status !== "feito" && (
+        {envios && item.status !== "feito" && !(situacao?.tipo === "todos" && situacao.lote.pendentes.length > 0) && (
           <Button
             variant="ghost"
             disabled={segueLista}
-            title={segueLista ? "Tarefa diária não pode ser enviada" : undefined}
+            title={segueLista ? "Tarefa recorrente não pode ser enviada" : undefined}
             onClick={() => envios.enviar(item)}
           >
             <Send className="h-4 w-4" /> Enviar para…
@@ -131,7 +140,7 @@ export function ItemDrawer({ item, grupos, somenteLeitura: grupoSoLeitura = fals
         <Button variant="secondary" onClick={onClose} disabled={salvando}>
           Cancelar
         </Button>
-        <Button onClick={salvar} disabled={salvando || !form.titulo.trim()}>
+        <Button onClick={salvar} disabled={salvando || !form.titulo.trim() || !repeticaoValida(form.repeticao)}>
           {salvando ? "Salvando..." : "Salvar"}
         </Button>
       </div>
@@ -142,6 +151,7 @@ export function ItemDrawer({ item, grupos, somenteLeitura: grupoSoLeitura = fals
     <Drawer open onClose={onClose} title="Item do checklist" footer={rodape} width="max-w-lg">
       <div className="space-y-4 p-5">
         {situacao && <ItemDrawerEnvio situacao={situacao} />}
+        <RecebidaDeTarefa origem={origemDaTarefa(item.id)} />
 
         <fieldset disabled={somenteLeitura} className="space-y-4 disabled:opacity-70">
           <Campo rotulo="Título">
@@ -163,10 +173,10 @@ export function ItemDrawer({ item, grupos, somenteLeitura: grupoSoLeitura = fals
               valor={form.grupo_id}
               opcoes={grupos.map((g) => ({ value: g.id, label: g.nome }))}
               onChange={(grupo_id) => {
-                const destinoDiaria = Boolean(grupos.find((g) => g.id === grupo_id)?.diaria);
+                const destino = grupos.find((g) => g.id === grupo_id);
                 const origemDiaria = Boolean(grupos.find((g) => g.id === item.grupo_id)?.diaria);
-                if (destinoDiaria) alterar({ grupo_id, diaria: true });
-                else if (origemDiaria) alterar({ grupo_id, diaria: false });
+                if (destino?.diaria && form.repeticao.modo === "nao") alterar({ grupo_id, repeticao: repeticaoDe(destino) });
+                else if (!destino?.diaria && origemDiaria) alterar({ grupo_id, repeticao: { ...form.repeticao, modo: "nao" } });
                 else alterar({ grupo_id });
               }}
             />
@@ -175,13 +185,13 @@ export function ItemDrawer({ item, grupos, somenteLeitura: grupoSoLeitura = fals
               valor={form.status}
               opcoes={STATUS_ITEM}
               onChange={(status) => alterar({ status })}
-              disabled={form.diaria || listaDoFormulario}
+              disabled={form.repeticao.modo !== "nao" || listaDoFormulario}
             />
-            <CampoSelect rotulo="Nível" valor={form.nivel} opcoes={NIVEIS_ITEM} onChange={(nivel) => alterar({ nivel })} />
+            <CampoSelect rotulo="Nível" valor={form.nivel} opcoes={NIVEIS_COM_NENHUM} onChange={(nivel) => alterar({ nivel })} />
             <CampoSelect
               rotulo="Urgência"
               valor={form.urgencia}
-              opcoes={URGENCIAS_ITEM}
+              opcoes={URGENCIAS_COM_NENHUM}
               onChange={(urgencia) => alterar({ urgencia })}
             />
             <Campo rotulo="Prazo">
@@ -194,22 +204,11 @@ export function ItemDrawer({ item, grupos, somenteLeitura: grupoSoLeitura = fals
             </Campo>
           </div>
 
-          <div className="flex items-center justify-between gap-4 rounded-lg border border-white/10 p-3">
-            <div>
-              <p className="text-sm font-medium">{ROTULO_DIARIA}</p>
-              <p className="text-xs text-white/50">
-                {listaDoFormulario
-                  ? "Esta tarefa segue a lista diária"
-                  : "Volta pendente quando o dia vira. Desligar mantém o histórico."}
-              </p>
-            </div>
-            <Toggle
-              label={ROTULO_DIARIA}
-              checked={listaDoFormulario || form.diaria}
-              disabled={listaDoFormulario}
-              onChange={(v) => alterar({ diaria: v })}
-            />
-          </div>
+          <CampoRepetir
+            valor={form.repeticao}
+            sempreRepete={listaDoFormulario}
+            onChange={(repeticao) => alterar({ repeticao })}
+          />
 
           <div className="flex items-center justify-between gap-4 rounded-lg border border-white/10 p-3">
             <div>

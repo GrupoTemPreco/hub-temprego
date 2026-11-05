@@ -54,7 +54,7 @@ export function HubSidebar() {
   const naHome = pathname === "/";
   const noAdmin = pathname.startsWith("/admin");
   const noChecklist = calcularTelaAtual(pathname, ativa?.id ?? null, searchParams.get("aba")) === "checklist" && !ativa;
-  const recebidosChecklist = useChecklistEnvios().recebidos.length;
+  const recebidosChecklist = useChecklistEnvios().qtdRecebidos;
   // Sem permissão de RH, a seção continua como "em breve" (desabilitada).
   const podeRh = podeMonitorarRh(usuario);
   const noMonitoramento = pathname.startsWith(ROTA_RH_MONITORAMENTO);

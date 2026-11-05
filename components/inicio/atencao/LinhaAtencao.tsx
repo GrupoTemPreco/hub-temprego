@@ -3,6 +3,7 @@
 import type { ComponentType } from "react";
 import { ChevronRight, Pin } from "lucide-react";
 import { Badge, type BadgeVariant } from "@/components/ui/Badge";
+import { TextoCortado } from "@/components/ui/Tooltip";
 
 /** Botão ao lado da linha: desfixar (itens fixados) ou "Ok" (aceites ainda não vistos). */
 export type AcaoLateral = { tipo: "desfixar" | "ok"; onClick: () => void; desabilitado?: boolean; dica?: string };
@@ -28,7 +29,7 @@ export function LinhaAtencao({ linha }: { linha: LinhaAtencaoDados }) {
           <Icon className="h-4 w-4" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-medium text-white/90">{texto}</span>
+          <TextoCortado className="block truncate text-sm font-medium text-white/90">{texto}</TextoCortado>
           {detalhe && <span className="block truncate text-xs text-white/50">{detalhe}</span>}
         </span>
         <Badge variant={chip.cor} className="shrink-0">

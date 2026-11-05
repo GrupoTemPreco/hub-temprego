@@ -1,14 +1,24 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { LoteEnvio } from "@/lib/checklistLotes";
+import type { EnvioDoLote, LoteDe } from "@/lib/checklistLotes";
+import { situacaoPessoaTodos } from "./textosLote";
 import { useChecklistEnvios } from "./ChecklistEnviosProvider";
 
-type Props = { lote: LoteEnvio; cabecalho?: string; children: ReactNode };
+type Props = {
+  lote: LoteDe<EnvioDoLote>;
+  cabecalho?: string;
+  children: ReactNode;
+  /** Modo "todos": mostra aguardando / recusou / fazendo / concluiu em dd/mm. */
+  todos?: boolean;
+  /** Substitui o texto de situação (ex.: progresso da lista). */
+  situacaoDe?: (envio: EnvioDoLote) => string;
+};
 
 /** Dica ao passar o mouse: os destinatários do lote, com quem já recusou riscado (e o motivo). */
-export function DicaDestinatarios({ lote, cabecalho, children }: Props) {
-  const { nomeDe, nomeSetor } = useChecklistEnvios();
+export function DicaDestinatarios({ lote, cabecalho, children, todos = false, situacaoDe }: Props) {
+  const { nomeDe, nomeSetor, progressoDoLote } = useChecklistEnvios();
+  const progresso = todos && !situacaoDe ? progressoDoLote(lote.id) : [];
   return (
     <span className="group/dica relative inline-flex">
       {children}
@@ -22,7 +32,13 @@ export function DicaDestinatarios({ lote, cabecalho, children }: Props) {
           {lote.envios.map((e) => (
             <span key={e.id} className={`block truncate ${e.status === "recusado" ? "text-white/45 line-through" : ""}`}>
               {nomeDe(e.para_usuario_id)}
-              {e.status === "recusado" && e.resposta ? ` — ${e.resposta}` : ""}
+              {situacaoDe
+                ? ` — ${situacaoDe(e)}`
+                : todos
+                  ? ` — ${situacaoPessoaTodos(e, progresso)}`
+                  : e.status === "recusado" && e.resposta
+                    ? ` — ${e.resposta}`
+                    : ""}
             </span>
           ))}
         </span>

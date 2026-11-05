@@ -1,9 +1,9 @@
 import { supabase } from "@/lib/supabase";
 import type { LoteEnvio } from "@/lib/checklistLotes";
-import type { ChecklistEnvio, Usuario } from "@/lib/types/shell";
+import type { ChecklistEnvio, ChecklistEnvioModo, ChecklistEnvioStatus, Usuario } from "@/lib/types/shell";
 
 const COLUNAS_ENVIO =
-  "id, lote_id, setor_id, item_id, titulo, de_usuario_id, para_usuario_id, mensagem, prazo_sugerido, status, resposta, prazo_resposta, reenvios, reenviado_em, respondido_em, ciente_em, criado_em";
+  "id, lote_id, setor_id, item_id, titulo, de_usuario_id, para_usuario_id, mensagem, prazo_sugerido, status, modo, copia_item_id, resposta, prazo_resposta, reenvios, reenviado_em, respondido_em, ciente_em, criado_em";
 
 export const MSG_ENVIO_DUPLICADO = "Essa tarefa já tem um envio pendente.";
 /** Erro da RPC checklist_responder_envio quando outra pessoa do lote aceitou antes. */
@@ -25,6 +25,20 @@ export type NovoEnvio = {
   destino: DestinoEnvio;
   mensagem: string | null;
   prazoSugerido: string | null;
+  /** Padrão "primeiro" (quem aceitar fica com a original). */
+  modo: ChecklistEnvioModo;
+};
+
+/** Linha da RPC checklist_progresso_envio_lote (só o remetente, modo "todos"). */
+export type ProgressoEnvioLote = {
+  envio_id: string;
+  para_usuario_id: string;
+  nome: string;
+  status: ChecklistEnvioStatus;
+  resposta: string | null;
+  prazo_resposta: string | null;
+  copia_status: string | null;
+  copia_concluido_em: string | null;
 };
 
 function falhar(error: { message: string; code?: string } | null) {
@@ -59,6 +73,22 @@ export async function listarSetoresComMembros() {
     membros.set(v.setor_id as string, [...(membros.get(v.setor_id as string) ?? []), v.usuario_id as string]);
   }
   return (setoresRes.data ?? []).map((s) => ({ id: s.id as string, nome: s.nome as string, membros: membros.get(s.id) ?? [] }));
+}
+
+/** Envios aceitos em que o usuário é o destinatário (origem da tarefa, sem janela de dias). */
+export async function listarTarefasAceitasRecebidas(usuarioId: string) {
+  const { data, error } = await supabase
+    .from("checklist_envios")
+    .select("item_id, copia_item_id, de_usuario_id, respondido_em")
+    .eq("para_usuario_id", usuarioId)
+    .eq("status", "aceito");
+  falhar(error);
+  return (data ?? []) as Array<{
+    item_id: string | null;
+    copia_item_id: string | null;
+    de_usuario_id: string;
+    respondido_em: string | null;
+  }>;
 }
 
 export async function listarRecebidosPendentes(usuarioId: string): Promise<ChecklistEnvio[]> {
@@ -122,9 +152,16 @@ export async function enviarTarefa(e: NovoEnvio): Promise<string> {
     p_setor_id: e.destino.tipo === "setor" ? e.destino.setorId : null,
     p_mensagem: e.mensagem,
     p_prazo: e.prazoSugerido,
+    p_modo: e.modo,
   });
   falhar(error);
   return data as string;
+}
+
+export async function listarProgressoLote(loteId: string): Promise<ProgressoEnvioLote[]> {
+  const { data, error } = await supabase.rpc("checklist_progresso_envio_lote", { p_lote_id: loteId });
+  falhar(error);
+  return (data ?? []) as ProgressoEnvioLote[];
 }
 
 /** Atualiza linhas pelo id (as do lote em questão) e devolve como ficaram. */

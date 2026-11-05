@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import type { CamposOrigem } from "@/lib/checklistOrigem";
 import type { ChecklistEnvio, ChecklistGrupo, ChecklistItem } from "@/lib/types/shell";
 
 // O monitoramento lê SOMENTE pelas RPCs rh_checklist_resumo e rh_checklist_usuario.
@@ -27,9 +28,24 @@ export type ResumoUsuarioRh = {
 };
 
 /** inicio_em: o aceite, quando a tarefa veio de um envio; senão, a criação. */
-export type ItemRh = ChecklistItem & { inicio_em: string };
+export type ItemRh = ChecklistItem &
+  CamposOrigem & {
+    inicio_em: string;
+    recorrente?: boolean;
+    ocorrencia_atual?: string | null;
+    feita_na_ocorrencia?: boolean;
+    atrasada?: boolean;
+  };
+export type ListaRh = ChecklistGrupo & CamposOrigem;
 export type EnvioRh = ChecklistEnvio & { de_nome: string | null; para_nome: string | null };
-export type DetalheUsuarioRh = { listas: ChecklistGrupo[]; itens: ItemRh[]; envios: EnvioRh[] };
+export type DetalheUsuarioRh = { listas: ListaRh[]; itens: ItemRh[]; envios: EnvioRh[] };
+
+/** Recorrente: feita na ocorrência atual, ou fora dos pendentes se ainda não há ocorrência. */
+function comStatusRh(item: ItemRh): ItemRh {
+  if (!(item.recorrente ?? item.diaria)) return item;
+  const feita = item.ocorrencia_atual == null || item.feita_na_ocorrencia === true;
+  return { ...item, status: feita ? "feito" : "a_fazer" };
+}
 
 const CAMPOS_NUMERICOS = [
   "pendentes",
@@ -65,5 +81,5 @@ export async function carregarDetalheRh(usuarioId: string): Promise<DetalheUsuar
   const { data, error } = await supabase.rpc("rh_checklist_usuario", { p_usuario_id: usuarioId });
   falhar(error);
   const d = (data ?? {}) as Partial<DetalheUsuarioRh>;
-  return { listas: d.listas ?? [], itens: d.itens ?? [], envios: d.envios ?? [] };
+  return { listas: d.listas ?? [], itens: (d.itens ?? []).map(comStatusRh), envios: d.envios ?? [] };
 }

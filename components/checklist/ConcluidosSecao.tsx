@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChevronRight, RotateCcw } from "lucide-react";
+import { situacaoRecorrencia, type RepeticaoLista } from "@/lib/checklistDiarias";
 import type { ChecklistItem } from "@/lib/types/shell";
 import { ItemConteudo } from "./ItemLinha";
 
@@ -13,7 +14,8 @@ type Props = {
   onAbrir: (item: ChecklistItem) => void;
   onReabrir: (item: ChecklistItem) => void;
   onAlternarFixado: (item: ChecklistItem) => void;
-  ocultarSeloDiaria?: boolean;
+  repeticaoLista?: RepeticaoLista | null;
+  destaqueId?: string | null;
 };
 
 export function ConcluidosSecao({
@@ -23,7 +25,8 @@ export function ConcluidosSecao({
   onAbrir,
   onReabrir,
   onAlternarFixado,
-  ocultarSeloDiaria = false,
+  repeticaoLista = null,
+  destaqueId = null,
 }: Props) {
   const [aberto, setAberto] = useState(false);
   if (itens.length === 0) return null;
@@ -42,7 +45,7 @@ export function ConcluidosSecao({
       {aberto && (
         <ul className="divide-y divide-white/5">
           {itens.map((item) => (
-            <li key={item.id}>
+            <li key={item.id} className={item.id === destaqueId ? "bg-blue-500/10" : undefined}>
               <ItemConteudo
                 item={item}
                 somenteLeitura={somenteLeitura}
@@ -50,9 +53,10 @@ export function ConcluidosSecao({
                 onAbrir={() => onAbrir(item)}
                 onAlternarFeito={() => onReabrir(item)}
                 onAlternarFixado={() => onAlternarFixado(item)}
-                ocultarSeloDiaria={ocultarSeloDiaria}
+                repeticaoLista={repeticaoLista}
                 acaoExtra={
-                  !somenteLeitura && (
+                  !somenteLeitura &&
+                  situacaoRecorrencia(item)?.tipo !== "sem_ocorrencia" && (
                     <button
                       type="button"
                       onClick={(e) => {

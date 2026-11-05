@@ -36,7 +36,7 @@ function VisaoGeral() {
 function InicioComAbas() {
   const router = useRouter();
   const params = useSearchParams();
-  const recebidos = useChecklistEnvios().recebidos.length;
+  const recebidos = useChecklistEnvios().qtdRecebidos;
   const aba: AbaInicio = params.get("aba") === ABA_CHECKLIST ? ABA_CHECKLIST : "visao-geral";
   const abas: TabItem<AbaInicio>[] = [
     { id: "visao-geral", label: "Visão geral", icon: LayoutDashboard },
