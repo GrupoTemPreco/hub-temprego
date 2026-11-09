@@ -28,18 +28,18 @@ type Props = {
   onChange: (filtros: FiltrosUsuarios) => void;
 };
 
-const SELECT = "rounded-md border border-white/10 px-3 py-2 text-sm outline-none focus:border-blue-500";
+const SELECT = "rounded-md border border-borda px-3 py-2 text-sm outline-none focus:border-blue-500";
 
 export function UsuariosFiltros({ filtros, setores, onChange }: Props) {
   return (
     <div className="flex flex-wrap items-center gap-3">
       <label className="relative min-w-60 flex-1">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-texto/40" />
         <input
           value={filtros.busca}
           onChange={(e) => onChange({ ...filtros, busca: e.target.value })}
           placeholder="Buscar por nome ou e-mail..."
-          className="w-full rounded-md border border-white/10 py-2 pl-9 pr-3 text-sm outline-none focus:border-blue-500"
+          className="w-full rounded-md border border-borda py-2 pl-9 pr-3 text-sm outline-none focus:border-blue-500"
         />
       </label>
 

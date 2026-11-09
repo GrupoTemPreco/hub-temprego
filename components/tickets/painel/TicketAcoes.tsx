@@ -20,7 +20,7 @@ type Props = {
   onRestaurar: () => void;
 };
 
-const SELECT = "rounded-md border border-white/15 bg-white/5 px-2.5 py-2 text-sm text-white/85 outline-none focus:border-blue-500";
+const SELECT = "rounded-md border border-borda bg-superficie px-2.5 py-2 text-sm text-texto/85 outline-none focus:border-blue-500";
 
 export function TicketAcoes(props: Props) {
   const { ticket, usuarioId, permissoes: p, ocupado } = props;

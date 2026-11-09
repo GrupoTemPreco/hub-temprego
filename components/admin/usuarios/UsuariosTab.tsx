@@ -88,8 +88,8 @@ export function UsuariosTab({ statusInicial }: { statusInicial: string | null })
   const pendentes = usuarios.filter((u) => u.status === "pendente").length;
 
   return (
-    <section className="rounded-xl border border-white/10 bg-white/3">
-      <div className="space-y-3 border-b border-white/10 p-4">
+    <section className="rounded-xl border border-borda bg-superficie">
+      <div className="space-y-3 border-b border-borda p-4">
         <div className="flex items-baseline justify-between gap-2">
           <h2 className="font-semibold">Usuários</h2>
           {pendentes > 0 && <span className="text-xs text-amber-300">{pendentes} aguardando aprovação</span>}
@@ -98,7 +98,7 @@ export function UsuariosTab({ statusInicial }: { statusInicial: string | null })
       </div>
 
       {carregando ? (
-        <p className="p-4 text-sm text-white/60">Carregando usuários...</p>
+        <p className="p-4 text-sm text-texto/60">Carregando usuários...</p>
       ) : (
         <UsuariosTabela
           usuarios={visiveis}
@@ -136,7 +136,7 @@ export function UsuariosTab({ statusInicial }: { statusInicial: string | null })
         description={
           rejeitando && (
             <>
-              <strong className="text-white">{nomeExibicao(rejeitando)}</strong> não terá acesso ao sistema.
+              <strong className="text-texto">{nomeExibicao(rejeitando)}</strong> não terá acesso ao sistema.
             </>
           )
         }

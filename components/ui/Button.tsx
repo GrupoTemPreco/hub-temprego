@@ -4,11 +4,11 @@ type ButtonVariant = "primary" | "secondary" | "danger" | "success" | "warning" 
 
 const VARIANTES: Record<ButtonVariant, string> = {
   primary: "bg-blue-600 text-white hover:bg-blue-500",
-  secondary: "border border-white/15 bg-white/5 text-white/85 hover:bg-white/10",
+  secondary: "border border-borda bg-superficie text-texto/85 hover:bg-superficie-hover",
   danger: "bg-rose-600 text-white hover:bg-rose-500",
   success: "bg-emerald-600 text-white hover:bg-emerald-500",
   warning: "bg-amber-600 text-white hover:bg-amber-500",
-  ghost: "text-white/70 hover:bg-white/10 hover:text-white",
+  ghost: "text-texto/70 hover:bg-superficie-hover hover:text-texto",
 };
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {

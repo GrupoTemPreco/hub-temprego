@@ -7,7 +7,7 @@ import { AdminShell } from "@/components/admin/AdminShell";
 
 function Carregando() {
   return (
-    <div className="flex flex-1 items-center justify-center text-white">Carregando painel admin...</div>
+    <div className="flex flex-1 items-center justify-center text-texto">Carregando painel admin...</div>
   );
 }
 

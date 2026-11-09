@@ -23,21 +23,21 @@ export function CardLimite({ titulo, icon: Icon, usadoBytes, limiteGb, detalhe }
   const cor = CORES[faixa];
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/3 p-4">
+    <div className="rounded-xl border border-borda bg-superficie p-4">
       <div className="flex items-center gap-3">
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-500/15 text-blue-400">
           <Icon className="h-5 w-5" />
         </span>
         <div className="min-w-0">
-          <p className="text-sm text-white/70">{titulo}</p>
+          <p className="text-sm text-texto/70">{titulo}</p>
           <p className="text-lg font-semibold leading-tight">
-            {formatarTamanho(usadoBytes)} <span className="text-sm font-normal text-white/50">de {formatarTamanho(limiteBytes)}</span>
+            {formatarTamanho(usadoBytes)} <span className="text-sm font-normal text-texto/50">de {formatarTamanho(limiteBytes)}</span>
           </p>
         </div>
       </div>
 
       <div
-        className="mt-3 h-2 overflow-hidden rounded-full bg-white/10"
+        className="mt-3 h-2 overflow-hidden rounded-full bg-superficie-hover"
         role="progressbar"
         aria-valuenow={Math.round(percentual)}
         aria-valuemin={0}
@@ -52,9 +52,9 @@ export function CardLimite({ titulo, icon: Icon, usadoBytes, limiteGb, detalhe }
             ? `${formatarTamanho(disponivelBytes)} disponíveis`
             : `${formatarTamanho(-disponivelBytes)} acima do incluído no plano`}
         </span>
-        <span className="text-white/45">{Math.round(percentual)}%</span>
+        <span className="text-texto/45">{Math.round(percentual)}%</span>
       </div>
-      {detalhe && <p className="mt-1 text-xs text-white/40">{detalhe}</p>}
+      {detalhe && <p className="mt-1 text-xs text-texto/40">{detalhe}</p>}
     </div>
   );
 }

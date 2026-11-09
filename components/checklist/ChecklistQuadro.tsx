@@ -137,14 +137,14 @@ export function ChecklistQuadro({ grupos, itens, filtros, colunas, acoes, acesso
 
       <DragOverlay>
         {itemAtivo && (
-          <div className="rounded-lg border border-blue-500/40 bg-[#0f172a] shadow-2xl">
+          <div className="rounded-lg border border-blue-500/40 bg-superficie-forte shadow-2xl">
             <ItemConteudo item={itemAtivo} repeticaoLista={grupos.find((g) => g.id === itemAtivo.grupo_id)} />
           </div>
         )}
         {grupoAtivo && (
-          <div className="rounded-xl border border-white/15 bg-[#0f172a] shadow-2xl">
+          <div className="rounded-xl border border-borda bg-superficie-forte shadow-2xl">
             <div className={`h-1.5 rounded-t-xl ${classeCorGrupo(grupoAtivo.cor)}`} />
-            <p className="px-3 py-2 text-sm font-semibold text-white">{grupoAtivo.nome}</p>
+            <p className="px-3 py-2 text-sm font-semibold text-texto">{grupoAtivo.nome}</p>
           </div>
         )}
       </DragOverlay>

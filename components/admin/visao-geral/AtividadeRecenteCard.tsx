@@ -58,12 +58,12 @@ export function AtividadeRecenteCard() {
       onRolar={aoRolar}
     >
       {!pagina ? (
-        <p className="text-sm text-white/55">Carregando atividade...</p>
+        <p className="text-sm text-texto-suave">Carregando atividade...</p>
       ) : itens.length === 0 ? (
         <EmptyState compact title="Nenhuma atividade ainda" description="As ações do admin e dos tickets aparecerão aqui." />
       ) : (
         <>
-          <ol className="relative space-y-4 before:absolute before:bottom-2 before:left-4 before:top-2 before:w-px before:bg-white/10">
+          <ol className="relative space-y-4 before:absolute before:bottom-2 before:left-4 before:top-2 before:w-px before:bg-superficie-hover">
             {itens.map((item) => {
               const Icon = item.origem === "admin" ? ShieldCheck : Ticket;
               const cor = item.origem === "admin" ? "bg-blue-500/20 text-blue-300" : "bg-violet-500/20 text-violet-300";
@@ -73,18 +73,18 @@ export function AtividadeRecenteCard() {
                     <Icon className="h-4 w-4" />
                   </span>
                   <div className="min-w-0 pt-0.5">
-                    <p className="text-sm text-white/85">
-                      <span className="font-medium text-white">{item.autor}</span> {item.frase}
+                    <p className="text-sm text-texto/85">
+                      <span className="font-medium text-texto">{item.autor}</span> {item.frase}
                     </p>
-                    <p className="text-xs text-white/45">{tempoRelativo(item.criadoEm)}</p>
+                    <p className="text-xs text-texto/45">{tempoRelativo(item.criadoEm)}</p>
                   </div>
                 </li>
               );
             })}
           </ol>
-          {carregando && <p className="pt-3 text-center text-xs text-white/45">Carregando mais...</p>}
+          {carregando && <p className="pt-3 text-center text-xs text-texto/45">Carregando mais...</p>}
           {!carregando && !pagina.temMais && limite >= ATIVIDADE_MAXIMO && (
-            <p className="pt-3 text-center text-xs text-white/35">Mostrando as {ATIVIDADE_MAXIMO} atividades mais recentes.</p>
+            <p className="pt-3 text-center text-xs text-texto-fraco">Mostrando as {ATIVIDADE_MAXIMO} atividades mais recentes.</p>
           )}
         </>
       )}

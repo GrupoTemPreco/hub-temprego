@@ -16,23 +16,23 @@ function ListaPessoas({ titulo, linhas, vazio }: { titulo?: string; linhas: Leit
   return (
     <div>
       {titulo && (
-        <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-white/45">
+        <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-texto/45">
           {titulo} ({linhas.length})
         </h3>
       )}
       {linhas.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-white/10 px-3 py-4 text-center text-sm text-white/45">{vazio}</p>
+        <p className="rounded-lg border border-dashed border-borda px-3 py-4 text-center text-sm text-texto/45">{vazio}</p>
       ) : (
-        <ul className="divide-y divide-white/5 rounded-lg border border-white/10">
+        <ul className="divide-y divide-borda rounded-lg border border-borda">
           {linhas.map(({ usuario, leitura }) => (
             <li key={usuario.id} className="flex items-center gap-3 px-3 py-2">
               <Avatar nome={usuario.nome} email={usuario.email} />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm">{usuario.nome || usuario.email}</p>
-                <p className="truncate text-xs text-white/45">{usuario.email}</p>
+                <p className="truncate text-xs text-texto/45">{usuario.email}</p>
               </div>
               {leitura?.visto_em && (
-                <div className="text-right text-xs text-white/55">
+                <div className="text-right text-xs text-texto-suave">
                   <p>Viu em {formatarDataHoraSP(leitura.visto_em)}</p>
                   {leitura.confirmado_em && <p className="text-emerald-300">Confirmou em {formatarDataHoraSP(leitura.confirmado_em)}</p>}
                 </div>
@@ -59,7 +59,7 @@ export function LeitoresDrawer({ notificacao: n, dados, onClose }: Props) {
       <div className="space-y-4 p-5">
         <div>
           <h2 className="font-semibold">{n.titulo}</h2>
-          <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-white/55">
+          <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-texto-suave">
             <Badge variant={corNivel(n.nivel)}>{rotuloNivel(n.nivel)}</Badge>
             <span>
               {formatarDataHoraSP(n.inicio_em)} até {n.fim_em ? formatarDataHoraSP(n.fim_em) : "sem fim"}

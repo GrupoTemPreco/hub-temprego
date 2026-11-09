@@ -46,12 +46,12 @@ function LinhaUsuario({ usuario, detalhe, extra, onAbrir }: LinhaProps) {
       <button
         type="button"
         onClick={onAbrir}
-        className="flex w-full items-center gap-3 rounded-lg border border-white/5 bg-white/2 p-2.5 text-left transition-colors hover:bg-white/6"
+        className="flex w-full items-center gap-3 rounded-lg border border-borda bg-superficie p-2.5 text-left transition-colors hover:bg-superficie"
       >
         <Avatar nome={usuario.nome} email={usuario.email} />
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-medium text-white/90">{usuario.nome || usuario.email}</span>
-          <span className="block truncate text-xs text-white/50">{detalhe}</span>
+          <span className="block truncate text-sm font-medium text-texto/90">{usuario.nome || usuario.email}</span>
+          <span className="block truncate text-xs text-texto/50">{detalhe}</span>
         </span>
         {extra}
       </button>
@@ -126,7 +126,7 @@ export function MaisEmDiaCard({ ranking, onAbrir }: MaisEmDiaProps) {
         </ul>
       )}
       {ranking.length > 0 && (
-        <p className="pt-3 text-center text-[11px] text-white/35">
+        <p className="pt-3 text-center text-[11px] text-texto-fraco">
           Só entra quem concluiu ao menos {MIN_TAREFAS_COM_PRAZO} tarefas com prazo no período.
         </p>
       )}

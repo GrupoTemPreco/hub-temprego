@@ -42,7 +42,7 @@ export function TicketsLixeira({ tickets, nomes, selecao, onAbrir, onAlterado }:
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm">
-        <thead className="border-b border-white/10 text-xs uppercase tracking-wide text-white/45">
+        <thead className="border-b border-borda text-xs uppercase tracking-wide text-texto/45">
           <tr>
             <th className="w-10 py-3 pl-4">
               <CheckboxSelecao
@@ -61,7 +61,7 @@ export function TicketsLixeira({ tickets, nomes, selecao, onAbrir, onAlterado }:
         </thead>
         <tbody>
           {tickets.map((t) => (
-            <tr key={t.id} onClick={() => onAbrir(t)} className="cursor-pointer border-b border-white/5 hover:bg-white/4">
+            <tr key={t.id} onClick={() => onAbrir(t)} className="cursor-pointer border-b border-borda hover:bg-superficie">
               <td className="py-3 pl-4" onClick={(e) => e.stopPropagation()}>
                 <CheckboxSelecao
                   checked={selecao.estaSelecionado(t.id)}
@@ -69,12 +69,12 @@ export function TicketsLixeira({ tickets, nomes, selecao, onAbrir, onAlterado }:
                   rotulo={`Selecionar ticket #${t.numero}`}
                 />
               </td>
-              <td className="px-3 py-3 font-mono text-white/55">#{t.numero}</td>
+              <td className="px-3 py-3 font-mono text-texto-suave">#{t.numero}</td>
               <td className="max-w-80 truncate px-3 py-3 font-medium">{t.titulo}</td>
-              <td className="px-3 py-3 text-white/70">{nomes.usuario(t.excluido_por)}</td>
-              <td className="px-3 py-3 text-white/60">
+              <td className="px-3 py-3 text-texto/70">{nomes.usuario(t.excluido_por)}</td>
+              <td className="px-3 py-3 text-texto/60">
                 {formatarData(t.excluido_em)}
-                <span className="ml-1 text-xs text-white/40">({t.excluido_em ? tempoRelativo(t.excluido_em) : "—"})</span>
+                <span className="ml-1 text-xs text-texto/40">({t.excluido_em ? tempoRelativo(t.excluido_em) : "—"})</span>
               </td>
               <td className="px-3 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                 <div className="inline-flex gap-2">
@@ -103,7 +103,7 @@ export function TicketsLixeira({ tickets, nomes, selecao, onAbrir, onAlterado }:
         description={
           apagando && (
             <>
-              O ticket <strong className="text-white">#{apagando.numero} – {apagando.titulo}</strong> e todo o seu
+              O ticket <strong className="text-texto">#{apagando.numero} – {apagando.titulo}</strong> e todo o seu
               histórico serão apagados sem volta.
             </>
           )

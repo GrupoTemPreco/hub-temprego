@@ -34,7 +34,7 @@ export function ordenarPorNovidade(tickets: Ticket[], novidades: Set<string>) {
 export function ListaTicketsUsuario({ tickets, outraParte, novidades, onAbrir, acao, vazio, limite, ordenar = true }: Props) {
   const itens = (ordenar ? ordenarPorAtualizacao(tickets) : tickets).slice(0, limite);
   if (itens.length === 0) {
-    return vazio ? <p className="rounded-lg border border-dashed border-white/10 px-3 py-5 text-center text-sm text-white/45">{vazio}</p> : null;
+    return vazio ? <p className="rounded-lg border border-dashed border-borda px-3 py-5 text-center text-sm text-texto/45">{vazio}</p> : null;
   }
 
   return (
@@ -44,7 +44,7 @@ export function ListaTicketsUsuario({ tickets, outraParte, novidades, onAbrir, a
         return (
           <li
             key={t.id}
-            className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/3 pr-2 transition-colors hover:bg-white/6"
+            className="flex items-center gap-2 rounded-lg border border-borda bg-superficie pr-2 transition-colors hover:bg-superficie"
           >
             <button type="button" onClick={() => onAbrir(t)} className="flex min-w-0 flex-1 items-start gap-2.5 p-3 text-left">
               <span
@@ -54,18 +54,18 @@ export function ListaTicketsUsuario({ tickets, outraParte, novidades, onAbrir, a
               />
               <span className="min-w-0 flex-1">
                 <span className="flex items-baseline gap-2">
-                  <span className="font-mono text-xs text-white/45">#{t.numero}</span>
-                  <span className={`truncate text-sm ${novo ? "font-semibold text-white" : "font-medium text-white/85"}`}>
+                  <span className="font-mono text-xs text-texto/45">#{t.numero}</span>
+                  <span className={`truncate text-sm ${novo ? "font-semibold text-texto" : "font-medium text-texto/85"}`}>
                     {t.titulo}
                   </span>
                 </span>
                 <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
                   <TicketStatusBadge status={t.status} />
                   <PrioridadeBadge prioridade={t.prioridade} />
-                  <span className="truncate text-xs text-white/50">{outraParte(t)}</span>
+                  <span className="truncate text-xs text-texto/50">{outraParte(t)}</span>
                 </span>
               </span>
-              <span className="shrink-0 whitespace-nowrap text-xs text-white/40">{tempoRelativo(ultimaAtualizacao(t))}</span>
+              <span className="shrink-0 whitespace-nowrap text-xs text-texto/40">{tempoRelativo(ultimaAtualizacao(t))}</span>
             </button>
             {acao?.(t)}
           </li>

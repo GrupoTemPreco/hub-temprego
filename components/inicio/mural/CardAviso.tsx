@@ -30,14 +30,14 @@ export function CardAviso({ notificacao: n }: { notificacao: Notificacao }) {
   }, [n.mensagem]);
 
   return (
-    <article className="flex w-full flex-col gap-2 rounded-xl border border-white/10 bg-white/3 p-4">
+    <article className="flex w-full flex-col gap-2 rounded-xl border border-borda bg-superficie p-4">
       <div className="flex items-start gap-2.5">
         <Icon className={`mt-0.5 h-5 w-5 shrink-0 ${estilo.iconeCor}`} />
-        <h3 className="line-clamp-2 min-w-0 flex-1 font-semibold text-white">{n.titulo}</h3>
+        <h3 className="line-clamp-2 min-w-0 flex-1 font-semibold text-texto">{n.titulo}</h3>
         <Badge variant={corNivel(n.nivel)}>{rotuloNivel(n.nivel)}</Badge>
       </div>
       {n.mensagem && (
-        <p ref={textoRef} className="line-clamp-4 whitespace-pre-line text-sm text-white/70">
+        <p ref={textoRef} className="line-clamp-4 whitespace-pre-line text-sm text-texto/70">
           {n.mensagem}
         </p>
       )}
@@ -46,13 +46,13 @@ export function CardAviso({ notificacao: n }: { notificacao: Notificacao }) {
           Ler mais
         </button>
       )}
-      <p className="mt-auto pt-1 text-xs text-white/40">{periodo(n)}</p>
+      <p className="mt-auto pt-1 text-xs text-texto/40">{periodo(n)}</p>
 
       <Modal open={aberto} onClose={() => setAberto(false)} title={n.titulo}>
         <div className="space-y-3">
           <Badge variant={corNivel(n.nivel)}>{rotuloNivel(n.nivel)}</Badge>
-          <p className="whitespace-pre-line text-sm text-white/80">{n.mensagem}</p>
-          <p className="text-xs text-white/45">{periodo(n)}</p>
+          <p className="whitespace-pre-line text-sm text-texto/80">{n.mensagem}</p>
+          <p className="text-xs text-texto/45">{periodo(n)}</p>
         </div>
       </Modal>
     </article>

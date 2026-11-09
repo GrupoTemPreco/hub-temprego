@@ -35,7 +35,7 @@ export function AdminShell() {
   );
 
   return (
-    <main className="min-w-0 flex-1 overflow-y-auto p-6 text-white">
+    <main className="min-w-0 flex-1 overflow-y-auto p-6 text-texto">
       <div className="mb-5">
         <SaudacaoUsuario nome={usuario.nome} subtitulo="Painel de administração do Hub Tempreço" />
       </div>

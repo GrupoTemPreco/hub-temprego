@@ -11,7 +11,7 @@ import { BotaoReenviarBase } from "./BotaoReenviar";
 import { STATUS_DESTINATARIO, situacaoPessoaListaTodos } from "./textosLote";
 
 const BOTAO =
-  "inline-flex items-center gap-1.5 rounded-md border border-white/15 bg-white/5 px-2.5 py-1 text-xs font-medium text-white/85 hover:bg-white/10";
+  "inline-flex items-center gap-1.5 rounded-md border border-borda bg-superficie px-2.5 py-1 text-xs font-medium text-texto/85 hover:bg-superficie-hover";
 
 type Props = { lote: LoteLista; onClose: () => void };
 
@@ -58,7 +58,7 @@ export function ListaProgressoModal({ lote, onClose }: Props) {
             const texto = situacaoPessoaListaTodos(e, progresso);
             return (
               <li key={e.id} className="flex items-center justify-between gap-2 text-sm">
-                <span className={`truncate ${e.status === "recusado" ? "text-white/45 line-through" : "text-white/85"}`}>
+                <span className={`truncate ${e.status === "recusado" ? "text-texto/45 line-through" : "text-texto/85"}`}>
                   {nomeDe(e.para_usuario_id)}
                 </span>
                 <Badge variant={STATUS_DESTINATARIO[e.status].cor} className="shrink-0 px-1.5 py-0 text-[11px]">
@@ -68,7 +68,7 @@ export function ListaProgressoModal({ lote, onClose }: Props) {
             );
           })}
         </ul>
-        {lote.mensagem && <p className="mt-3 text-sm text-white/65">&ldquo;{lote.mensagem}&rdquo;</p>}
+        {lote.mensagem && <p className="mt-3 text-sm text-texto/65">&ldquo;{lote.mensagem}&rdquo;</p>}
       </Modal>
       <ConfirmDialog
         open={confirmando}

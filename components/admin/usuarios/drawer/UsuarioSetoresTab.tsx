@@ -41,7 +41,7 @@ export function UsuarioSetoresTab({ usuario, setores, onAtualizado }: Props) {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-white/60">Selecione os setores dos quais este usuário faz parte.</p>
+      <p className="text-sm text-texto/60">Selecione os setores dos quais este usuário faz parte.</p>
       <div className="flex flex-wrap gap-2">
         {ativos.map((s) => {
           const marcado = selecionados.includes(s.id);
@@ -54,7 +54,7 @@ export function UsuarioSetoresTab({ usuario, setores, onAtualizado }: Props) {
               className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors ${
                 marcado
                   ? "border-blue-500 bg-blue-600/20 text-blue-200"
-                  : "border-white/15 bg-white/5 text-white/70 hover:bg-white/10"
+                  : "border-borda bg-superficie text-texto/70 hover:bg-superficie-hover"
               }`}
             >
               {marcado && <Check className="h-3.5 w-3.5" />}

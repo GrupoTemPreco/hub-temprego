@@ -18,8 +18,8 @@ function formatarDataHora(iso: string | null) {
 function Dado({ rotulo, children }: { rotulo: string; children: ReactNode }) {
   return (
     <div>
-      <dt className="text-xs text-white/45">{rotulo}</dt>
-      <dd className="mt-0.5 text-sm text-white/85">{children}</dd>
+      <dt className="text-xs text-texto-suave">{rotulo}</dt>
+      <dd className="mt-0.5 text-sm text-texto/85">{children}</dd>
     </div>
   );
 }
@@ -37,7 +37,7 @@ export function TicketCabecalho({ ticket, nomes, anexos }: Props) {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg font-semibold leading-snug text-white">{ticket.titulo}</h2>
+        <h2 className="text-lg font-semibold leading-snug text-texto">{ticket.titulo}</h2>
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <TicketStatusBadge status={ticket.status} />
           <PrioridadeBadge prioridade={ticket.prioridade} />
@@ -46,7 +46,7 @@ export function TicketCabecalho({ ticket, nomes, anexos }: Props) {
         </div>
       </div>
 
-      <dl className="grid grid-cols-2 gap-x-4 gap-y-3 rounded-lg border border-white/10 bg-white/2 p-3 sm:grid-cols-3">
+      <dl className="grid grid-cols-2 gap-x-4 gap-y-3 rounded-lg border border-borda bg-superficie p-3 sm:grid-cols-3">
         <Dado rotulo="Autor">{nomes.usuario(ticket.autor_id)}</Dado>
         <Dado rotulo="Criado em">{formatarDataHora(ticket.criado_em)}</Dado>
         <Dado rotulo="Destino">{nomeDestino(ticket, nomes)}</Dado>
@@ -63,9 +63,9 @@ export function TicketCabecalho({ ticket, nomes, anexos }: Props) {
       </dl>
 
       <div>
-        <h3 className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-white/45">Descrição</h3>
-        <p className="whitespace-pre-wrap text-sm leading-relaxed text-white/80">
-          {ticket.descricao || <span className="text-white/40">Sem descrição.</span>}
+        <h3 className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-texto-suave">Descrição</h3>
+        <p className="whitespace-pre-wrap text-sm leading-relaxed text-texto/80">
+          {ticket.descricao || <span className="text-texto/40">Sem descrição.</span>}
         </p>
         {anexos}
       </div>

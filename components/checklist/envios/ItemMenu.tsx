@@ -10,7 +10,7 @@ import { useChecklistEnvios } from "./ChecklistEnviosProvider";
 import { useAcoesEnvioItem } from "./AcoesEnvioItem";
 import { BotaoReenviar } from "./BotaoReenviar";
 
-const OPCAO = "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-white/10";
+const OPCAO = "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-superficie-hover";
 
 type Props = { item: ChecklistItem; situacao: SituacaoEnvioItem | null };
 
@@ -35,16 +35,16 @@ export function ItemMenu({ item, situacao }: Props) {
         aria-label="Mais ações do item"
         aria-expanded={aberto}
         onClick={() => setAberto((v) => !v)}
-        className="rounded p-1 text-white/35 transition-colors hover:bg-white/10 hover:text-white/80"
+        className="rounded p-1 text-texto-fraco transition-colors hover:bg-superficie-hover hover:text-texto/80"
       >
         <MoreHorizontal className="h-3.5 w-3.5" />
       </button>
 
       {aberto && (
-        <div className="absolute right-0 top-full z-30 mt-1 w-48 space-y-0.5 rounded-lg border border-white/15 bg-[#0f172a] p-1.5 shadow-xl">
+        <div className="absolute right-0 top-full z-30 mt-1 w-48 space-y-0.5 rounded-lg border border-borda bg-superficie-forte p-1.5 shadow-xl">
           {aguardando ? (
             <>
-              <BotaoReenviar lote={situacao.lote} className={`${OPCAO} text-white/85`} onFeito={fechar} />
+              <BotaoReenviar lote={situacao.lote} className={`${OPCAO} text-texto/85`} onFeito={fechar} />
               <button
                 type="button"
                 className={`${OPCAO} text-rose-300 hover:bg-rose-500/10`}
@@ -62,7 +62,7 @@ export function ItemMenu({ item, situacao }: Props) {
                 type="button"
                 disabled={item.diaria}
                 title={item.diaria ? "Tarefa recorrente não pode ser enviada" : undefined}
-                className={`${OPCAO} text-white/85 disabled:cursor-not-allowed disabled:opacity-40`}
+                className={`${OPCAO} text-texto/85 disabled:cursor-not-allowed disabled:opacity-40`}
                 onClick={() => {
                   if (item.diaria) return;
                   fechar();
@@ -74,7 +74,7 @@ export function ItemMenu({ item, situacao }: Props) {
               {situacao?.tipo === "recusado" && (
                 <button
                   type="button"
-                  className={`${OPCAO} text-white/85`}
+                  className={`${OPCAO} text-texto/85`}
                   onClick={() => {
                     fechar();
                     void marcarCiente(situacao.lote);

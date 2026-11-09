@@ -114,16 +114,16 @@ export function GrupoBloco({
     <section
       ref={refSecao}
       style={{ transform: CSS.Translate.toString(transform), transition }}
-      className={`rounded-xl border border-white/10 bg-white/3 ${isDragging ? "opacity-40" : ""}`}
+      className={`rounded-xl border border-borda bg-superficie ${isDragging ? "opacity-40" : ""}`}
     >
-      <div className={`h-1.5 rounded-t-xl ${travada ? "bg-white/20" : classeCorGrupo(grupo.cor)}`} />
+      <div className={`h-1.5 rounded-t-xl ${travada ? "bg-superficie-hover" : classeCorGrupo(grupo.cor)}`} />
       <TopoLista className="gap-2" minimizada={minimizada} onAlternar={onAlternarMinimizada}>
         {pelaAlca && (
           <button
             ref={setActivatorNodeRef}
             type="button"
             aria-label="Arrastar lista"
-            className="-ml-1 shrink-0 touch-none rounded p-0.5 text-white/40 hover:text-white/80"
+            className="-ml-1 shrink-0 touch-none rounded p-0.5 text-texto/40 hover:text-texto/80"
             {...ignorarRecolher}
             {...attributes}
             {...listeners}
@@ -136,7 +136,7 @@ export function GrupoBloco({
           {...(pelaAlca ? {} : { ...attributes, ...listeners })}
           className={`flex min-w-0 flex-1 items-center gap-1.5 ${pelaAlca ? "" : "cursor-grab"}`}
         >
-          <h2 className={`min-w-0 truncate text-sm font-semibold ${travada ? "text-white/50" : "text-white"}`}>{grupo.nome}</h2>
+          <h2 className={`min-w-0 truncate text-sm font-semibold ${travada ? "text-texto/50" : "text-texto"}`}>{grupo.nome}</h2>
           {origemLista && (
             <span className="min-w-0" {...ignorarRecolher}>
               <RecebidaDeLista origem={origemLista} />
@@ -156,11 +156,11 @@ export function GrupoBloco({
             </span>
           )}
           {minimizada ? (
-            <span className="shrink-0 text-xs text-white/55">{contagemLista(visao.totalPendentes, visao.totalFeitos)}</span>
+            <span className="shrink-0 text-xs text-texto-suave">{contagemLista(visao.totalPendentes, visao.totalFeitos)}</span>
           ) : (
             <span
               title="Pendentes"
-              className="shrink-0 rounded-full bg-white/10 px-1.5 text-xs font-medium text-white/70"
+              className="shrink-0 rounded-full bg-superficie-hover px-1.5 text-xs font-medium text-texto/70"
               {...ignorarRecolher}
             >
               {visao.totalPendentes}
@@ -168,7 +168,7 @@ export function GrupoBloco({
           )}
           {!acesso.dono && (
             <span
-              className="shrink-0 truncate rounded-full border border-white/10 px-1.5 text-[11px] text-white/55"
+              className="shrink-0 truncate rounded-full border border-borda px-1.5 text-[11px] text-texto-suave"
               {...ignorarRecolher}
             >
               de {nomeDe(acesso.donoId).split(/\s+/)[0]}
@@ -202,7 +202,7 @@ export function GrupoBloco({
             items={visao.pendentes.map((i) => idItem(i.id))}
             strategy={ordemManual ? verticalListSortingStrategy : semReordenar}
           >
-            <ul ref={setListaRef} className="min-h-10 divide-y divide-white/5">
+            <ul ref={setListaRef} className="min-h-10 divide-y divide-borda">
               {visao.pendentes.map((item) => (
                 <ItemArrastavel
                   key={item.id}
@@ -216,7 +216,7 @@ export function GrupoBloco({
                   repeticaoLista={grupo}
                 />
               ))}
-              {visao.pendentes.length === 0 && <li className="px-3 py-3 text-xs text-white/40">Nenhum item pendente.</li>}
+              {visao.pendentes.length === 0 && <li className="px-3 py-3 text-xs text-texto/40">Nenhum item pendente.</li>}
             </ul>
           </SortableContext>
 

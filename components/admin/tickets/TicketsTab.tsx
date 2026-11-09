@@ -97,7 +97,7 @@ export function TicketsTab() {
   }
 
   function renderConteudo() {
-    if (!tickets || !referencias) return <p className="p-4 text-sm text-white/60">Carregando tickets...</p>;
+    if (!tickets || !referencias) return <p className="p-4 text-sm text-texto/60">Carregando tickets...</p>;
     if (lixeira) {
       return tickets.length === 0 ? (
         <EmptyState icon={Trash2} title="A lixeira está vazia" description="Tickets excluídos aparecem aqui." />
@@ -114,7 +114,7 @@ export function TicketsTab() {
     if (visao === "kanban") {
       return (
         <>
-          <p className="px-4 pt-3 text-xs text-white/40">Para ações em massa, use a visualização em lista.</p>
+          <p className="px-4 pt-3 text-xs text-texto/40">Para ações em massa, use a visualização em lista.</p>
           <TicketsKanban tickets={tickets} nomes={referencias.nomes} mostrarEncerrados={filtros.encerrados} onAbrir={abrir} />
         </>
       );
@@ -127,8 +127,8 @@ export function TicketsTab() {
   }
 
   return (
-    <section className="rounded-xl border border-white/10 bg-white/3">
-      <div className="space-y-4 border-b border-white/10 p-4">
+    <section className="rounded-xl border border-borda bg-superficie">
+      <div className="space-y-4 border-b border-borda p-4">
         <TicketsToolbar
           key={limpezas}
           q={filtros.q}

@@ -21,7 +21,7 @@ export function AvataresMembros({ usuarioIds }: { usuarioIds: string[] }) {
         </span>
       ))}
       {resto > 0 && (
-        <span className="z-10 flex h-5 min-w-5 items-center justify-center rounded-full bg-white/15 px-1 text-[9px] font-semibold text-white/80 ring-2 ring-[#0b1224]">
+        <span className="z-10 flex h-5 min-w-5 items-center justify-center rounded-full bg-superficie-hover px-1 text-[9px] font-semibold text-texto/80 ring-2 ring-[#0b1224]">
           +{resto}
         </span>
       )}

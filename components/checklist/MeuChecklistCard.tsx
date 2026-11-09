@@ -14,9 +14,9 @@ const LIMITE_ITENS = 6;
 
 function Numero({ rotulo, valor, cor }: { rotulo: string; valor: number; cor: string }) {
   return (
-    <div className="rounded-lg border border-white/5 bg-white/3 px-3 py-1.5">
-      <p className={`text-lg font-semibold leading-tight ${valor > 0 ? cor : "text-white/70"}`}>{valor}</p>
-      <p className="text-xs text-white/50">{rotulo}</p>
+    <div className="rounded-lg border border-borda bg-superficie px-3 py-1.5">
+      <p className={`text-lg font-semibold leading-tight ${valor > 0 ? cor : "text-texto/70"}`}>{valor}</p>
+      <p className="text-xs text-texto-suave">{rotulo}</p>
     </div>
   );
 }
@@ -48,20 +48,20 @@ export function MeuChecklistCard({ checklist }: { checklist: DadosChecklist }) {
       ) : (
         <div className="space-y-3">
           <div className="grid grid-cols-3 gap-2">
-            <Numero rotulo="Pendentes" valor={resumo.total} cor="text-white" />
+            <Numero rotulo="Pendentes" valor={resumo.total} cor="text-texto" />
             <Numero rotulo="Críticos" valor={resumo.criticos} cor="text-rose-300" />
             <Numero rotulo="Vencendo" valor={resumo.vencendo} cor="text-amber-300" />
           </div>
           {resumo.total === 0 ? (
-            <p className="py-4 text-center text-sm text-white/45">Nada pendente no seu checklist.</p>
+            <p className="py-4 text-center text-sm text-texto/45">Nada pendente no seu checklist.</p>
           ) : (
-            <ul className="divide-y divide-white/5">
+            <ul className="divide-y divide-borda">
               {resumo.destaques.map((item) => (
                 <li key={item.id}>
                   <button
                     type="button"
                     onClick={() => abrir(item.id)}
-                    className="flex w-full items-center gap-2 rounded-md px-1 py-1.5 text-left text-sm text-white/85 hover:bg-white/5"
+                    className="flex w-full items-center gap-2 rounded-md px-1 py-1.5 text-left text-sm text-texto/85 hover:bg-superficie"
                   >
                     <TextoCortado className="min-w-0 flex-1 truncate">{item.titulo}</TextoCortado>
                     {item.diaria && <DiariaChip dias={item.dias_semana} />}

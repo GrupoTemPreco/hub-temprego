@@ -59,7 +59,7 @@ export function VisaoGeralTab({ onNavegar }: { onNavegar: NavegarAba }) {
     };
   }, [toast, versao]);
 
-  if (carregando) return <p className="text-sm text-white/60">Carregando visão geral...</p>;
+  if (carregando) return <p className="text-sm text-texto/60">Carregando visão geral...</p>;
 
   return (
     <div className="space-y-6">

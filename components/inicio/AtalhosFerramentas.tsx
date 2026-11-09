@@ -35,10 +35,10 @@ export function AtalhosFerramentas() {
 
   return (
     <section>
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-white/50">Suas ferramentas</h2>
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-texto-suave">Suas ferramentas</h2>
 
       {disponiveis.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-white/10 px-4 py-8 text-center text-sm text-white/55">
+        <p className="rounded-xl border border-dashed border-borda px-4 py-8 text-center text-sm text-texto-suave">
           Você ainda não tem acesso a nenhuma ferramenta. Fale com um administrador.
         </p>
       ) : (
@@ -48,14 +48,14 @@ export function AtalhosFerramentas() {
               key={atalho.app.id}
               type="button"
               onClick={() => abrir(atalho.app)}
-              className="group relative flex items-center gap-4 rounded-xl border border-white/10 bg-white/3 p-4 text-left transition-colors hover:border-cyan-400/40 hover:bg-white/6"
+              className="group relative flex items-center gap-4 rounded-xl border border-borda bg-superficie p-4 text-left transition-colors hover:border-cyan-400/40 hover:bg-superficie"
             >
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-cyan-500/15 text-cyan-300">
                 <MenuIcon kind={atalho.icon} className="h-6 w-6 shrink-0" />
               </span>
               <span className="min-w-0">
-                <span className="block font-semibold text-white">{atalho.label}</span>
-                <span className="block truncate text-xs text-white/50">{atalho.descricao}</span>
+                <span className="block font-semibold text-texto">{atalho.label}</span>
+                <span className="block truncate text-xs text-texto-suave">{atalho.descricao}</span>
               </span>
               {atalho.selo && (
                 <SeloDestaque texto={atalho.selo.texto} cor={atalho.selo.cor} className="absolute right-3 top-3" />

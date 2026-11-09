@@ -14,7 +14,7 @@ import { salvarDestaque } from "@/lib/admin/destaques";
 import type { DestaqueCor, DestaqueMenu } from "@/lib/types/shell";
 import { ItemMenuPreview } from "./ItemMenuPreview";
 
-const CAMPO = "w-full rounded-md border border-white/10 px-3 py-2 text-sm outline-none focus:border-blue-500";
+const CAMPO = "w-full rounded-md border border-borda px-3 py-2 text-sm outline-none focus:border-blue-500";
 
 type Props = {
   destaque: DestaqueMenu | null;
@@ -92,7 +92,7 @@ export function DestaqueModal({ destaque, todos, onClose, onSalvo }: Props) {
       <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_auto]">
         <div className="space-y-4">
           <label className="block">
-            <span className="mb-1 block text-sm text-white/70">Ferramenta</span>
+            <span className="mb-1 block text-sm text-texto/70">Ferramenta</span>
             <select className={CAMPO} value={form.ferramenta_id} onChange={(e) => set({ ferramenta_id: e.target.value as typeof form.ferramenta_id })}>
               {FERRAMENTAS.map((f) => (
                 <option key={f.id} value={f.id}>{rotuloFerramentaMenu(f.id)}</option>
@@ -101,15 +101,15 @@ export function DestaqueModal({ destaque, todos, onClose, onSalvo }: Props) {
           </label>
 
           <label className="block">
-            <span className="mb-1 flex justify-between text-sm text-white/70">
+            <span className="mb-1 flex justify-between text-sm text-texto/70">
               Texto
-              <span className="text-xs text-white/40">{form.texto.length}/{TEXTO_DESTAQUE_MAX}</span>
+              <span className="text-xs text-texto/40">{form.texto.length}/{TEXTO_DESTAQUE_MAX}</span>
             </span>
             <input className={CAMPO} maxLength={TEXTO_DESTAQUE_MAX} value={form.texto} onChange={(e) => set({ texto: e.target.value })} />
           </label>
 
           <div>
-            <span className="mb-1 block text-sm text-white/70">Cor</span>
+            <span className="mb-1 block text-sm text-texto/70">Cor</span>
             <div className="flex flex-wrap gap-2">
               {CORES_DESTAQUE.map((c) => (
                 <button
@@ -117,7 +117,7 @@ export function DestaqueModal({ destaque, todos, onClose, onSalvo }: Props) {
                   type="button"
                   onClick={() => set({ cor: c.value })}
                   className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-sm ${
-                    form.cor === c.value ? "border-blue-500 bg-blue-600/15" : "border-white/10 hover:bg-white/5"
+                    form.cor === c.value ? "border-blue-500 bg-blue-600/15" : "border-borda hover:bg-superficie"
                   }`}
                 >
                   <span className={`h-3 w-3 rounded-full ${estiloCor(c.value).ponto}`} /> {c.label}
@@ -128,21 +128,21 @@ export function DestaqueModal({ destaque, todos, onClose, onSalvo }: Props) {
 
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="block">
-              <span className="mb-1 block text-sm text-white/70">Início</span>
+              <span className="mb-1 block text-sm text-texto/70">Início</span>
               <input type="datetime-local" className={CAMPO} value={form.inicio} onChange={(e) => set({ inicio: e.target.value })} />
             </label>
             <div>
-              <span className="mb-1 block text-sm text-white/70">Fim</span>
+              <span className="mb-1 block text-sm text-texto/70">Fim</span>
               <input type="datetime-local" disabled={form.semFim} className={`${CAMPO} disabled:opacity-40`} value={form.semFim ? "" : form.fim} onChange={(e) => set({ fim: e.target.value })} />
-              <label className="mt-1.5 flex items-center gap-2 text-xs text-white/60">
+              <label className="mt-1.5 flex items-center gap-2 text-xs text-texto/60">
                 <input type="checkbox" checked={form.semFim} onChange={(e) => set({ semFim: e.target.checked, fim: e.target.checked ? form.fim : form.fim || agoraInputSP(15) })} />
                 Sem data de fim
               </label>
             </div>
           </div>
-          <p className="-mt-2 text-xs text-white/40">Horário de Brasília (America/Sao_Paulo).</p>
+          <p className="-mt-2 text-xs text-texto/40">Horário de Brasília (America/Sao_Paulo).</p>
 
-          <div className="flex items-center gap-3 rounded-lg border border-white/10 p-3">
+          <div className="flex items-center gap-3 rounded-lg border border-borda p-3">
             <Toggle label="Ativo" checked={form.ativo} onChange={(v) => set({ ativo: v })} />
             <span className="text-sm">Ativo</span>
           </div>
@@ -158,7 +158,7 @@ export function DestaqueModal({ destaque, todos, onClose, onSalvo }: Props) {
         </div>
 
         <div>
-          <span className="mb-1 block text-sm text-white/70">Pré-visualização</span>
+          <span className="mb-1 block text-sm text-texto/70">Pré-visualização</span>
           <ItemMenuPreview ferramentaId={form.ferramenta_id} texto={form.texto} cor={form.cor} />
         </div>
       </div>

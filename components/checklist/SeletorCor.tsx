@@ -19,7 +19,7 @@ export function SeletorCor({ valor, onChange }: Props) {
             title={cor.label}
             onClick={() => onChange(cor.value)}
             className={`flex h-6 w-6 items-center justify-center rounded-full ${cor.classe} transition-transform hover:scale-110 ${
-              ativa ? "ring-2 ring-white ring-offset-2 ring-offset-[#0b1224]" : ""
+              ativa ? "ring-2 ring-texto ring-offset-2 ring-offset-superficie-forte" : ""
             }`}
           >
             {ativa && <Check className="h-3.5 w-3.5 text-black/70" />}

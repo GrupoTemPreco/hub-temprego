@@ -27,7 +27,7 @@ export function RecebidaCard({ envio, item, remetente, seloDestino, agora, onAce
   return (
     <article className="flex flex-col gap-2 rounded-xl border border-blue-400/25 bg-blue-500/5 p-3">
       <div className="flex items-start justify-between gap-2">
-        <TextoCortado as="h3" className="min-w-0 font-semibold text-white">
+        <TextoCortado as="h3" className="min-w-0 font-semibold text-texto">
           {item?.titulo ?? envio.titulo}
         </TextoCortado>
         <div className="flex shrink-0 flex-wrap justify-end gap-1">
@@ -44,15 +44,15 @@ export function RecebidaCard({ envio, item, remetente, seloDestino, agora, onAce
         </div>
       </div>
 
-      <p className="flex items-center gap-2 text-xs text-white/60">
+      <p className="flex items-center gap-2 text-xs text-texto/60">
         <Avatar nome={remetente} />
         <span>
-          De <span className="font-medium text-white/85">{remetente}</span> · enviado{" "}
+          De <span className="font-medium text-texto/85">{remetente}</span> · enviado{" "}
           {tempoRelativo(ultimoEnvioEm(envio), new Date(agora))}
         </span>
       </p>
 
-      {envio.mensagem && <p className="text-sm text-white/75">&ldquo;{envio.mensagem}&rdquo;</p>}
+      {envio.mensagem && <p className="text-sm text-texto/75">&ldquo;{envio.mensagem}&rdquo;</p>}
 
       <div className="flex flex-wrap items-center gap-1.5">
         {item && <NivelChip nivel={item.nivel} />}
@@ -62,7 +62,7 @@ export function RecebidaCard({ envio, item, remetente, seloDestino, agora, onAce
             <CalendarDays className="h-3 w-3" /> Prazo sugerido {formatarPrazo(envio.prazo_sugerido)}
           </Badge>
         )}
-        {item === null && <span className="text-xs text-white/45">O item original não existe mais.</span>}
+        {item === null && <span className="text-xs text-texto/45">O item original não existe mais.</span>}
       </div>
 
       <div className="mt-auto flex justify-end gap-2 pt-1">

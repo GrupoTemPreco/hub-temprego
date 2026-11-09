@@ -59,7 +59,7 @@ export function MeusItensAdmin({ onNavegar, checklist }: Props) {
 
   return (
     <section>
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-white/50">Meus itens</h2>
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-texto/50">Meus itens</h2>
       <LinhaCards>
         {checklist && <MeuChecklistCard checklist={checklist} />}
         <CardTickets

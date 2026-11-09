@@ -14,7 +14,7 @@ import { useAvisosDoBalao } from "./useAvisosDoBalao";
 import { useTicketsUsuario } from "./TicketsUsuarioProvider";
 
 const ACAO_CABECALHO =
-  "inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs text-white/55 hover:bg-white/10 hover:text-white";
+  "inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs text-texto-suave hover:bg-superficie-hover hover:text-texto";
 
 /** Botão flutuante de tickets, presente em todas as telas do hub (inclusive sobre os iframes). */
 export function BalaoTickets() {
@@ -69,7 +69,7 @@ export function BalaoTickets() {
         width="max-w-xl"
         title={
           <span className="flex items-center gap-3">
-            <span className="text-base font-semibold text-white">Tickets</span>
+            <span className="text-base font-semibold text-texto">Tickets</span>
             <button type="button" onClick={abrirEmTelaCheia} className={ACAO_CABECALHO}>
               <Maximize2 className="h-3.5 w-3.5" /> Abrir em tela cheia
             </button>

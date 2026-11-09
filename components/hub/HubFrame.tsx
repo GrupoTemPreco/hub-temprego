@@ -14,6 +14,7 @@ import { FerramentaAtivaProvider } from "./FerramentaAtivaProvider";
 import { DestaquesMenuProvider } from "./DestaquesMenuProvider";
 import { HubSidebar } from "./HubSidebar";
 import { RegistroAcessoProvider } from "./RegistroAcesso";
+import { SeletorTema } from "./SeletorTema";
 import { TrocaSenhaObrigatoria } from "./TrocaSenhaObrigatoria";
 
 function Moldura({ children }: { children: ReactNode }) {
@@ -21,15 +22,23 @@ function Moldura({ children }: { children: ReactNode }) {
   const isMobile = useIsMobile();
 
   // No celular a home tem telas próprias, sem sidebar.
-  if (isMobile && pathname === "/") return <>{children}</>;
+  if (isMobile && pathname === "/") {
+    return (
+      <>
+        <SeletorTema />
+        {children}
+      </>
+    );
+  }
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#020617]">
+    <div className="flex h-screen w-screen overflow-hidden bg-fundo">
       <HubSidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <FaixasNotificacao />
         <div className="flex min-h-0 flex-1">{children}</div>
       </div>
+      <SeletorTema />
     </div>
   );
 }

@@ -61,24 +61,24 @@ export function SetoresMassaModal({ setores, onEscolher, onClose }: Props) {
               aria-checked={modo === m.value}
               onClick={() => setModo(m.value)}
               className={`rounded-lg border p-2.5 text-left transition-colors ${
-                modo === m.value ? "border-blue-500 bg-blue-600/20" : "border-white/10 hover:bg-white/5"
+                modo === m.value ? "border-blue-500 bg-blue-600/20" : "border-borda hover:bg-superficie"
               }`}
             >
-              <span className="block text-sm font-medium text-white">{m.label}</span>
-              <span className="block text-xs text-white/50">{m.descricao}</span>
+              <span className="block text-sm font-medium text-texto">{m.label}</span>
+              <span className="block text-xs text-texto/50">{m.descricao}</span>
             </button>
           ))}
         </div>
 
         <div>
-          <p className="mb-2 text-sm text-white/70">Setores ativos</p>
+          <p className="mb-2 text-sm text-texto/70">Setores ativos</p>
           {ativos.length === 0 ? (
-            <p className="text-sm text-white/45">Nenhum setor ativo.</p>
+            <p className="text-sm text-texto/45">Nenhum setor ativo.</p>
           ) : (
-            <ul className="max-h-60 divide-y divide-white/5 overflow-y-auto rounded-lg border border-white/10">
+            <ul className="max-h-60 divide-y divide-borda overflow-y-auto rounded-lg border border-borda">
               {ativos.map((s) => (
                 <li key={s.id}>
-                  <label className="flex cursor-pointer items-center gap-2.5 px-3 py-2 text-sm hover:bg-white/5">
+                  <label className="flex cursor-pointer items-center gap-2.5 px-3 py-2 text-sm hover:bg-superficie">
                     <input
                       type="checkbox"
                       checked={marcados.has(s.id)}

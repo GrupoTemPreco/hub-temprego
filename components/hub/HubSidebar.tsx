@@ -21,15 +21,18 @@ const MENUS_INDISPONIVEIS: Array<{ label: string; icon: MenuIconKind }> = [
   { label: "Financeiro", icon: "financeiro" },
 ];
 
+const ITEM_EM_BREVE =
+  "w-full cursor-not-allowed rounded-lg py-2 font-medium text-(--texto-desabilitado)";
+
 type EstadoItem = "ativo" | "normal" | "bloqueado";
 
 function classeItemPrincipal(aberta: boolean, estado: EstadoItem) {
   const cor =
     estado === "ativo"
-      ? "bg-white/15 text-white"
+      ? "bg-superficie-hover text-texto"
       : estado === "normal"
-        ? "text-white/80 hover:bg-white/10 hover:text-white"
-        : "cursor-not-allowed text-white/35";
+        ? "text-texto/80 hover:bg-superficie-hover hover:text-texto"
+        : "cursor-not-allowed text-texto-fraco";
   return `flex w-full items-center rounded-lg py-2 font-semibold transition-colors ${
     aberta ? "text-base" : "text-sm"
   } ${aberta ? "justify-between pl-1 pr-2" : "justify-center px-0"} ${cor}`;
@@ -75,7 +78,7 @@ export function HubSidebar() {
     <aside
       onMouseEnter={() => setSidebarHovered(true)}
       onMouseLeave={() => setSidebarHovered(false)}
-      className={`relative flex shrink-0 flex-col overflow-hidden border-r border-white/10 bg-[#020617] transition-all duration-300 ${
+      className={`relative flex shrink-0 flex-col overflow-hidden border-r border-borda bg-sidebar transition-all duration-300 ${
         sidebarAberta ? "w-52" : "w-14"
       }`}
     >
@@ -141,10 +144,10 @@ export function HubSidebar() {
                     sidebarAberta ? "text-base" : "text-sm"
                   } ${sidebarAberta ? "pl-7 pr-1.5 text-left" : "px-0 text-center"} ${
                     naHome && ativa?.id === item.app.id
-                      ? "bg-white/15 text-white"
+                      ? "bg-superficie-hover text-texto"
                       : pode
-                        ? "text-white/65 hover:bg-white/10 hover:text-white"
-                        : "cursor-not-allowed text-white/35"
+                        ? "text-texto/65 hover:bg-superficie-hover hover:text-texto"
+                        : "cursor-not-allowed text-texto-fraco"
                   }`}
                 >
                   <span
@@ -202,7 +205,7 @@ export function HubSidebar() {
                   onClick={() => irPara(ROTA_RH_MONITORAMENTO)}
                   title="Monitoramento de tarefas"
                   className={`w-full rounded-lg py-2 pl-7 pr-1.5 text-left text-base font-medium transition-colors ${
-                    noMonitoramento ? "bg-white/15 text-white" : "text-white/65 hover:bg-white/10 hover:text-white"
+                    noMonitoramento ? "bg-superficie-hover text-texto" : "text-texto/65 hover:bg-superficie-hover hover:text-texto"
                   }`}
                 >
                   <span className="flex w-full min-w-0 items-center gap-2">
@@ -219,9 +222,7 @@ export function HubSidebar() {
               key={menu.label}
               disabled
               title="Ferramenta disponível em breve"
-              className={`w-full cursor-not-allowed rounded-lg py-2 font-medium text-white/35 ${
-                sidebarAberta ? "text-base" : "text-sm"
-              } ${sidebarAberta ? "px-2 text-left" : "px-0 text-center"}`}
+              className={`${ITEM_EM_BREVE} ${sidebarAberta ? "text-base px-2 text-left" : "text-sm px-0 text-center"}`}
             >
               <span className={rotuloSpan}>
                 <MenuIcon kind={menu.icon} className={menuIconSize} />
@@ -234,13 +235,13 @@ export function HubSidebar() {
 
       <SidebarDecoracao aberta={sidebarAberta} />
 
-      <div className="relative z-10 mt-auto border-t border-white/10 bg-[#020617]/85 p-4 backdrop-blur-[2px]">
+      <div className="relative z-10 mt-auto border-t border-borda bg-fundo/85 p-4 backdrop-blur-[2px]">
         <button
           onClick={() => setSidebarPin(sidebarPin === "auto" ? "open" : "auto")}
           className={`mb-2 flex w-full items-center justify-center rounded-lg py-1.5 transition-colors ${
             sidebarPin !== "auto"
-              ? "bg-white/20 text-white"
-              : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
+              ? "bg-superficie-hover text-texto"
+              : "bg-superficie text-texto/60 hover:bg-superficie-hover hover:text-texto"
           }`}
           title={sidebarPin !== "auto" ? "Desfixar sidebar" : "Fixar sidebar aberta"}
         >
@@ -251,7 +252,7 @@ export function HubSidebar() {
         </button>
         <button
           onClick={handleLogout}
-          className={`w-full rounded-lg py-2 text-sm text-white/60 hover:bg-white/10 hover:text-white ${
+          className={`w-full rounded-lg py-2 text-sm text-texto/60 hover:bg-superficie-hover hover:text-texto ${
             sidebarAberta ? "px-3 text-left" : "px-2 text-center"
           }`}
         >

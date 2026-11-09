@@ -113,7 +113,7 @@ export function Tooltip({
             id={id}
             role="tooltip"
             style={{ ...posicao, maxWidth: `min(${LARGURA_MAXIMA}px, calc(100vw - ${MARGEM * 2}px))` }}
-            className="pointer-events-none fixed z-[70] whitespace-pre-wrap break-words rounded-md border border-white/15 bg-[#0f172a] px-2.5 py-1.5 text-xs font-medium text-white/90 shadow-xl"
+            className="pointer-events-none fixed z-[70] whitespace-pre-wrap break-words rounded-md border border-borda bg-superficie-forte px-2.5 py-1.5 text-xs font-medium text-texto/90 shadow-xl"
           >
             {conteudo}
           </div>,

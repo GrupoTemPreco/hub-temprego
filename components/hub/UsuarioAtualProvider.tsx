@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import type { AcessoUsuario } from "@/lib/ferramentas";
+import { sincronizarTemaDoBanco } from "@/lib/tema";
 
 export type UsuarioAtual = AcessoUsuario & {
   email: string | null;
@@ -30,7 +31,9 @@ function estaAprovado(status: string | null | undefined) {
   return normalizado === "aprovado" || normalizado === "approved";
 }
 
-async function carregarUsuarioAtual(): Promise<UsuarioAtual | "sem-sessao" | "bloqueado"> {
+type UsuarioCarregado = { usuario: UsuarioAtual; tema: unknown };
+
+async function carregarUsuarioAtual(): Promise<UsuarioCarregado | "sem-sessao" | "bloqueado"> {
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -39,7 +42,7 @@ async function carregarUsuarioAtual(): Promise<UsuarioAtual | "sem-sessao" | "bl
   const [perfilRes, permissoesRes, setoresRes] = await Promise.all([
     supabase
       .from("usuarios")
-      .select("status, is_admin, nome, email, recebe_tickets, acesso_checklist, volume_notificacao, trocar_senha")
+      .select("status, is_admin, nome, email, recebe_tickets, acesso_checklist, volume_notificacao, trocar_senha, tema")
       .eq("id", session.user.id)
       .maybeSingle(),
     supabase.from("permissoes").select("modulo, item").eq("user_id", session.user.id),
@@ -49,16 +52,19 @@ async function carregarUsuarioAtual(): Promise<UsuarioAtual | "sem-sessao" | "bl
   if (perfilRes.error || !perfilRes.data || !estaAprovado(perfilRes.data.status)) return "bloqueado";
 
   return {
-    id: session.user.id,
-    nome: perfilRes.data.nome ?? null,
-    email: perfilRes.data.email ?? null,
-    isAdmin: Boolean(perfilRes.data.is_admin),
-    permissoes: permissoesRes.data ?? [],
-    setores: (setoresRes.data ?? []).map((v) => v.setor_id as string),
-    recebeTickets: Boolean(perfilRes.data.recebe_tickets),
-    acessoChecklist: Boolean(perfilRes.data.acesso_checklist),
-    volumeNotificacao: perfilRes.data.volume_notificacao ?? null,
-    trocarSenha: Boolean(perfilRes.data.trocar_senha),
+    usuario: {
+      id: session.user.id,
+      nome: perfilRes.data.nome ?? null,
+      email: perfilRes.data.email ?? null,
+      isAdmin: Boolean(perfilRes.data.is_admin),
+      permissoes: permissoesRes.data ?? [],
+      setores: (setoresRes.data ?? []).map((v) => v.setor_id as string),
+      recebeTickets: Boolean(perfilRes.data.recebe_tickets),
+      acessoChecklist: Boolean(perfilRes.data.acesso_checklist),
+      volumeNotificacao: perfilRes.data.volume_notificacao ?? null,
+      trocarSenha: Boolean(perfilRes.data.trocar_senha),
+    },
+    tema: perfilRes.data.tema,
   };
 }
 
@@ -77,7 +83,8 @@ export function UsuarioAtualProvider({ children }: { children: ReactNode }) {
         router.push("/login");
         return;
       }
-      setUsuario(resultado);
+      sincronizarTemaDoBanco(resultado.tema);
+      setUsuario(resultado.usuario);
     },
     [router],
   );
@@ -100,8 +107,8 @@ export function UsuarioAtualProvider({ children }: { children: ReactNode }) {
 
   if (!valor) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-[#020617]">
-        <p className="text-sm text-zinc-400">Carregando...</p>
+      <div className="flex h-screen w-screen items-center justify-center bg-fundo">
+        <p className="text-sm text-texto-suave">Carregando...</p>
       </div>
     );
   }

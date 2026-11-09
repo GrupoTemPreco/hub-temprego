@@ -10,7 +10,7 @@ import type { Ticket } from "@/lib/types/shell";
 
 export function TituloGrupoTickets({ children }: { children: ReactNode }) {
   return (
-    <h3 className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-white/40">
+    <h3 className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-texto/40">
       {children}
     </h3>
   );
@@ -18,7 +18,7 @@ export function TituloGrupoTickets({ children }: { children: ReactNode }) {
 
 /** Lista vazia de um grupo: texto curto, sem caixa ocupando altura. */
 export function VazioGrupoTickets({ children }: { children: ReactNode }) {
-  return <p className="py-2 text-center text-sm text-white/45">{children}</p>;
+  return <p className="py-2 text-center text-sm text-texto/45">{children}</p>;
 }
 
 /**
@@ -57,19 +57,19 @@ export function GruposRecebidos({ onAbrir }: { onAbrir: (ticket: Ticket) => void
       {comNovidade.length > 0 && lista(comNovidade)}
       {setorSemNovidade.length > 0 && (
         <div>
-          <p className="mb-1 text-xs text-white/45">Do meu setor, sem responsável</p>
+          <p className="mb-1 text-xs text-texto/45">Do meu setor, sem responsável</p>
           {lista(setorSemNovidade)}
         </div>
       )}
       {demais.length > 0 && lista(demais)}
 
       {participei.length > 0 && (
-        <details className="group rounded-lg border border-white/10">
-          <summary className="flex cursor-pointer list-none items-center gap-1.5 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-white/50 hover:text-white/80">
+        <details className="group rounded-lg border border-borda">
+          <summary className="flex cursor-pointer list-none items-center gap-1.5 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-texto/50 hover:text-texto/80">
             <ChevronRight className="h-3.5 w-3.5 transition-transform group-open:rotate-90" />
             Em que participei ({participei.length})
           </summary>
-          <div className="border-t border-white/5 p-2">
+          <div className="border-t border-borda p-2">
             <ListaTicketsUsuario
               tickets={participei}
               outraParte={(t) => `De ${referencias.nomes.usuario(t.autor_id)}`}

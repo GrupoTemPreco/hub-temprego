@@ -7,7 +7,7 @@ import { DestinoSelect } from "@/components/tickets/DestinoSelect";
 import type { DestinoValor, Referencias, UsuarioReferencia } from "@/lib/ticketsApi";
 import type { Ticket } from "@/lib/types/shell";
 
-const CAMPO = "w-full rounded-md border border-white/10 px-3 py-2 text-sm outline-none focus:border-blue-500";
+const CAMPO = "w-full rounded-md border border-borda px-3 py-2 text-sm outline-none focus:border-blue-500";
 
 type Props = {
   ticket: Ticket;
@@ -57,7 +57,7 @@ export function EncaminharModal({ ticket, referencias, filtrarPessoa = aprovado,
     >
       <div className="space-y-4">
         <label className="block">
-          <span className="mb-1 block text-sm text-white/70">Novo destino</span>
+          <span className="mb-1 block text-sm text-texto/70">Novo destino</span>
           <DestinoSelect
             className={CAMPO}
             value={destino}
@@ -70,7 +70,7 @@ export function EncaminharModal({ ticket, referencias, filtrarPessoa = aprovado,
           )}
         </label>
         <label className="block">
-          <span className="mb-1 block text-sm text-white/70">Mensagem (opcional)</span>
+          <span className="mb-1 block text-sm text-texto/70">Mensagem (opcional)</span>
           <textarea
             rows={3}
             value={mensagem}

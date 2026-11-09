@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Check, Search, X } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
+import { CHIP } from "@/components/ui/Badge";
 import type { PessoaChecklist } from "@/lib/checklistEnvios";
 
 function normalizar(texto: string) {
@@ -24,9 +25,9 @@ function ListaPessoas({ pessoas, selecionados, onEscolher }: ListaProps) {
   const visiveis = termo ? pessoas.filter((p) => normalizar(`${p.nome ?? ""} ${p.email ?? ""}`).includes(termo)) : pessoas;
 
   return (
-    <div className="overflow-hidden rounded-md border border-white/10">
-      <label className="relative block border-b border-white/10">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+    <div className="overflow-hidden rounded-md border border-borda">
+      <label className="relative block border-b border-borda">
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-texto/40" />
         <input
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
@@ -37,9 +38,9 @@ function ListaPessoas({ pessoas, selecionados, onEscolher }: ListaProps) {
       </label>
       <ul role="listbox" aria-label="Pessoas" aria-multiselectable={selecionados.length > 1} className="max-h-44 overflow-y-auto py-1">
         {pessoas.length === 0 && (
-          <li className="px-3 py-2 text-sm text-white/45">Ninguém com acesso ao checklist para receber.</li>
+          <li className="px-3 py-2 text-sm text-texto/45">Ninguém com acesso ao checklist para receber.</li>
         )}
-        {pessoas.length > 0 && visiveis.length === 0 && <li className="px-3 py-2 text-sm text-white/45">Nada encontrado.</li>}
+        {pessoas.length > 0 && visiveis.length === 0 && <li className="px-3 py-2 text-sm text-texto/45">Nada encontrado.</li>}
         {visiveis.map((p) => {
           const ativo = selecionados.includes(p.id);
           return (
@@ -49,14 +50,14 @@ function ListaPessoas({ pessoas, selecionados, onEscolher }: ListaProps) {
                 role="option"
                 aria-selected={ativo}
                 onClick={() => onEscolher(p.id)}
-                className={`flex w-full items-center gap-2.5 px-3 py-1.5 text-left text-sm hover:bg-white/10 ${
-                  ativo ? "bg-blue-600/20 text-blue-100" : "text-white/85"
+                className={`flex w-full items-center gap-2.5 px-3 py-1.5 text-left text-sm hover:bg-superficie-hover ${
+                  ativo ? "bg-blue-600/20 text-blue-100" : "text-texto/85"
                 }`}
               >
                 <Avatar nome={p.nome} email={p.email} />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate">{nomeDaPessoa(p)}</span>
-                  {p.nome && p.email && <span className="block truncate text-xs text-white/45">{p.email}</span>}
+                  {p.nome && p.email && <span className="block truncate text-xs text-texto/45">{p.email}</span>}
                 </span>
                 {ativo && <Check className="h-4 w-4 shrink-0 text-blue-300" />}
               </button>
@@ -89,7 +90,7 @@ export function SeletorPessoas({ pessoas, valores, onChange }: VariasProps) {
           {escolhidas.map((p) => (
             <span
               key={p.id}
-              className="inline-flex items-center gap-1 rounded-full border border-blue-500/40 bg-blue-600/20 py-0.5 pl-1 pr-1 text-xs text-blue-100"
+              className={`inline-flex items-center gap-1 rounded-full border ${CHIP.info} py-0.5 pl-1 pr-1 text-xs`}
             >
               <Avatar nome={p.nome} email={p.email} size="xs" />
               {nomeDaPessoa(p)}
@@ -97,7 +98,7 @@ export function SeletorPessoas({ pessoas, valores, onChange }: VariasProps) {
                 type="button"
                 onClick={() => alternar(p.id)}
                 aria-label={`Remover ${nomeDaPessoa(p)}`}
-                className="rounded-full p-0.5 hover:bg-white/15"
+                className="rounded-full p-0.5 hover:bg-superficie-hover"
               >
                 <X className="h-3 w-3" />
               </button>

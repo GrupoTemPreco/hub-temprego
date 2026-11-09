@@ -18,7 +18,7 @@ function AvisoCompras({ onFechar }: { onFechar: () => void }) {
     <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex justify-center p-3 sm:p-4">
       <div
         role="status"
-        className="pointer-events-auto flex max-w-lg items-start gap-3 rounded-xl border border-emerald-400/35 bg-emerald-950/92 px-4 py-3 text-sm text-emerald-50 shadow-lg backdrop-blur-sm"
+        className="pointer-events-auto flex max-w-lg items-start gap-3 rounded-xl border border-emerald-400/35 bg-semaforo-sucesso-fundo px-4 py-3 text-sm text-semaforo-sucesso-texto shadow-lg backdrop-blur-sm"
       >
         <p className="min-w-0 flex-1 leading-snug">
           Dados em validação. Valores podem variar até a conclusão da conferência.
@@ -26,7 +26,7 @@ function AvisoCompras({ onFechar }: { onFechar: () => void }) {
         <button
           type="button"
           onClick={onFechar}
-          className="shrink-0 rounded-md p-1 text-emerald-200/90 transition-colors hover:bg-white/10 hover:text-white"
+          className="shrink-0 rounded-md p-1 text-emerald-200/90 transition-colors hover:bg-superficie-hover hover:text-texto"
           aria-label="Fechar aviso"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
@@ -49,24 +49,24 @@ function HomeMobile() {
 
   if (active && active.id !== "checklist") {
     return (
-      <div className="flex h-screen w-screen flex-col items-center justify-center gap-6 bg-[#020617] px-6 text-center">
+      <div className="flex h-screen w-screen flex-col items-center justify-center gap-6 bg-fundo px-6 text-center">
         <svg
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
           strokeWidth="1.5"
-          className="h-20 w-20 shrink-0 text-white/45"
+          className="h-20 w-20 shrink-0 text-texto/45"
           aria-hidden
         >
           <rect x="2" y="4" width="20" height="12" rx="2" />
           <path d="M8 20h8" />
           <path d="M12 16v4" />
         </svg>
-        <p className="max-w-sm text-base text-white/70">Ferramenta disponivel somente em modo desktop</p>
+        <p className="max-w-sm text-base text-texto/70">Ferramenta disponivel somente em modo desktop</p>
         <button
           type="button"
           onClick={fechar}
-          className="rounded-lg bg-white/10 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/20"
+          className="rounded-lg bg-superficie-hover px-5 py-2.5 text-sm font-medium text-texto transition-colors hover:brightness-95"
         >
           Voltar
         </button>
@@ -76,12 +76,12 @@ function HomeMobile() {
 
   if (active?.id === "checklist") {
     return (
-      <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#020617]">
-        <header className="flex shrink-0 items-center gap-2 border-b border-white/10 px-3 py-3">
+      <div className="flex h-screen w-screen flex-col overflow-hidden bg-fundo">
+        <header className="flex shrink-0 items-center gap-2 border-b border-borda px-3 py-3">
           <button
             type="button"
             onClick={fechar}
-            className="rounded-lg px-3 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-texto/80 transition-colors hover:bg-superficie-hover hover:text-texto"
           >
             Voltar
           </button>
@@ -98,12 +98,12 @@ function HomeMobile() {
 
   if (abaChecklist) {
     return (
-      <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#020617] text-white">
-        <header className="flex shrink-0 items-center gap-2 border-b border-white/10 px-3 py-3">
+      <div className="flex h-screen w-screen flex-col overflow-hidden bg-fundo text-texto">
+        <header className="flex shrink-0 items-center gap-2 border-b border-borda px-3 py-3">
           <button
             type="button"
             onClick={() => irPara("/")}
-            className="rounded-lg px-3 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-texto/80 transition-colors hover:bg-superficie-hover hover:text-texto"
           >
             Voltar
           </button>
@@ -117,13 +117,13 @@ function HomeMobile() {
   }
 
   return (
-    <div className="flex h-screen w-screen flex-col items-center justify-center gap-8 bg-[#020617] px-6">
+    <div className="flex h-screen w-screen flex-col items-center justify-center gap-8 bg-fundo px-6">
       <img src="/logoA.png" alt="Logo Tempreço" className="h-16 w-16 object-contain opacity-90" />
       {usuario.acessoChecklist && (
         <button
           type="button"
           onClick={() => irPara(rotaChecklist(false))}
-          className="flex w-full max-w-xs items-center justify-center gap-3 rounded-xl bg-white/15 py-4 text-lg font-semibold text-white transition-colors hover:bg-white/25"
+          className="flex w-full max-w-xs items-center justify-center gap-3 rounded-xl bg-superficie-hover py-4 text-lg font-semibold text-texto transition-colors hover:brightness-95"
         >
           <MenuIcon kind="tarefas" className="h-7 w-7 shrink-0" />
           Checklist
@@ -137,7 +137,7 @@ function HomeMobile() {
         }}
         title={podeChecklist ? appChecklist.label : "Sem permissão para acessar"}
         className={`flex w-full max-w-xs items-center justify-center gap-3 rounded-xl py-4 text-lg font-semibold transition-colors ${
-          podeChecklist ? "bg-white/15 text-white hover:bg-white/25" : "cursor-not-allowed bg-white/5 text-white/35"
+          podeChecklist ? "bg-superficie-hover text-texto hover:brightness-95" : "cursor-not-allowed bg-superficie text-texto-fraco"
         }`}
       >
         <MenuIcon kind="checklist" className="h-7 w-7 shrink-0" />

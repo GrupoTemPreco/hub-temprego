@@ -210,10 +210,10 @@ export function ItemDrawer({ item, grupos, somenteLeitura: grupoSoLeitura = fals
             onChange={(repeticao) => alterar({ repeticao })}
           />
 
-          <div className="flex items-center justify-between gap-4 rounded-lg border border-white/10 p-3">
+          <div className="flex items-center justify-between gap-4 rounded-lg border border-borda p-3">
             <div>
               <p className="text-sm font-medium">Fixado</p>
-              <p className="text-xs text-white/50">Marca o item com o alfinete.</p>
+              <p className="text-xs text-texto/50">Marca o item com o alfinete.</p>
             </div>
             <Toggle label="Fixado" checked={form.fixado} onChange={(v) => alterar({ fixado: v })} />
           </div>

@@ -97,7 +97,7 @@ export function TicketDrawer({ numero, referencias, versao, modo = "admin", onCl
     return (
       <Drawer open onClose={onClose} title={titulo} width="max-w-2xl">
         {detalhe === "carregando" ? (
-          <p className="p-5 text-sm text-white/60">Carregando ticket...</p>
+          <p className="p-5 text-sm text-texto/60">Carregando ticket...</p>
         ) : (
           <EmptyState
             title="Ticket não encontrado"

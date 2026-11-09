@@ -60,7 +60,7 @@ export function EnviarListaModal({ grupo, qtdTarefas, compartilhada, onClose }: 
       }
     >
       <div className="space-y-4">
-        <p className="text-sm text-white/65">
+        <p className="text-sm text-texto/65">
           As tarefas vão junto do jeito que estão.
           {todos ? "" : " Enquanto ninguém responde, a lista fica parada no seu checklist."}
         </p>

@@ -40,7 +40,7 @@ export function UsuarioDrawer({ usuario, setores, abaInicial, onClose, onAtualiz
         <Avatar nome={usuario.nome} email={usuario.email} size="lg" />
         <div className="min-w-0 flex-1">
           <p className="truncate font-semibold">{usuario.nome || "Sem nome"}</p>
-          <p className="truncate text-sm text-white/55">{usuario.email}</p>
+          <p className="truncate text-sm text-texto-suave">{usuario.email}</p>
         </div>
         <UsuarioStatusBadge status={usuario.status} />
       </div>

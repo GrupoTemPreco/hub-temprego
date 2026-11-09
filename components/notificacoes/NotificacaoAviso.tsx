@@ -27,7 +27,7 @@ export function NotificacaoAviso({ notificacao, onFechar, embutido = false }: Pr
         <p className="mt-1 whitespace-pre-line text-sm opacity-90">{notificacao.mensagem}</p>
       </div>
       {onFechar && (
-        <button onClick={onFechar} aria-label="Fechar" className="shrink-0 rounded p-0.5 opacity-70 hover:bg-white/10 hover:opacity-100">
+        <button onClick={onFechar} aria-label="Fechar" className="shrink-0 rounded p-0.5 opacity-70 hover:bg-superficie-hover hover:opacity-100">
           <X className="h-4 w-4" />
         </button>
       )}

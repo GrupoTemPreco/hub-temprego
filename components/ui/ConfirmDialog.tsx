@@ -53,8 +53,8 @@ export function ConfirmDialog({
           <AlertTriangle className="h-5 w-5" />
         </div>
         <div>
-          <h3 className="font-semibold text-white">{title}</h3>
-          {description && <div className="mt-1 text-sm text-white/65">{description}</div>}
+          <h3 className="font-semibold text-texto">{title}</h3>
+          {description && <div className="mt-1 text-sm text-texto/65">{description}</div>}
         </div>
       </div>
     </Modal>

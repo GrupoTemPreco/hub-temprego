@@ -15,7 +15,7 @@ export function NotificacaoJanela({ notificacao, onConfirmar, embutido = false }
 
   const janela = (
     <div role="alertdialog" aria-modal={!embutido} className={`w-full max-w-md rounded-2xl border p-6 text-center shadow-2xl ${estilo.caixa}`}>
-      <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/10">
+      <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-superficie-hover">
         <Icon className={`h-6 w-6 ${estilo.iconeCor}`} />
       </div>
       <h2 className="text-lg font-semibold">{notificacao.titulo}</h2>

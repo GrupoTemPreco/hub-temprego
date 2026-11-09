@@ -71,7 +71,7 @@ export function CamposEnvio({ form, onChange, lista = false }: Props) {
   return (
     <>
       <div className="space-y-2">
-        <div role="tablist" aria-label="Enviar para" className="flex gap-1 rounded-lg border border-white/10 bg-white/3 p-1">
+        <div role="tablist" aria-label="Enviar para" className="flex gap-1 rounded-lg border border-borda bg-superficie p-1">
           {(["pessoas", "setor"] as const).map((modo) => (
             <button
               key={modo}
@@ -79,7 +79,7 @@ export function CamposEnvio({ form, onChange, lista = false }: Props) {
               role="tab"
               aria-selected={form.modo === modo}
               onClick={() => alterar({ modo })}
-              className={`${ABA} ${form.modo === modo ? "bg-blue-600 text-white" : "text-white/60 hover:bg-white/10 hover:text-white"}`}
+              className={`${ABA} ${form.modo === modo ? "bg-blue-600 text-white" : "text-texto/60 hover:bg-superficie-hover hover:text-texto"}`}
             >
               {modo === "pessoas" ? <Users className="h-4 w-4" /> : <Building2 className="h-4 w-4" />}
               {modo === "pessoas" ? "Pessoas" : "Setor"}
@@ -92,15 +92,15 @@ export function CamposEnvio({ form, onChange, lista = false }: Props) {
           <SeletorSetor setores={setores} valor={form.setorId} onChange={(setorId) => alterar({ setorId })} />
         )}
         {varios && (
-          <fieldset className="space-y-1.5 rounded-lg border border-white/10 bg-white/3 p-2.5">
-            <legend className="px-0.5 text-xs text-white/60">Como enviar</legend>
+          <fieldset className="space-y-1.5 rounded-lg border border-borda bg-superficie p-2.5">
+            <legend className="px-0.5 text-xs text-texto/60">Como enviar</legend>
             {(
               [
                 ["primeiro", "Quem aceitar primeiro fica com ela"],
                 ["todos", "Todos recebem uma cópia"],
               ] as const
             ).map(([valor, rotulo]) => (
-              <label key={valor} className="flex cursor-pointer items-start gap-2 text-sm text-white/85">
+              <label key={valor} className="flex cursor-pointer items-start gap-2 text-sm text-texto/85">
                 <input
                   type="radio"
                   name={`distribuicao-envio-${lista ? "lista" : "tarefa"}`}
@@ -112,7 +112,7 @@ export function CamposEnvio({ form, onChange, lista = false }: Props) {
               </label>
             ))}
             {lista && form.distribuicao === "todos" && (
-              <p className="text-xs text-white/55">
+              <p className="text-xs text-texto-suave">
                 Cada pessoa recebe uma cópia da lista. O que você mudar depois não chega nas cópias.
               </p>
             )}

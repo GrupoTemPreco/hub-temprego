@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { Plus, X } from "lucide-react";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
+import { CHIP } from "./Badge";
 import { OptionList, SeloOpcao, type Opcao } from "./OptionList";
 
 type ChipsSelectProps = {
@@ -42,11 +43,11 @@ export function ChipsSelect({
 
   return (
     <div ref={ref} className="relative">
-      <div className="flex min-h-10.5 flex-wrap items-center gap-1.5 rounded-md border border-white/10 bg-(--input-bg) p-1.5">
+      <div className="flex min-h-10.5 flex-wrap items-center gap-1.5 rounded-md border border-borda bg-input-bg p-1.5">
         {values.map((v) => (
           <span
             key={v}
-            className="inline-flex items-center gap-1 rounded-full border border-blue-500/40 bg-blue-600/20 py-0.5 pl-2.5 pr-1 text-xs text-blue-100"
+            className={`inline-flex items-center gap-1 rounded-full border ${CHIP.info} py-0.5 pl-2.5 pr-1 text-xs`}
           >
             {rotulo(v)}
             {selo(v) && <SeloOpcao texto={selo(v)!} />}
@@ -54,7 +55,7 @@ export function ChipsSelect({
               type="button"
               onClick={() => onChange(values.filter((x) => x !== v))}
               aria-label={`Remover ${rotulo(v)}`}
-              className="rounded-full p-0.5 hover:bg-white/15"
+              className="rounded-full p-0.5 hover:bg-superficie-hover"
             >
               <X className="h-3 w-3" />
             </button>
@@ -63,7 +64,7 @@ export function ChipsSelect({
         <button
           type="button"
           onClick={() => (aberto ? fechar() : setAberto(true))}
-          className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs text-white/55 hover:bg-white/10 hover:text-white"
+          className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs text-texto-suave hover:bg-superficie-hover hover:text-texto"
         >
           <Plus className="h-3.5 w-3.5" /> {adicionarLabel}
         </button>

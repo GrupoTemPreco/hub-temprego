@@ -29,20 +29,20 @@ export function Drawer({ open, onClose, title, children, footer, width = "max-w-
       <aside
         role="dialog"
         aria-modal="true"
-        className={`flex h-full w-full ${width} flex-col border-l border-white/10 bg-[#0b1224] shadow-2xl`}
+        className={`flex h-full w-full ${width} flex-col border-l border-borda bg-superficie-forte shadow-2xl`}
       >
-        <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
-          <div className="min-w-0 text-sm font-medium text-white/80">{title}</div>
+        <div className="flex items-center justify-between border-b border-borda px-5 py-3">
+          <div className="min-w-0 text-sm font-medium text-texto/80">{title}</div>
           <button
             onClick={onClose}
             aria-label="Fechar"
-            className="rounded-md p-1 text-white/50 hover:bg-white/10 hover:text-white"
+            className="rounded-md p-1 text-texto/50 hover:bg-superficie-hover hover:text-texto"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
         <div className="flex-1 overflow-y-auto">{children}</div>
-        {footer && <div className="border-t border-white/10">{footer}</div>}
+        {footer && <div className="border-t border-borda">{footer}</div>}
       </aside>
     </div>
   );

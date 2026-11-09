@@ -33,7 +33,7 @@ export function TopoLista({ children, onAlternar, minimizada = false, className 
   const faixa = `flex items-center px-3 py-2 ${className || "gap-1.5"}`;
 
   if (!onAlternar) {
-    return <header className={`${faixa} border-b border-white/10`}>{children}</header>;
+    return <header className={`${faixa} border-b border-borda`}>{children}</header>;
   }
 
   function aoPressionar(evento: MouseEvent<HTMLElement>) {
@@ -51,7 +51,7 @@ export function TopoLista({ children, onAlternar, minimizada = false, className 
     <header
       onMouseDown={aoPressionar}
       onClick={aoClicar}
-      className={`${faixa} cursor-pointer ${minimizada ? "" : "border-b border-white/10"}`}
+      className={`${faixa} cursor-pointer ${minimizada ? "" : "border-b border-borda"}`}
     >
       <button
         type="button"
@@ -63,7 +63,7 @@ export function TopoLista({ children, onAlternar, minimizada = false, className 
           evento.stopPropagation();
           onAlternar();
         }}
-        className="shrink-0 rounded p-0.5 text-white/45 hover:bg-white/10 hover:text-white"
+        className="shrink-0 rounded p-0.5 text-texto/45 hover:bg-superficie-hover hover:text-texto"
       >
         <ChevronRight className={`h-4 w-4 transition-transform ${minimizada ? "" : "rotate-90"}`} />
       </button>

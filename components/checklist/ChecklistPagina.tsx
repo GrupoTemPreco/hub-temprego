@@ -130,7 +130,7 @@ export function ChecklistPagina() {
 
   return (
     <AcoesEnvioItemContext.Provider value={acoesEnvioItem}>
-      <div className="min-w-0 text-white">
+      <div className="min-w-0 text-texto">
         <RecebidasSecao
           onAceitar={(envio) => setPainel({ tipo: "responder", envio, aceitar: true })}
           onRecusar={(envio) => setPainel({ tipo: "responder", envio, aceitar: false })}
@@ -154,16 +154,16 @@ export function ChecklistPagina() {
               {arquivadas.total > 0 && (
                 <Button variant="secondary" size="sm" onClick={() => setArquivadasAberto(true)}>
                   <Archive className="h-3.5 w-3.5" /> Arquivadas
-                  <span className="rounded-full bg-white/15 px-1.5 text-[11px]">{arquivadas.total}</span>
+                  <span className="rounded-full bg-superficie-hover px-1.5 text-[11px]">{arquivadas.total}</span>
                 </Button>
               )}
             </>
           }
         />
-        {!usuario.isAdmin && <p className="-mt-3 mb-4 text-xs text-white/40">Seu checklist pode ser visualizado pelo RH.</p>}
+        {!usuario.isAdmin && <p className="-mt-3 mb-4 text-xs text-texto/40">Seu checklist pode ser visualizado pelo RH.</p>}
 
         {carregando ? (
-          <p className="py-14 text-center text-sm text-white/50">Carregando checklist...</p>
+          <p className="py-14 text-center text-sm text-texto/50">Carregando checklist...</p>
         ) : erro ? (
           <EmptyState title="Não foi possível carregar o checklist" description={erro} />
         ) : grupos.length === 0 ? (

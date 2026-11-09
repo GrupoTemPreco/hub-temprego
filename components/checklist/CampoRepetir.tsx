@@ -50,7 +50,7 @@ export function CampoRepetir({ valor, onChange, sempreRepete = false, disabled =
   }
 
   return (
-    <div className="space-y-2 rounded-lg border border-white/10 p-3">
+    <div className="space-y-2 rounded-lg border border-borda p-3">
       <Campo rotulo="Repetir">
         <select
           className={`${CAMPO} disabled:cursor-not-allowed disabled:opacity-50`}
@@ -82,7 +82,7 @@ export function CampoRepetir({ valor, onChange, sempreRepete = false, disabled =
                   className={`h-8 w-8 rounded-full border text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
                     marcado
                       ? "border-blue-500 bg-blue-600/30 text-blue-100"
-                      : "border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
+                      : "border-borda bg-superficie text-texto/60 hover:bg-superficie-hover hover:text-texto"
                   }`}
                 >
                   {d.letra}
@@ -93,7 +93,7 @@ export function CampoRepetir({ valor, onChange, sempreRepete = false, disabled =
           {valor.dias.length === 0 && <p className="text-xs text-rose-300">Marque pelo menos um dia.</p>}
         </div>
       )}
-      <p className="text-xs text-white/50">
+      <p className="text-xs text-texto/50">
         {dica ??
           (sempreRepete
           ? "A lista já repete; você pode escolher dias diferentes para esta tarefa."

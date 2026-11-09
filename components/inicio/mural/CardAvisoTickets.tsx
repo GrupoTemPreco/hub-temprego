@@ -25,9 +25,9 @@ export function CardAvisoTickets({ recebidosComNovidade, setorSemResponsavel, on
         <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${destaque.icone}`}>
           <Inbox className="h-5 w-5" />
         </span>
-        <h3 className="font-semibold text-white">Seus tickets</h3>
+        <h3 className="font-semibold text-texto">Seus tickets</h3>
       </div>
-      <ul className="space-y-1 text-sm text-white/85">
+      <ul className="space-y-1 text-sm text-texto/85">
         {recebidosComNovidade > 0 && (
           <li>Você tem {plural(recebidosComNovidade, "ticket recebido", "tickets recebidos")} com novidades</li>
         )}

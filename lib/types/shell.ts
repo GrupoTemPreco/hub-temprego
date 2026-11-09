@@ -3,6 +3,8 @@
 
 export type UsuarioStatus = "pendente" | "aprovado" | "rejeitado";
 
+export type TemaUsuario = "escuro" | "claro";
+
 export type Usuario = {
   id: string;
   nome: string | null;
@@ -11,6 +13,8 @@ export type Usuario = {
   is_admin: boolean | null;
   recebe_tickets: boolean | null;
   acesso_checklist: boolean | null;
+  /** Preferência de aparência; ausente em listagens que não pedem a coluna. */
+  tema?: TemaUsuario;
 };
 
 export type Permissao = {

@@ -60,22 +60,22 @@ export function SetoresTab({ filtroInicial }: { filtroInicial: string | null }) 
   }
 
   return (
-    <section className="rounded-xl border border-white/10 bg-white/3">
-      <div className="flex flex-wrap items-center gap-3 border-b border-white/10 p-4">
+    <section className="rounded-xl border border-borda bg-superficie">
+      <div className="flex flex-wrap items-center gap-3 border-b border-borda p-4">
         <label className="relative min-w-55 flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-texto/40" />
           <input
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             placeholder="Buscar setor..."
-            className="w-full rounded-md border border-white/10 py-2 pl-9 pr-3 text-sm outline-none focus:border-blue-500"
+            className="w-full rounded-md border border-borda py-2 pl-9 pr-3 text-sm outline-none focus:border-blue-500"
           />
         </label>
         <select
           aria-label="Filtrar setores"
           value={filtro}
           onChange={(e) => setFiltro(e.target.value as FiltroSetor)}
-          className="rounded-md border border-white/10 px-3 py-2 text-sm outline-none focus:border-blue-500"
+          className="rounded-md border border-borda px-3 py-2 text-sm outline-none focus:border-blue-500"
         >
           {OPCOES_FILTRO_SETOR.map((o) => (
             <option key={o.value} value={o.value}>
@@ -89,7 +89,7 @@ export function SetoresTab({ filtroInicial }: { filtroInicial: string | null }) 
       </div>
 
       {carregando ? (
-        <p className="p-4 text-sm text-white/60">Carregando setores...</p>
+        <p className="p-4 text-sm text-texto/60">Carregando setores...</p>
       ) : setores.length === 0 ? (
         <EmptyState
           icon={Building2}

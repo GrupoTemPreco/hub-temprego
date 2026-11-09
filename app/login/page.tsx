@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
+import { aplicarTema, temaValido } from "@/lib/tema";
 import { useRouter } from "next/navigation";
 
 export default function Login() {
@@ -72,6 +73,8 @@ export default function Login() {
       }
     };
 
+    const temaClaro = () => document.documentElement.getAttribute("data-tema") === "claro";
+
     const drawBackgroundGlow = () => {
       const gradient = ctx.createRadialGradient(
         width * 0.85,
@@ -81,9 +84,15 @@ export default function Login() {
         height * 0.08,
         Math.max(width, height) * 0.65,
       );
-      gradient.addColorStop(0, "rgba(14, 165, 233, 0.22)");
-      gradient.addColorStop(0.3, "rgba(14, 165, 233, 0.08)");
-      gradient.addColorStop(1, "rgba(2, 6, 23, 0)");
+      if (temaClaro()) {
+        gradient.addColorStop(0, "rgba(14, 165, 233, 0.14)");
+        gradient.addColorStop(0.3, "rgba(14, 165, 233, 0.05)");
+        gradient.addColorStop(1, "rgba(244, 244, 245, 0)");
+      } else {
+        gradient.addColorStop(0, "rgba(14, 165, 233, 0.22)");
+        gradient.addColorStop(0.3, "rgba(14, 165, 233, 0.08)");
+        gradient.addColorStop(1, "rgba(2, 6, 23, 0)");
+      }
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
     };
@@ -162,6 +171,8 @@ export default function Login() {
         }
       }
 
+      const claro = temaClaro();
+
       for (let i = 0; i < nodes.length; i += 1) {
         for (let j = i + 1; j < nodes.length; j += 1) {
           const a = nodes[i];
@@ -171,11 +182,11 @@ export default function Login() {
           const dist = Math.hypot(dx, dy);
           if (dist > connectionDistance) continue;
 
-          const alpha = (1 - dist / connectionDistance) * 0.42;
+          const alpha = (1 - dist / connectionDistance) * (claro ? 0.28 : 0.42);
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
           ctx.lineTo(b.x, b.y);
-          ctx.strokeStyle = `rgba(103, 232, 249, ${alpha})`;
+          ctx.strokeStyle = claro ? `rgba(14, 165, 233, ${alpha})` : `rgba(103, 232, 249, ${alpha})`;
           ctx.lineWidth = 0.9;
           ctx.stroke();
         }
@@ -184,8 +195,8 @@ export default function Login() {
       for (const node of nodes) {
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(103, 232, 249, 0.9)";
-        ctx.shadowColor = "rgba(103, 232, 249, 0.85)";
+        ctx.fillStyle = claro ? "rgba(14, 165, 233, 0.55)" : "rgba(103, 232, 249, 0.9)";
+        ctx.shadowColor = claro ? "rgba(14, 165, 233, 0.4)" : "rgba(103, 232, 249, 0.85)";
         ctx.shadowBlur = 8 + 8 * node.glow;
         ctx.fill();
       }
@@ -249,7 +260,7 @@ export default function Login() {
 
     const { data: usuario, error: usuarioError } = await supabase
       .from("usuarios")
-      .select("status, is_admin")
+      .select("status, is_admin, tema")
       .eq("id", userId)
       .maybeSingle();
 
@@ -276,6 +287,8 @@ export default function Login() {
       setLoading(false);
       return;
     }
+
+    if (temaValido(usuario.tema)) aplicarTema(usuario.tema);
 
     router.push(usuario.is_admin ? "/admin" : "/");
   }
@@ -338,15 +351,15 @@ export default function Login() {
   }
 
   return (
-    <div className="relative flex h-screen w-screen items-center justify-center overflow-hidden bg-[#020617]">
+    <div className="relative flex h-screen w-screen items-center justify-center overflow-hidden bg-fundo">
       <canvas ref={canvasRef} className="pointer-events-none absolute inset-0 z-0" />
       <div className="relative z-10 flex w-full max-w-sm flex-col items-center">
         <img ref={logoRef} src="/logoA.png" alt="Logo do Tempreço" className="mb-6 h-40 w-auto" />
         <div
           ref={modalRef}
-          className="w-full rounded-xl border border-white/20 bg-white/9 p-8 shadow-sm backdrop-blur-sm"
+          className="w-full rounded-xl border border-borda bg-superficie p-8 shadow-sm backdrop-blur-sm"
         >
-          <h1 className="mb-6 text-xl font-semibold text-white">
+          <h1 className="mb-6 text-xl font-semibold text-texto">
             {mode === "login" ? "Entrar" : "Criar acesso"}
           </h1>
 
@@ -357,7 +370,7 @@ export default function Login() {
                 placeholder="Nome"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="rounded-lg border border-white/20 bg-slate-900/70 px-4 py-2 text-sm text-zinc-100 outline-none placeholder:text-zinc-400 focus:border-cyan-400/60"
+                className="rounded-lg border border-borda bg-input-bg px-4 py-2 text-sm text-texto outline-none placeholder:text-input-placeholder focus:border-cyan-400/60"
               />
             )}
             <input
@@ -365,7 +378,7 @@ export default function Login() {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="rounded-lg border border-white/20 bg-slate-900/70 px-4 py-2 text-sm text-zinc-100 outline-none placeholder:text-zinc-400 focus:border-cyan-400/60"
+              className="rounded-lg border border-borda bg-input-bg px-4 py-2 text-sm text-texto outline-none placeholder:text-input-placeholder focus:border-cyan-400/60"
             />
             <div className="relative">
               <input
@@ -376,12 +389,12 @@ export default function Login() {
                 onKeyDown={(e) =>
                   e.key === "Enter" && (mode === "login" ? handleLogin() : handleCreateAccess())
                 }
-                className="w-full rounded-lg border border-white/20 bg-slate-900/70 px-4 py-2 pr-10 text-sm text-zinc-100 outline-none placeholder:text-zinc-400 focus:border-cyan-400/60"
+                className="w-full rounded-lg border border-borda bg-input-bg px-4 py-2 pr-10 text-sm text-texto outline-none placeholder:text-input-placeholder focus:border-cyan-400/60"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute inset-y-0 right-0 flex items-center px-3 text-zinc-400 hover:text-zinc-100"
+                className="absolute inset-y-0 right-0 flex items-center px-3 text-texto-fraco hover:text-texto"
                 aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                 title={showPassword ? "Ocultar senha" : "Mostrar senha"}
               >

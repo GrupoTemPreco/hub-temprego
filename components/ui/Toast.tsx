@@ -50,8 +50,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             role="status"
             className={`pointer-events-auto flex items-start gap-2 rounded-lg border px-3 py-2.5 text-sm shadow-lg backdrop-blur ${
               t.tipo === "success"
-                ? "border-emerald-400/30 bg-emerald-950/90 text-emerald-100"
-                : "border-rose-400/30 bg-rose-950/90 text-rose-100"
+                ? "border-emerald-400/30 bg-semaforo-sucesso-fundo text-semaforo-sucesso-texto"
+                : "border-rose-400/30 bg-semaforo-critico-fundo text-semaforo-critico-texto"
             }`}
           >
             {t.tipo === "success" ? (
@@ -67,15 +67,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                     remover(t.id);
                     t.acao?.onClick();
                   }}
-                  className={`mt-1.5 block font-medium text-white underline underline-offset-2 ${
-                    t.tipo === "success" ? "hover:text-emerald-200" : "hover:text-rose-200"
-                  }`}
+                  className="mt-1.5 block font-medium underline underline-offset-2 hover:opacity-80"
                 >
                   {t.acao.rotulo}
                 </button>
               )}
             </span>
-            <button onClick={() => remover(t.id)} aria-label="Fechar" className="text-white/50 hover:text-white">
+            <button onClick={() => remover(t.id)} aria-label="Fechar" className="text-texto/50 hover:text-texto">
               <X className="h-4 w-4" />
             </button>
           </div>

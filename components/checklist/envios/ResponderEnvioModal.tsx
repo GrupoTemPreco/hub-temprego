@@ -71,8 +71,8 @@ export function ResponderEnvioModal({ envio, aceitar, grupos, garantirGrupo, onR
       }
     >
       <div className="space-y-4">
-        <p className="text-sm text-white/65">
-          <span className="font-medium text-white">{envio.titulo}</span> · de {nomeDe(envio.de_usuario_id)}
+        <p className="text-sm text-texto/65">
+          <span className="font-medium text-texto">{envio.titulo}</span> · de {nomeDe(envio.de_usuario_id)}
         </p>
         {aceitar && (
           <>
@@ -84,7 +84,7 @@ export function ResponderEnvioModal({ envio, aceitar, grupos, garantirGrupo, onR
                 onChange={setGrupoId}
               />
             ) : (
-              <p className="text-xs text-white/50">A tarefa vai para uma nova lista &quot;{NOME_GRUPO_INICIAL}&quot;.</p>
+              <p className="text-xs text-texto/50">A tarefa vai para uma nova lista &quot;{NOME_GRUPO_INICIAL}&quot;.</p>
             )}
             <Campo rotulo="Prazo">
               <input type="date" className={CAMPO} value={prazo} onChange={(e) => setPrazo(e.target.value)} />

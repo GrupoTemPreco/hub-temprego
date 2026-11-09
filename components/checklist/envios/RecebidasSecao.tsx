@@ -113,7 +113,7 @@ export function RecebidasSecao({ onAceitar, onRecusar, onResponderLista }: Props
 
   return (
     <section className="mb-5">
-      <h2 className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-white/50">
+      <h2 className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-texto/50">
         <Inbox className="h-4 w-4" /> Recebidas
         <span className="rounded-full bg-rose-500 px-1.5 text-xs text-white">{qtdRecebidos}</span>
       </h2>

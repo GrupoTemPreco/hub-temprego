@@ -78,7 +78,7 @@ export function SetorModal({ setor, usuarios, onClose, onSalvo }: Props) {
     >
       <div className="space-y-4">
         <label className="block">
-          <span className="mb-1 block text-sm text-white/70">
+          <span className="mb-1 block text-sm text-texto/70">
             Nome do setor <span className="text-rose-400">*</span>
           </span>
           <input
@@ -89,24 +89,24 @@ export function SetorModal({ setor, usuarios, onClose, onSalvo }: Props) {
               setErroNome("");
             }}
             placeholder="Ex.: Comercial"
-            className={`${CAMPO} ${erroNome ? "border-rose-500" : "border-white/10"}`}
+            className={`${CAMPO} ${erroNome ? "border-rose-500" : "border-borda"}`}
           />
           {erroNome && <span className="mt-1 block text-xs text-rose-400">{erroNome}</span>}
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-sm text-white/70">Descrição</span>
+          <span className="mb-1 block text-sm text-texto/70">Descrição</span>
           <textarea
             rows={2}
             value={form.descricao ?? ""}
             onChange={(e) => setForm({ ...form, descricao: e.target.value })}
             placeholder="Descreva o objetivo do setor..."
-            className={`${CAMPO} resize-none border-white/10`}
+            className={`${CAMPO} resize-none border-borda`}
           />
         </label>
 
         <div>
-          <span className="mb-1 block text-sm text-white/70">Responsável</span>
+          <span className="mb-1 block text-sm text-texto/70">Responsável</span>
           <Combobox
             opcoes={opcoes}
             value={form.responsavel_id}
@@ -114,11 +114,11 @@ export function SetorModal({ setor, usuarios, onClose, onSalvo }: Props) {
             placeholder="Selecione um usuário..."
             labelFallback={form.responsavel_id ? labelDe(form.responsavel_id) : undefined}
           />
-          <span className="mt-1 block text-xs text-white/45">O responsável é adicionado aos membros ao salvar.</span>
+          <span className="mt-1 block text-xs text-texto/45">O responsável é adicionado aos membros ao salvar.</span>
         </div>
 
         <div>
-          <span className="mb-1 block text-sm text-white/70">Membros</span>
+          <span className="mb-1 block text-sm text-texto/70">Membros</span>
           <ChipsSelect
             opcoes={opcoes}
             values={form.membros_ids}
@@ -128,11 +128,11 @@ export function SetorModal({ setor, usuarios, onClose, onSalvo }: Props) {
           />
         </div>
 
-        <div className="flex items-start gap-3 rounded-lg border border-white/10 p-3">
+        <div className="flex items-start gap-3 rounded-lg border border-borda p-3">
           <Toggle label="Setor ativo" checked={form.ativo} onChange={(v) => setForm({ ...form, ativo: v })} />
           <div>
             <p className="text-sm font-medium">Setor ativo</p>
-            <p className="text-xs text-white/50">
+            <p className="text-xs text-texto/50">
               Desativar não altera os tickets já existentes; apenas impede que o setor receba tickets novos.
             </p>
           </div>

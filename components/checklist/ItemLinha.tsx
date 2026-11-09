@@ -57,7 +57,7 @@ export function ItemConteudo({
   return (
     <div
       onClick={onAbrir}
-      className="group flex cursor-pointer items-start gap-2 px-3 py-2 transition-colors hover:bg-white/5"
+      className="group flex cursor-pointer items-start gap-2 px-3 py-2 transition-colors hover:bg-superficie"
     >
       {alca}
       {!somenteLeitura && (
@@ -77,7 +77,7 @@ export function ItemConteudo({
       {autor && <Avatar nome={autor} size="xs" title={`Criado por ${autor}`} />}
       <div className={`min-w-0 flex-1 ${aguardando ? "opacity-55" : ""}`}>
         <div className="flex flex-wrap items-center gap-1.5">
-          <TextoCortado className={`min-w-0 max-w-full truncate text-sm ${feito ? "text-white/45 line-through" : "text-white/90"}`}>
+          <TextoCortado className={`min-w-0 max-w-full truncate text-sm ${feito ? "text-texto/45 line-through" : "text-texto/90"}`}>
             {item.titulo}
           </TextoCortado>
           <NivelChip nivel={item.nivel} />
@@ -89,7 +89,7 @@ export function ItemConteudo({
           {situacao && <ItemEnvioChip situacao={situacao} />}
           {proxima && <ProximaTexto data={proxima} />}
         </div>
-        {item.observacao && <p className="mt-0.5 truncate text-xs text-white/45">{item.observacao}</p>}
+        {item.observacao && <p className="mt-0.5 truncate text-xs text-texto/45">{item.observacao}</p>}
       </div>
       {acaoExtra}
       {somenteLeitura ? (
@@ -105,8 +105,8 @@ export function ItemConteudo({
             e.stopPropagation();
             onAlternarFixado?.();
           }}
-          className={`shrink-0 rounded p-1 transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent ${
-            item.fixado ? "text-amber-300" : "text-white/30 hover:text-white/70"
+          className={`shrink-0 rounded p-1 transition-colors hover:bg-superficie-hover disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent ${
+            item.fixado ? "text-amber-300" : "text-texto/30 hover:text-texto/70"
           }`}
         >
           <Pin className={`h-3.5 w-3.5 ${item.fixado ? "fill-current" : ""}`} />
@@ -140,7 +140,7 @@ export function ItemArrastavel({ item, pelaAlca, editavel, autor, repeticaoLista
       type="button"
       aria-label="Arrastar item"
       onClick={(e) => e.stopPropagation()}
-      className="-ml-1.5 shrink-0 cursor-grab touch-none rounded p-0.5 text-white/40 hover:text-white/80"
+      className="-ml-1.5 shrink-0 cursor-grab touch-none rounded p-0.5 text-texto/40 hover:text-texto/80"
       {...attributes}
       {...listeners}
     >

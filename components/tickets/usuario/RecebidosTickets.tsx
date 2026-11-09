@@ -9,7 +9,7 @@ import { useTicketsUsuario } from "./TicketsUsuarioProvider";
 function Secao({ titulo, children }: { titulo: string; children: ReactNode }) {
   return (
     <section>
-      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-white/45">{titulo}</h3>
+      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-texto/45">{titulo}</h3>
       {children}
     </section>
   );

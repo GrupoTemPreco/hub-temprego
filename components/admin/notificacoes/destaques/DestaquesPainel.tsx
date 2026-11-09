@@ -23,7 +23,7 @@ const SITUACAO: Record<SituacaoDestaque, { label: string; cor: BadgeVariant }> =
   encerrado: { label: "Encerrado", cor: "neutral" },
 };
 
-const BOTAO = "rounded-md p-1.5 text-white/55 transition-colors hover:bg-white/10 hover:text-white";
+const BOTAO = "rounded-md p-1.5 text-texto-suave transition-colors hover:bg-superficie-hover hover:text-texto";
 
 export function DestaquesPainel() {
   const toast = useToast();
@@ -63,22 +63,22 @@ export function DestaquesPainel() {
   }
 
   return (
-    <section className="rounded-xl border border-white/10 bg-white/3">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-4">
-        <p className="text-sm text-white/60">Selos exibidos ao lado das ferramentas na sidebar e nos atalhos do Início.</p>
+    <section className="rounded-xl border border-borda bg-superficie">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-borda p-4">
+        <p className="text-sm text-texto/60">Selos exibidos ao lado das ferramentas na sidebar e nos atalhos do Início.</p>
         <Button onClick={() => setEditando("novo")} disabled={!destaques}>
           <Plus className="h-4 w-4" /> Novo destaque
         </Button>
       </div>
 
       {!destaques ? (
-        <p className="p-4 text-sm text-white/60">Carregando destaques...</p>
+        <p className="p-4 text-sm text-texto/60">Carregando destaques...</p>
       ) : destaques.length === 0 ? (
         <EmptyState icon={Sparkles} title="Nenhum destaque cadastrado" description='Clique em "Novo destaque" para criar um selo.' />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-white/10 text-xs uppercase tracking-wide text-white/45">
+            <thead className="border-b border-borda text-xs uppercase tracking-wide text-texto/45">
               <tr>
                 <th className="px-4 py-3 font-medium">Ferramenta</th>
                 <th className="px-4 py-3 font-medium">Selo</th>
@@ -92,17 +92,17 @@ export function DestaquesPainel() {
                 const situacao = situacaoDestaque(d);
                 const podeReativar = podeReativarDestaque(d);
                 return (
-                  <tr key={d.id} className="border-b border-white/5 hover:bg-white/3">
+                  <tr key={d.id} className="border-b border-borda hover:bg-superficie">
                     <td className="px-4 py-3">
                       <span className="flex items-center gap-2">
-                        <MenuIcon kind={d.ferramenta_id as MenuIconKind} className="h-5 w-5 shrink-0 text-white/70" />
+                        <MenuIcon kind={d.ferramenta_id as MenuIconKind} className="h-5 w-5 shrink-0 text-texto/70" />
                         {rotuloFerramentaMenu(d.ferramenta_id)}
                       </span>
                     </td>
                     <td className="px-4 py-3">
                       <SeloDestaque texto={d.texto} cor={d.cor} />
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-xs text-white/60">
+                    <td className="whitespace-nowrap px-4 py-3 text-xs text-texto/60">
                       {formatarDataHoraSP(d.inicio_em)} até {d.fim_em ? formatarDataHoraSP(d.fim_em) : "sem fim"}
                     </td>
                     <td className="px-4 py-3">

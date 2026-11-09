@@ -25,7 +25,7 @@ export function TicketsLista({ tickets, nomes, selecao, onAbrir }: Props) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm">
-        <thead className="border-b border-white/10 text-xs uppercase tracking-wide text-white/45">
+        <thead className="border-b border-borda text-xs uppercase tracking-wide text-texto/45">
           <tr>
             <th className="w-10 py-3 pl-4">
               <CheckboxSelecao
@@ -51,8 +51,8 @@ export function TicketsLista({ tickets, nomes, selecao, onAbrir }: Props) {
             <tr
               key={t.id}
               onClick={() => onAbrir(t)}
-              className={`cursor-pointer border-b border-white/5 transition-colors ${
-                estaAtrasado(t) ? "bg-rose-500/5 hover:bg-rose-500/10" : "hover:bg-white/4"
+              className={`cursor-pointer border-b border-borda transition-colors ${
+                estaAtrasado(t) ? "bg-rose-500/5 hover:bg-rose-500/10" : "hover:bg-superficie"
               }`}
             >
               <td className="py-3 pl-4" onClick={(e) => e.stopPropagation()}>
@@ -62,7 +62,7 @@ export function TicketsLista({ tickets, nomes, selecao, onAbrir }: Props) {
                   rotulo={`Selecionar ticket #${t.numero}`}
                 />
               </td>
-              <td className={`${TD} font-mono text-white/55`}>#{t.numero}</td>
+              <td className={`${TD} font-mono text-texto-suave`}>#{t.numero}</td>
               <td className={TD}>
                 <span className="flex items-center gap-2">
                   <span className="max-w-70 truncate font-medium">{t.titulo}</span>
@@ -70,11 +70,11 @@ export function TicketsLista({ tickets, nomes, selecao, onAbrir }: Props) {
                   <ContadorAnexos total={t.total_anexos} />
                 </span>
               </td>
-              <td className={`${TD} text-white/70`}>{nomes.usuario(t.autor_id)}</td>
-              <td className={`${TD} text-white/70`}>{nomeDestino(t, nomes)}</td>
+              <td className={`${TD} text-texto/70`}>{nomes.usuario(t.autor_id)}</td>
+              <td className={`${TD} text-texto/70`}>{nomeDestino(t, nomes)}</td>
               <td className={TD}>
                 {t.responsavel_id ? (
-                  <span className="text-white/70">{nomes.usuario(t.responsavel_id)}</span>
+                  <span className="text-texto/70">{nomes.usuario(t.responsavel_id)}</span>
                 ) : (
                   <Badge variant="warning">Sem responsável</Badge>
                 )}
@@ -88,7 +88,7 @@ export function TicketsLista({ tickets, nomes, selecao, onAbrir }: Props) {
               <td className={TD}>
                 <TempoAberto ticket={t} />
               </td>
-              <td className={`${TD} whitespace-nowrap text-xs text-white/50`}>
+              <td className={`${TD} whitespace-nowrap text-xs text-texto/50`}>
                 {t.atualizado_em ? tempoRelativo(t.atualizado_em) : "—"}
               </td>
             </tr>

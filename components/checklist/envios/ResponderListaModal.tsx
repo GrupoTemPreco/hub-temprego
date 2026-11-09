@@ -59,12 +59,12 @@ export function ResponderListaModal({ envio, aceitar, onAceita, onClose }: Props
       }
     >
       <div className="space-y-4">
-        <p className="text-sm text-white/65">
-          <span className="font-medium text-white">{envio.nome}</span> · {textoTarefas(envio.qtd_tarefas)} · de{" "}
+        <p className="text-sm text-texto/65">
+          <span className="font-medium text-texto">{envio.nome}</span> · {textoTarefas(envio.qtd_tarefas)} · de{" "}
           {nomeDe(envio.de_usuario_id)}
         </p>
         {aceitar && (
-          <p className="text-xs text-white/50">
+          <p className="text-xs text-texto/50">
             A lista vai para o fim do seu checklist, com as tarefas do jeito que estão (status, prazos e repetição).
           </p>
         )}

@@ -47,8 +47,8 @@ export function EnviarItemModal({ item, onClose }: Props) {
       }
     >
       <div className="space-y-4">
-        <p className="truncate text-sm text-white/65">
-          Tarefa: <span className="font-medium text-white">{item.titulo}</span>
+        <p className="truncate text-sm text-texto/65">
+          Tarefa: <span className="font-medium text-texto">{item.titulo}</span>
         </p>
         <CamposEnvio form={form} onChange={setForm} />
       </div>

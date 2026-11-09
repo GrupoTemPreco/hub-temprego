@@ -9,7 +9,7 @@ import { redefinirSenhaUsuario } from "@/lib/admin/redefinirSenha";
 import { nomeExibicao, type UsuarioLista } from "@/lib/admin/usuarios";
 import { MSG_SENHA_CURTA, SENHA_MINIMA, gerarSenha } from "@/lib/senhas";
 
-const CAMPO = "w-full rounded-md border border-white/10 px-3 py-2 font-mono text-sm outline-none focus:border-blue-500";
+const CAMPO = "w-full rounded-md border border-borda px-3 py-2 font-mono text-sm outline-none focus:border-blue-500";
 
 function mensagemParaEnviar(senha: string, exigiuTroca: boolean) {
   const base = `Sua senha do Hub Tempreço foi redefinida. Nova senha: ${senha}.`;
@@ -59,7 +59,7 @@ export function UsuarioAcessoTab({ usuario }: { usuario: UsuarioLista }) {
     return (
       <div className="space-y-3 rounded-lg border border-emerald-400/30 bg-emerald-500/7 p-4">
         <p className="text-sm font-medium text-emerald-200">Senha redefinida. Ela aparece só agora:</p>
-        <p className="select-all rounded-md border border-white/10 bg-black/30 px-3 py-2 font-mono text-base tracking-wide">
+        <p className="select-all rounded-md border border-borda bg-black/30 px-3 py-2 font-mono text-base tracking-wide">
           {resultado.senha}
         </p>
         <div className="flex flex-wrap gap-2">
@@ -76,7 +76,7 @@ export function UsuarioAcessoTab({ usuario }: { usuario: UsuarioLista }) {
             Concluir
           </Button>
         </div>
-        <p className="text-xs text-white/50">
+        <p className="text-xs text-texto/50">
           {resultado.exigiuTroca
             ? "No próximo acesso, a pessoa vai precisar criar uma senha dela."
             : "A pessoa pode continuar usando esta senha."}
@@ -86,14 +86,14 @@ export function UsuarioAcessoTab({ usuario }: { usuario: UsuarioLista }) {
   }
 
   return (
-    <section className="space-y-4 rounded-lg border border-white/10 p-4">
+    <section className="space-y-4 rounded-lg border border-borda p-4">
       <div className="flex items-center gap-2">
         <KeyRound className="h-4 w-4 text-blue-300" />
         <h3 className="text-sm font-semibold">Redefinir senha</h3>
       </div>
 
       <label className="block">
-        <span className="mb-1 block text-sm text-white/70">Senha nova</span>
+        <span className="mb-1 block text-sm text-texto/70">Senha nova</span>
         <div className="flex gap-2">
           <input
             type={visivel ? "text" : "password"}
@@ -118,7 +118,7 @@ export function UsuarioAcessoTab({ usuario }: { usuario: UsuarioLista }) {
         {senha && !valida && <span className="mt-1 block text-xs text-amber-300">{MSG_SENHA_CURTA}</span>}
       </label>
 
-      <label className="flex items-center gap-2 text-sm text-white/80">
+      <label className="flex items-center gap-2 text-sm text-texto/80">
         <input
           type="checkbox"
           checked={exigirTroca}

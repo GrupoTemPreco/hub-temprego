@@ -23,8 +23,8 @@ const ABAS: TabItem<Aba>[] = [
 
 function Indicador({ rotulo, children }: { rotulo: string; children: ReactNode }) {
   return (
-    <div className="rounded-lg border border-white/5 bg-white/3 px-3 py-2">
-      <p className="text-[11px] uppercase tracking-wide text-white/45">{rotulo}</p>
+    <div className="rounded-lg border border-borda bg-superficie px-3 py-2">
+      <p className="text-[11px] uppercase tracking-wide text-texto-suave">{rotulo}</p>
       <p className="text-sm">{children}</p>
     </div>
   );
@@ -62,10 +62,10 @@ export function UsuarioRhModal({ usuario, dias, agora, onClose }: Props) {
         <div className="flex items-start gap-3">
           <Avatar nome={usuario.nome} email={usuario.email} size="lg" />
           <div className="min-w-0 flex-1 space-y-1">
-            <p className="truncate text-lg font-semibold text-white">{usuario.nome || usuario.email}</p>
-            {usuario.nome && <p className="truncate text-sm text-white/55">{usuario.email}</p>}
+            <p className="truncate text-lg font-semibold text-texto">{usuario.nome || usuario.email}</p>
+            {usuario.nome && <p className="truncate text-sm text-texto-suave">{usuario.email}</p>}
             <SetoresChips setores={usuario.setores} />
-            <p className="text-xs text-white/55">
+            <p className="text-xs text-texto-suave">
               Último acesso ao checklist: <AcessoRelativo iso={usuario.ultimo_acesso_checklist_em} agora={agora} alertar />
             </p>
           </div>
@@ -111,12 +111,12 @@ export function UsuarioRhModal({ usuario, dias, agora, onClose }: Props) {
                 </Indicador>
                 <Indicador rotulo="Tempo médio">{formatarHoras(usuario.tempo_medio_horas)}</Indicador>
               </div>
-              <p className="text-[11px] text-white/40">Concluídas, % no prazo e tempo médio: últimos {dias} dias.</p>
+              <p className="text-[11px] text-texto/40">Concluídas, % no prazo e tempo médio: últimos {dias} dias.</p>
 
               {erro ? (
                 <p className="text-sm text-rose-300">Não foi possível carregar: {erro}</p>
               ) : !detalhe ? (
-                <p className="text-sm text-white/55">Carregando...</p>
+                <p className="text-sm text-texto-suave">Carregando...</p>
               ) : aba === "checklist" ? (
                 <AbaChecklistRh
                   listas={detalhe.listas}
@@ -134,7 +134,7 @@ export function UsuarioRhModal({ usuario, dias, agora, onClose }: Props) {
           </div>
 
           {tarefa && (
-            <aside className="flex min-h-0 w-full flex-col overflow-hidden bg-[#0b1224] lg:w-96 lg:shrink-0 lg:border-l lg:border-white/10">
+            <aside className="flex min-h-0 w-full flex-col overflow-hidden bg-superficie-forte lg:w-96 lg:shrink-0 lg:border-l lg:border-borda">
               <DetalheTarefaLeitura
                 item={tarefa}
                 nomeLista={nomeLista}

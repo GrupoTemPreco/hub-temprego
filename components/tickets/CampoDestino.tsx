@@ -50,7 +50,7 @@ export function CampoDestino({ multiplo, value, onChange, setores, pessoas, clas
         adicionarLabel="Adicionar destino"
         vazio="Nenhum destino disponível."
       />
-      <span className="mt-1 block text-xs text-white/40">
+      <span className="mt-1 block text-xs text-texto/40">
         Escolha um setor ou uma ou mais pessoas. Com várias pessoas, é criado um ticket para cada uma.
       </span>
     </>

@@ -38,12 +38,12 @@ export function BlocoListaLeitura({
   const abrir = onAbrirItem ?? nada;
 
   return (
-    <section className="rounded-xl border border-white/10 bg-white/3">
+    <section className="rounded-xl border border-borda bg-superficie">
       {cabecalho && (
         <>
           <div className={`h-1.5 rounded-t-xl ${classeCorGrupo(lista.cor)}`} />
           <TopoLista minimizada={minimizada} onAlternar={onAlternarMinimizada}>
-            <h3 className="min-w-0 flex-1 truncate text-sm font-semibold text-white">{lista.nome}</h3>
+            <h3 className="min-w-0 flex-1 truncate text-sm font-semibold text-texto">{lista.nome}</h3>
             <RecebidaDeLista origem={origemDosCampos(lista.recebida_de_nome, lista.recebida_em)} />
             {lista.diaria && (
               <span className="shrink-0" {...ignorarRecolher}>
@@ -51,11 +51,11 @@ export function BlocoListaLeitura({
               </span>
             )}
             {minimizada ? (
-              <span className="shrink-0 text-xs text-white/55">{contagemLista(pendentes.length, concluidos.length)}</span>
+              <span className="shrink-0 text-xs text-texto-suave">{contagemLista(pendentes.length, concluidos.length)}</span>
             ) : (
               <span
                 title="Pendentes"
-                className="shrink-0 rounded-full bg-white/10 px-1.5 text-xs font-medium text-white/70"
+                className="shrink-0 rounded-full bg-superficie-hover px-1.5 text-xs font-medium text-texto/70"
                 {...ignorarRecolher}
               >
                 {pendentes.length}
@@ -66,13 +66,13 @@ export function BlocoListaLeitura({
       )}
       {!minimizada && (
         <>
-          <ul className="divide-y divide-white/5">
+          <ul className="divide-y divide-borda">
             {pendentes.map((item) => (
               <li key={item.id} className={item.id === destaqueId ? "bg-blue-500/10" : undefined}>
                 <ItemConteudo item={item} somenteLeitura repeticaoLista={lista} onAbrir={() => abrir(item)} />
               </li>
             ))}
-            {pendentes.length === 0 && <li className="px-3 py-3 text-xs text-white/40">Nenhum item pendente.</li>}
+            {pendentes.length === 0 && <li className="px-3 py-3 text-xs text-texto/40">Nenhum item pendente.</li>}
           </ul>
           <ConcluidosSecao
             itens={concluidos}

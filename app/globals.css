@@ -39,30 +39,175 @@
   }
 }
 
-/* Tema escuro fixo — não segue prefers-color-scheme do SO/navegador */
-html {
-  color-scheme: dark;
+/* Tokens de tema: as utilities (bg-fundo, text-texto…) apontam para estas variáveis. */
+@theme inline {
+  --color-fundo: var(--fundo);
+  --color-superficie: var(--superficie);
+  --color-superficie-hover: var(--superficie-hover);
+  --color-superficie-forte: var(--superficie-forte);
+  --color-sidebar: var(--sidebar);
+  --color-texto: var(--texto);
+  --color-texto-suave: var(--texto-suave);
+  --color-texto-fraco: var(--texto-fraco);
+  --color-texto-desabilitado: var(--texto-desabilitado);
+  --color-borda: var(--borda);
+  --color-input-bg: var(--input-bg);
+  --color-input-fg: var(--input-fg);
+  --color-input-placeholder: var(--input-placeholder);
+  --color-semaforo-info-fundo: var(--semaforo-info-fundo);
+  --color-semaforo-info-texto: var(--semaforo-info-texto);
+  --color-semaforo-sucesso-fundo: var(--semaforo-sucesso-fundo);
+  --color-semaforo-sucesso-texto: var(--semaforo-sucesso-texto);
+  --color-semaforo-atencao-fundo: var(--semaforo-atencao-fundo);
+  --color-semaforo-atencao-texto: var(--semaforo-atencao-texto);
+  --color-semaforo-critico-fundo: var(--semaforo-critico-fundo);
+  --color-semaforo-critico-texto: var(--semaforo-critico-texto);
+  --color-chip-info-fundo: var(--chip-info-fundo);
+  --color-chip-info-texto: var(--chip-info-texto);
+  --color-chip-info-borda: var(--chip-info-borda);
+  --color-chip-sucesso-fundo: var(--chip-sucesso-fundo);
+  --color-chip-sucesso-texto: var(--chip-sucesso-texto);
+  --color-chip-sucesso-borda: var(--chip-sucesso-borda);
+  --color-chip-atencao-fundo: var(--chip-atencao-fundo);
+  --color-chip-atencao-texto: var(--chip-atencao-texto);
+  --color-chip-atencao-borda: var(--chip-atencao-borda);
+  --color-chip-laranja-fundo: var(--chip-laranja-fundo);
+  --color-chip-laranja-texto: var(--chip-laranja-texto);
+  --color-chip-laranja-borda: var(--chip-laranja-borda);
+  --color-chip-critico-fundo: var(--chip-critico-fundo);
+  --color-chip-critico-texto: var(--chip-critico-texto);
+  --color-chip-critico-borda: var(--chip-critico-borda);
+  --color-chip-roxo-fundo: var(--chip-roxo-fundo);
+  --color-chip-roxo-texto: var(--chip-roxo-texto);
+  --color-chip-roxo-borda: var(--chip-roxo-borda);
 }
 
-:root {
-  --background: #020617;
-  --foreground: #e4e4e7;
+/* Escuro = as cores de hoje. Padrão mesmo sem data-tema. */
+:root,
+html[data-tema="escuro"] {
+  color-scheme: dark;
+  --fundo: #020617;
+  --superficie: rgba(255, 255, 255, 0.05);
+  --superficie-hover: rgba(255, 255, 255, 0.1);
+  --superficie-forte: #0b1224;
+  --sidebar: #020617;
+  --texto: #ffffff;
+  --texto-suave: rgba(255, 255, 255, 0.55);
+  --texto-fraco: rgba(255, 255, 255, 0.35);
+  --texto-desabilitado: rgba(255, 255, 255, 0.35);
+  --borda: rgba(255, 255, 255, 0.1);
   --input-bg: rgba(15, 23, 42, 0.75);
   --input-fg: #f4f4f5;
   --input-placeholder: rgba(244, 244, 245, 0.45);
+  --semaforo-info-fundo: rgb(8 47 73 / 0.95);
+  --semaforo-info-texto: #f0f9ff;
+  --semaforo-sucesso-fundo: rgb(2 44 34 / 0.95);
+  --semaforo-sucesso-texto: #ecfdf5;
+  --semaforo-atencao-fundo: rgb(69 26 3 / 0.95);
+  --semaforo-atencao-texto: #fffbeb;
+  --semaforo-critico-fundo: rgb(76 5 25 / 0.95);
+  --semaforo-critico-texto: #fff1f2;
+  --chip-info-fundo: rgb(59 130 246 / 0.15);
+  --chip-info-texto: #93c5fd;
+  --chip-info-borda: rgb(96 165 250 / 0.3);
+  --chip-sucesso-fundo: rgb(16 185 129 / 0.15);
+  --chip-sucesso-texto: #6ee7b7;
+  --chip-sucesso-borda: rgb(52 211 153 / 0.3);
+  --chip-atencao-fundo: rgb(245 158 11 / 0.15);
+  --chip-atencao-texto: #fcd34d;
+  --chip-atencao-borda: rgb(251 191 36 / 0.3);
+  --chip-laranja-fundo: rgb(249 115 22 / 0.15);
+  --chip-laranja-texto: #fdba74;
+  --chip-laranja-borda: rgb(251 146 60 / 0.3);
+  --chip-critico-fundo: rgb(244 63 94 / 0.15);
+  --chip-critico-texto: #fda4af;
+  --chip-critico-borda: rgb(251 113 133 / 0.3);
+  --chip-roxo-fundo: rgb(139 92 246 / 0.15);
+  --chip-roxo-texto: #c4b5fd;
+  --chip-roxo-borda: rgb(167 139 250 / 0.3);
+}
+
+html[data-tema="claro"] {
+  color-scheme: light;
+  --fundo: #eef2f6;
+  --superficie: #ffffff;
+  --superficie-hover: #e6ebf1;
+  --superficie-forte: #ffffff;
+  --sidebar: #ffffff;
+  --texto: #18181b;
+  --texto-suave: #3f4a57;
+  --texto-fraco: #5b6775;
+  --texto-desabilitado: #a3adb9;
+  --borda: #dfe5ec;
+  --input-bg: #ffffff;
+  --input-fg: #18181b;
+  --input-placeholder: #5b6775;
+  --semaforo-info-fundo: #e0f2fe;
+  --semaforo-info-texto: #0c4a6e;
+  --semaforo-sucesso-fundo: #d1fae5;
+  --semaforo-sucesso-texto: #064e3b;
+  --semaforo-atencao-fundo: #fef3c7;
+  --semaforo-atencao-texto: #78350f;
+  --semaforo-critico-fundo: #ffe4e6;
+  --semaforo-critico-texto: #881337;
+  --chip-info-fundo: #dbeafe;
+  --chip-info-texto: #1d4ed8;
+  --chip-info-borda: #bfdbfe;
+  --chip-sucesso-fundo: #d1fae5;
+  --chip-sucesso-texto: #047857;
+  --chip-sucesso-borda: #a7f3d0;
+  --chip-atencao-fundo: #fef3c7;
+  --chip-atencao-texto: #b45309;
+  --chip-atencao-borda: #fde68a;
+  --chip-laranja-fundo: #ffedd5;
+  --chip-laranja-texto: #c2410c;
+  --chip-laranja-borda: #fed7aa;
+  --chip-critico-fundo: #ffe4e6;
+  --chip-critico-texto: #be123c;
+  --chip-critico-borda: #fecdd3;
+  --chip-roxo-fundo: #ede9fe;
+  --chip-roxo-texto: #6d28d9;
+  --chip-roxo-borda: #ddd6fe;
+  /* Texto pálido das paletas de significado (chips soltos, ícones, links). */
+  --color-blue-100: #1d4ed8;
+  --color-blue-200: #1d4ed8;
+  --color-blue-300: #1d4ed8;
+  --color-emerald-200: #047857;
+  --color-emerald-300: #047857;
+  --color-amber-200: #b45309;
+  --color-amber-300: #b45309;
+  --color-rose-200: #be123c;
+  --color-rose-300: #be123c;
+  --color-orange-300: #c2410c;
+  --color-violet-300: #6d28d9;
+  --color-sky-200: #0369a1;
+  --color-sky-300: #0369a1;
+  --color-cyan-200: #0e7490;
+  --color-cyan-300: #0e7490;
+}
+
+html,
+body {
+  background: var(--fundo);
+  color: var(--texto);
+}
+
+/* Sombra leve só no claro: cards, painéis, modais e drawers. No escuro o shadow-* do componente vale. */
+html[data-tema="claro"] .rounded-xl.bg-superficie,
+html[data-tema="claro"] .rounded-xl.bg-superficie-forte,
+html[data-tema="claro"] [role="dialog"].bg-superficie-forte {
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Campos nativos ignoram às vezes a cor herdada; força legível em qualquer SO */
+/* Campos nativos ignoram às vezes a cor herdada; força legível em qualquer tema */
 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
 textarea,
 select {
-  color-scheme: dark;
+  color-scheme: inherit;
   background-color: var(--input-bg);
   color: var(--input-fg);
 }
@@ -73,7 +218,7 @@ textarea::placeholder {
   opacity: 1;
 }
 
-/* Autofill (Chrome/Safari) — evita texto escuro sobre fundo escuro */
+/* Autofill (Chrome/Safari) — evita o navegador pintar texto do outro tema */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,

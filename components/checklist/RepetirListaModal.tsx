@@ -95,7 +95,7 @@ export function RepetirListaModal({ grupo, qtdConcluidasAntesDeHoje, onSalvar, o
           </>
         }
       >
-        <p className="text-sm text-white/70">{confirmacao.texto}</p>
+        <p className="text-sm text-texto/70">{confirmacao.texto}</p>
       </Modal>
     );
   }

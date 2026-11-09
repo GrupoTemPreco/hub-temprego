@@ -13,7 +13,7 @@ import { BotaoReenviar } from "./BotaoReenviar";
 import { STATUS_DESTINATARIO, destinoDoLote, motivosRecusa, rotuloProgressoTodos, rotuloRecusa, situacaoPessoaTodos } from "./textosLote";
 
 const BOTAO_PEQUENO =
-  "inline-flex items-center gap-1.5 rounded-md border border-white/15 bg-white/5 px-2.5 py-1 text-xs font-medium text-white/85 hover:bg-white/10";
+  "inline-flex items-center gap-1.5 rounded-md border border-borda bg-superficie px-2.5 py-1 text-xs font-medium text-texto/85 hover:bg-superficie-hover";
 
 function Destinatarios({ lote, todos }: { lote: LoteEnvio; todos?: boolean }) {
   const { nomeDe, progressoDoLote } = useChecklistEnvios();
@@ -23,7 +23,7 @@ function Destinatarios({ lote, todos }: { lote: LoteEnvio; todos?: boolean }) {
     <ul className="space-y-1">
       {lote.envios.map((e) => (
         <li key={e.id} className="flex items-center justify-between gap-2 text-xs">
-          <span className={`truncate ${e.status === "recusado" ? "text-white/45 line-through" : "text-white/80"}`}>
+          <span className={`truncate ${e.status === "recusado" ? "text-texto/45 line-through" : "text-texto/80"}`}>
             {nomeDe(e.para_usuario_id)}
           </span>
           <Badge variant={STATUS_DESTINATARIO[e.status].cor} className="shrink-0 px-1.5 py-0 text-[11px]">
@@ -57,14 +57,14 @@ export function ItemDrawerEnvio({ situacao }: { situacao: SituacaoEnvioItem }) {
   if (situacao.tipo === "todos") {
     return (
       <div className="space-y-2 rounded-lg border border-blue-400/25 bg-blue-500/8 p-3 text-sm">
-        <p className="flex items-center gap-2 font-medium text-white">
+        <p className="flex items-center gap-2 font-medium text-texto">
           <Send className="h-4 w-4 text-blue-300" />
           {rotuloProgressoTodos(lote, envios.progressoDoLote(lote.id))}
         </p>
         <Destinatarios lote={lote} todos />
-        {lote.mensagem && <p className="text-white/65">&ldquo;{lote.mensagem}&rdquo;</p>}
-        {lote.prazoSugerido && <p className="text-xs text-white/50">Prazo sugerido: {formatarPrazo(lote.prazoSugerido)}</p>}
-        <p className="text-xs text-white/50">A original continua com você; conclua quando quiser.</p>
+        {lote.mensagem && <p className="text-texto/65">&ldquo;{lote.mensagem}&rdquo;</p>}
+        {lote.prazoSugerido && <p className="text-xs text-texto/50">Prazo sugerido: {formatarPrazo(lote.prazoSugerido)}</p>}
+        <p className="text-xs text-texto/50">A original continua com você; conclua quando quiser.</p>
         <AcoesPendentes lote={lote} />
       </div>
     );
@@ -72,15 +72,15 @@ export function ItemDrawerEnvio({ situacao }: { situacao: SituacaoEnvioItem }) {
 
   if (situacao.tipo === "aguardando") {
     return (
-      <div className="space-y-2 rounded-lg border border-white/15 bg-white/5 p-3 text-sm">
-        <p className="flex items-center gap-2 font-medium text-white">
-          <Clock className="h-4 w-4 text-white/60" />
+      <div className="space-y-2 rounded-lg border border-borda bg-superficie p-3 text-sm">
+        <p className="flex items-center gap-2 font-medium text-texto">
+          <Clock className="h-4 w-4 text-texto/60" />
           Aguardando {destinoDoLote(lote, envios)} · enviado {tempoRelativo(lote.ultimoEnvioEm, new Date(agora))}
         </p>
         <Destinatarios lote={lote} />
-        {lote.mensagem && <p className="text-white/65">&ldquo;{lote.mensagem}&rdquo;</p>}
-        {lote.prazoSugerido && <p className="text-xs text-white/50">Prazo sugerido: {formatarPrazo(lote.prazoSugerido)}</p>}
-        <p className="text-xs text-white/50">Enquanto aguarda resposta, o item não pode ser editado, concluído nem excluído.</p>
+        {lote.mensagem && <p className="text-texto/65">&ldquo;{lote.mensagem}&rdquo;</p>}
+        {lote.prazoSugerido && <p className="text-xs text-texto/50">Prazo sugerido: {formatarPrazo(lote.prazoSugerido)}</p>}
+        <p className="text-xs text-texto/50">Enquanto aguarda resposta, o item não pode ser editado, concluído nem excluído.</p>
         <AcoesPendentes lote={lote} />
       </div>
     );
@@ -91,7 +91,7 @@ export function ItemDrawerEnvio({ situacao }: { situacao: SituacaoEnvioItem }) {
       <p className="flex items-center gap-2 font-medium text-rose-200">
         <XCircle className="h-4 w-4" /> {rotuloRecusa(lote, envios)}
       </p>
-      <ul className="space-y-0.5 text-white/70">
+      <ul className="space-y-0.5 text-texto/70">
         {motivosRecusa(lote, envios).map((m) => (
           <li key={m}>{m}</li>
         ))}

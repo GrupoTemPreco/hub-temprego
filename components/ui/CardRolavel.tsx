@@ -24,8 +24,8 @@ type Props = {
 /** Card com cabeçalho fixo e conteúdo com rolagem interna. */
 export function CardRolavel({ titulo, acao, altura = "420", children, onRolar }: Props) {
   return (
-    <section className={`flex h-full flex-col overflow-hidden rounded-xl border border-white/10 bg-white/3 ${ALTURAS[altura]}`}>
-      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-white/5 px-4 py-3">
+    <section className={`flex h-full flex-col overflow-hidden rounded-xl border border-borda bg-superficie ${ALTURAS[altura]}`}>
+      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-borda px-4 py-3">
         <h2 className="flex min-w-0 items-center gap-2 font-semibold">{titulo}</h2>
         {acao}
       </div>
@@ -47,10 +47,10 @@ export function AcaoCard({ onClick, children }: { onClick: () => void; children:
 
 /** Estado vazio compacto e centralizado, para dentro de um CardRolavel. */
 export function VazioCard({ children }: { children: ReactNode }) {
-  return <p className="flex h-full min-h-16 items-center justify-center text-center text-sm text-white/45">{children}</p>;
+  return <p className="flex h-full min-h-16 items-center justify-center text-center text-sm text-texto/45">{children}</p>;
 }
 
 /** Contador ao lado do título do card. */
 export function TotalCard({ total }: { total: number }) {
-  return <span className="rounded-full bg-white/10 px-2 text-xs font-medium text-white/70">{total}</span>;
+  return <span className="rounded-full bg-superficie-hover px-2 text-xs font-medium text-texto/70">{total}</span>;
 }

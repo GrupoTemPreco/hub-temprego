@@ -32,18 +32,18 @@ export function ConcluidosSecao({
   if (itens.length === 0) return null;
 
   return (
-    <div className="border-t border-white/10">
+    <div className="border-t border-borda">
       <button
         type="button"
         onClick={() => setAberto((v) => !v)}
         aria-expanded={aberto}
-        className="flex w-full items-center gap-1 px-3 py-2 text-xs font-medium text-white/55 hover:text-white"
+        className="flex w-full items-center gap-1 px-3 py-2 text-xs font-medium text-texto-suave hover:text-texto"
       >
         <ChevronRight className={`h-3.5 w-3.5 transition-transform ${aberto ? "rotate-90" : ""}`} />
         Concluídos ({itens.length})
       </button>
       {aberto && (
-        <ul className="divide-y divide-white/5">
+        <ul className="divide-y divide-borda">
           {itens.map((item) => (
             <li key={item.id} className={item.id === destaqueId ? "bg-blue-500/10" : undefined}>
               <ItemConteudo
@@ -63,7 +63,7 @@ export function ConcluidosSecao({
                         e.stopPropagation();
                         onReabrir(item);
                       }}
-                      className="inline-flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-xs text-white/55 hover:bg-white/10 hover:text-white"
+                      className="inline-flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-xs text-texto-suave hover:bg-superficie-hover hover:text-texto"
                     >
                       <RotateCcw className="h-3 w-3" /> Reabrir
                     </button>

@@ -26,9 +26,9 @@ export function AdicionarRapido({ onAdicionar }: Props) {
         e.preventDefault();
         void enviar();
       }}
-      className="flex items-center gap-2 border-t border-white/5 px-3 py-2"
+      className="flex items-center gap-2 border-t border-borda px-3 py-2"
     >
-      <Plus className="h-4 w-4 shrink-0 text-white/35" />
+      <Plus className="h-4 w-4 shrink-0 text-texto-fraco" />
       <input
         value={titulo}
         onChange={(e) => setTitulo(e.target.value)}

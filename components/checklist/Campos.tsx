@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 
-export const CAMPO = "w-full rounded-md border border-white/10 px-3 py-2 text-sm outline-none focus:border-blue-500";
+export const CAMPO = "w-full rounded-md border border-borda px-3 py-2 text-sm outline-none focus:border-blue-500";
 
 export function Campo({ rotulo, children }: { rotulo: string; children: ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-sm text-white/70">{rotulo}</span>
+      <span className="mb-1 block text-sm text-texto/70">{rotulo}</span>
       {children}
     </label>
   );

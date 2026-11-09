@@ -11,6 +11,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
+import { CHIP } from "@/components/ui/Badge";
 import { AnexosExibicao } from "@/components/tickets/anexos/AnexosExibicao";
 import type { AnexoExibicao } from "@/hooks/useAnexosTicket";
 import { tempoRelativo } from "@/lib/format";
@@ -50,19 +51,19 @@ function Mensagem({ evento, nomes, anexos, onAbrirImagem }: PropsMensagem) {
       <Avatar nome={autor} />
       <div
         className={`min-w-0 flex-1 rounded-lg border px-3 py-2 ${
-          evento.interno ? "border-amber-400/30 bg-amber-500/8" : "border-white/10 bg-white/4"
+          evento.interno ? "border-amber-400/30 bg-amber-500/8" : "border-borda bg-superficie"
         }`}
       >
         <div className="mb-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
-          <span className="font-medium text-white">{autor}</span>
-          <span className="text-white/40">{tempoRelativo(evento.criado_em)}</span>
+          <span className="font-medium text-texto">{autor}</span>
+          <span className="text-texto/40">{tempoRelativo(evento.criado_em)}</span>
           {evento.interno && (
-            <span className="inline-flex items-center gap-1 rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-medium text-amber-200">
+            <span className={`inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-medium ${CHIP.warning}`}>
               <Lock className="h-3 w-3" /> Nota interna – visível só para admins
             </span>
           )}
         </div>
-        {evento.mensagem && <p className="whitespace-pre-wrap text-sm text-white/85">{evento.mensagem}</p>}
+        {evento.mensagem && <p className="whitespace-pre-wrap text-sm text-texto/85">{evento.mensagem}</p>}
         <AnexosExibicao anexos={anexos} onAbrirImagem={onAbrirImagem} />
       </div>
     </li>
@@ -72,14 +73,14 @@ function Mensagem({ evento, nomes, anexos, onAbrirImagem }: PropsMensagem) {
 function EventoSistema({ evento, ticket, nomes }: { evento: TicketEvento; ticket: Ticket; nomes: ResolvedorNomes }) {
   const Icon = ICONES[evento.tipo] ?? Activity;
   return (
-    <li className="flex items-center gap-3 pl-1.5 text-xs text-white/55">
-      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/10">
+    <li className="flex items-center gap-3 pl-1.5 text-xs text-texto-suave">
+      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-superficie-hover">
         <Icon className="h-3 w-3" />
       </span>
       <span className="min-w-0">
-        <span className="font-medium text-white/75">{nomes.usuario(evento.autor_id)}</span>{" "}
+        <span className="font-medium text-texto/75">{nomes.usuario(evento.autor_id)}</span>{" "}
         {fraseEvento(evento, { nomes, ticket })}
-        <span className="ml-1.5 text-white/35">· {tempoRelativo(evento.criado_em)}</span>
+        <span className="ml-1.5 text-texto-fraco">· {tempoRelativo(evento.criado_em)}</span>
       </span>
     </li>
   );
@@ -88,9 +89,9 @@ function EventoSistema({ evento, ticket, nomes }: { evento: TicketEvento; ticket
 export function TicketTimeline({ ticket, eventos, nomes, anexosPorEvento, onAbrirImagem }: Props) {
   return (
     <div>
-      <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-white/45">Linha do tempo</h3>
+      <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-texto/45">Linha do tempo</h3>
       {eventos.length === 0 ? (
-        <p className="text-sm text-white/40">Nenhum evento registrado.</p>
+        <p className="text-sm text-texto/40">Nenhum evento registrado.</p>
       ) : (
         <ol className="space-y-3">
           {eventos.map((e) =>

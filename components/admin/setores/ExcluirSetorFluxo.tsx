@@ -65,7 +65,7 @@ export function ExcluirSetorFluxo({ setor, onFechar, onConcluido }: Props) {
         title="Este setor não pode ser excluído"
         description={
           <>
-            <strong className="text-white">{setor.nome}</strong> tem tickets ou eventos no histórico e não pode ser
+            <strong className="text-texto">{setor.nome}</strong> tem tickets ou eventos no histórico e não pode ser
             apagado.{" "}
             {setor.ativo
               ? "Você pode desativá-lo: ele deixa de receber tickets novos e o histórico é mantido."
@@ -89,7 +89,7 @@ export function ExcluirSetorFluxo({ setor, onFechar, onConcluido }: Props) {
       title="Excluir setor?"
       description={
         <>
-          O setor <strong className="text-white">{setor.nome}</strong> será apagado e os membros serão desvinculados.
+          O setor <strong className="text-texto">{setor.nome}</strong> será apagado e os membros serão desvinculados.
           Esta ação não pode ser desfeita.
         </>
       }

@@ -18,7 +18,7 @@ export function PrioridadeBadge({ prioridade }: { prioridade: string }) {
 
 export function CategoriaBadge({ categoria }: { categoria: string }) {
   return (
-    <span className="rounded border border-white/10 bg-white/5 px-1.5 py-px text-[10px] font-medium uppercase tracking-wide text-white/55">
+    <span className="rounded border border-borda bg-superficie px-1.5 py-px text-[10px] font-medium uppercase tracking-wide text-texto-suave">
       {rotuloCategoria(categoria)}
     </span>
   );

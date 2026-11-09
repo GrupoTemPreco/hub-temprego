@@ -36,15 +36,15 @@ export function AvisoBalao({ aviso, onAbrir, onDispensar, comSeta = true }: Prop
   const Icone = ICONES[aviso.origem];
   return (
     <div role="status" aria-live="polite" className="motion-safe:animate-surgir">
-      <div className="relative rounded-xl border border-blue-400/40 bg-[#0b1224] shadow-2xl">
+      <div className="relative rounded-xl border border-blue-400/40 bg-superficie-forte shadow-2xl">
         <div className="flex items-start gap-2.5 p-3 pr-9">
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-500/20 text-blue-300">
             <Icone className="h-4 w-4" />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-sm font-semibold text-white">{aviso.titulo}</span>
+            <span className="block text-sm font-semibold text-texto">{aviso.titulo}</span>
             {aviso.detalhe && (
-              <span className={`mt-0.5 block text-xs text-white/60 ${aviso.detalheCortado ? "truncate" : ""}`}>
+              <span className={`mt-0.5 block text-xs text-texto/60 ${aviso.detalheCortado ? "truncate" : ""}`}>
                 {aviso.detalhe}
               </span>
             )}
@@ -53,14 +53,14 @@ export function AvisoBalao({ aviso, onAbrir, onDispensar, comSeta = true }: Prop
         {aviso.linhas && (
           <ul className="space-y-1 px-3 pb-2">
             {aviso.linhas.map((l) => (
-              <li key={l.chave} className="flex items-center gap-2 rounded-md bg-white/3 py-1 pl-2 pr-1 text-xs text-white/80">
+              <li key={l.chave} className="flex items-center gap-2 rounded-md bg-superficie py-1 pl-2 pr-1 text-xs text-texto/80">
                 <span className="min-w-0 flex-1 truncate" title={l.texto}>
                   {l.texto}
                 </span>
                 <button
                   type="button"
                   onClick={l.onAbrir}
-                  className="shrink-0 rounded px-1.5 py-0.5 font-medium text-blue-300 hover:bg-white/10 hover:text-blue-200"
+                  className="shrink-0 rounded px-1.5 py-0.5 font-medium text-blue-300 hover:bg-superficie-hover hover:text-blue-200"
                 >
                   Abrir
                 </button>
@@ -82,14 +82,14 @@ export function AvisoBalao({ aviso, onAbrir, onDispensar, comSeta = true }: Prop
           type="button"
           onClick={onDispensar}
           aria-label="Dispensar aviso"
-          className="absolute right-1.5 top-1.5 rounded p-1 text-white/45 hover:bg-white/10 hover:text-white"
+          className="absolute right-1.5 top-1.5 rounded p-1 text-texto/45 hover:bg-superficie-hover hover:text-texto"
         >
           <X className="h-3.5 w-3.5" />
         </button>
         {comSeta && (
           <span
             aria-hidden
-            className="absolute -bottom-1.5 right-5.5 h-3 w-3 rotate-45 border-b border-r border-blue-400/40 bg-[#0b1224]"
+            className="absolute -bottom-1.5 right-5.5 h-3 w-3 rotate-45 border-b border-r border-blue-400/40 bg-superficie-forte"
           />
         )}
       </div>

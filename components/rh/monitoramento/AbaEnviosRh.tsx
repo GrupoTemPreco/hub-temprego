@@ -17,22 +17,22 @@ type SecaoProps = {
 function SecaoEnvios({ titulo, icone: Icone, envios, outraParte }: SecaoProps) {
   return (
     <section className="space-y-2">
-      <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/50">
+      <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-texto/50">
         <Icone className="h-4 w-4" /> {titulo} ({envios.length})
       </h3>
       {envios.length === 0 ? (
-        <p className="py-2 text-sm text-white/45">Nenhuma nos últimos 90 dias.</p>
+        <p className="py-2 text-sm text-texto/45">Nenhuma nos últimos 90 dias.</p>
       ) : (
-        <ul className="divide-y divide-white/5 rounded-lg border border-white/10">
+        <ul className="divide-y divide-borda rounded-lg border border-borda">
           {envios.map((e) => (
             <li key={e.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2.5">
               <span className="min-w-0 flex-1">
-                <TextoCortado className="block truncate text-sm font-medium text-white/90">{e.titulo}</TextoCortado>
-                <span className="block truncate text-xs text-white/50">
+                <TextoCortado className="block truncate text-sm font-medium text-texto/90">{e.titulo}</TextoCortado>
+                <span className="block truncate text-xs text-texto/50">
                   {outraParte(e)} · {formatarDataHoraSP(e.criado_em)}
                 </span>
               </span>
-              <span className="text-xs text-white/55" title="Tempo até a resposta">
+              <span className="text-xs text-texto-suave" title="Tempo até a resposta">
                 {e.respondido_em ? `Respondeu em ${formatarHoras(horasEntre(e.criado_em, e.respondido_em))}` : "Sem resposta"}
               </span>
               <Badge variant={STATUS_DESTINATARIO[e.status].cor}>{STATUS_DESTINATARIO[e.status].texto}</Badge>

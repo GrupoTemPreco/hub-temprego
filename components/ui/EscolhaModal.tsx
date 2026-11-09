@@ -15,7 +15,7 @@ type Props = {
   onClose: () => void;
 };
 
-const CAMPO = "w-full rounded-md border border-white/10 px-3 py-2 text-sm outline-none focus:border-blue-500";
+const CAMPO = "w-full rounded-md border border-borda px-3 py-2 text-sm outline-none focus:border-blue-500";
 
 /** Escolha de um valor (select com grupos opcionais); a confirmação vem em seguida, com o resumo. */
 export function EscolhaModal({ titulo, rotulo, opcoes, rotuloContinuar = "Continuar", onEscolher, onClose }: Props) {
@@ -41,7 +41,7 @@ export function EscolhaModal({ titulo, rotulo, opcoes, rotuloContinuar = "Contin
       }
     >
       <label className="block">
-        <span className="mb-1 block text-sm text-white/70">{rotulo}</span>
+        <span className="mb-1 block text-sm text-texto/70">{rotulo}</span>
         <select className={CAMPO} value={valor} onChange={(e) => setValor(e.target.value)}>
           <option value="" disabled>
             Selecione...

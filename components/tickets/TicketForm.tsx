@@ -20,7 +20,7 @@ import { CampoDestino } from "./CampoDestino";
 import { AnexosInput } from "./AnexosInput";
 import { avisarFalhasAnexos } from "./anexos/avisarFalhasAnexos";
 
-const CAMPO = "w-full rounded-md border border-white/10 px-3 py-2 text-sm outline-none focus:border-blue-500";
+const CAMPO = "w-full rounded-md border border-borda px-3 py-2 text-sm outline-none focus:border-blue-500";
 
 type TicketCriado = Pick<Ticket, "id" | "numero">;
 
@@ -122,12 +122,12 @@ export function TicketForm({ filtrarPessoa, moduloOrigem, semDestinos, onCriado,
   return (
     <div className="space-y-4" onPaste={anexos.colar}>
       {moduloOrigem && (
-        <p className="text-xs text-white/55">
-          Aberto a partir de: <strong className="font-medium text-white/80">{rotuloTela(moduloOrigem)}</strong>
+        <p className="text-xs text-texto-suave">
+          Aberto a partir de: <strong className="font-medium text-texto/80">{rotuloTela(moduloOrigem)}</strong>
         </p>
       )}
       <label className="block">
-        <span className="mb-1 block text-sm text-white/70">
+        <span className="mb-1 block text-sm text-texto/70">
           Título <span className="text-rose-400">*</span>
         </span>
         <input
@@ -140,7 +140,7 @@ export function TicketForm({ filtrarPessoa, moduloOrigem, semDestinos, onCriado,
       </label>
 
       <label className="block">
-        <span className="mb-1 block text-sm text-white/70">Descrição</span>
+        <span className="mb-1 block text-sm text-texto/70">Descrição</span>
         <textarea
           rows={4}
           className={`${CAMPO} resize-y`}
@@ -151,13 +151,13 @@ export function TicketForm({ filtrarPessoa, moduloOrigem, semDestinos, onCriado,
       </label>
 
       <div>
-        <span className="mb-1 block text-sm text-white/70">Anexos</span>
+        <span className="mb-1 block text-sm text-texto/70">Anexos</span>
         <AnexosInput anexos={anexos} desabilitado={enviando} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block">
-          <span className="mb-1 block text-sm text-white/70">Categoria</span>
+          <span className="mb-1 block text-sm text-texto/70">Categoria</span>
           <select
             className={CAMPO}
             value={form.categoria}
@@ -171,7 +171,7 @@ export function TicketForm({ filtrarPessoa, moduloOrigem, semDestinos, onCriado,
           </select>
         </label>
         <label className="block">
-          <span className="mb-1 block text-sm text-white/70">Prioridade</span>
+          <span className="mb-1 block text-sm text-texto/70">Prioridade</span>
           <select
             className={CAMPO}
             value={form.prioridade}
@@ -187,7 +187,7 @@ export function TicketForm({ filtrarPessoa, moduloOrigem, semDestinos, onCriado,
       </div>
 
       <div>
-        <span className="mb-1 block text-sm text-white/70">
+        <span className="mb-1 block text-sm text-texto/70">
           Destino <span className="text-rose-400">*</span>
         </span>
         <CampoDestino

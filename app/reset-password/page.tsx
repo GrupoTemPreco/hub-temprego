@@ -81,15 +81,15 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-[#020617] px-4">
+    <div className="flex h-screen w-screen items-center justify-center bg-fundo px-4">
       <div className="flex w-full max-w-sm flex-col items-center">
         <img src="/logoA.png" alt="Logo do Tempreço" className="mb-6 h-32 w-auto" />
 
-        <div className="w-full rounded-xl border border-white/20 bg-white/9 p-8 shadow-sm backdrop-blur-sm">
-          <h1 className="mb-6 text-xl font-semibold text-white">Redefinir senha</h1>
+        <div className="w-full rounded-xl border border-borda bg-superficie p-8 shadow-sm backdrop-blur-sm">
+          <h1 className="mb-6 text-xl font-semibold text-texto">Redefinir senha</h1>
 
           {checkingSession ? (
-            <p className="text-sm text-white/70">Validando link de recuperacao...</p>
+            <p className="text-sm text-texto/70">Validando link de recuperacao...</p>
           ) : !hasRecoverySession ? (
             <p className="text-sm text-red-400">
               Link de recuperacao invalido ou expirado. Solicite um novo link.
@@ -102,12 +102,12 @@ export default function ResetPasswordPage() {
                   placeholder="Nova senha"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full rounded-lg border border-zinc-200 px-4 py-2 pr-10 text-sm outline-none focus:border-zinc-400"
+                  className="w-full rounded-lg border border-borda px-4 py-2 pr-10 text-sm outline-none focus:border-blue-500"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute inset-y-0 right-0 flex items-center px-3 text-zinc-500 hover:text-zinc-700"
+                  className="absolute inset-y-0 right-0 flex items-center px-3 text-texto-fraco hover:text-texto"
                   aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                 >
                   {showPassword ? "🙈" : "👁️"}
@@ -121,12 +121,12 @@ export default function ResetPasswordPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleResetPassword()}
-                  className="w-full rounded-lg border border-zinc-200 px-4 py-2 pr-10 text-sm outline-none focus:border-zinc-400"
+                  className="w-full rounded-lg border border-borda px-4 py-2 pr-10 text-sm outline-none focus:border-blue-500"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword((prev) => !prev)}
-                  className="absolute inset-y-0 right-0 flex items-center px-3 text-zinc-500 hover:text-zinc-700"
+                  className="absolute inset-y-0 right-0 flex items-center px-3 text-texto-fraco hover:text-texto"
                   aria-label={showConfirmPassword ? "Ocultar senha" : "Mostrar senha"}
                 >
                   {showConfirmPassword ? "🙈" : "👁️"}

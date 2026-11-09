@@ -7,7 +7,7 @@ import { useToast } from "@/components/ui/Toast";
 import { useUsuarioAtual } from "@/components/hub/UsuarioAtualProvider";
 import { carregarLimitesPlano, salvarLimitesPlano, type LimitesPlano } from "@/lib/admin/armazenamento";
 
-const CAMPO = "w-full rounded-md border border-white/10 px-3 py-2 text-sm outline-none focus:border-blue-500";
+const CAMPO = "w-full rounded-md border border-borda px-3 py-2 text-sm outline-none focus:border-blue-500";
 
 type Props = { onClose: () => void; onSalvo: () => void };
 
@@ -75,19 +75,19 @@ export function LimitesPlanoModal({ onClose, onSalvo }: Props) {
       }
     >
       {!atuais ? (
-        <p className="text-sm text-white/55">Carregando...</p>
+        <p className="text-sm text-texto-suave">Carregando...</p>
       ) : (
         <div className="space-y-4">
-          <p className="text-sm text-white/55">
+          <p className="text-sm text-texto-suave">
             Quanto o plano do Supabase inclui. Usado para calcular o espaço disponível e os alertas.
           </p>
           <label className="block">
-            <span className="mb-1 block text-sm text-white/70">Limite do banco de dados (GB)</span>
+            <span className="mb-1 block text-sm text-texto/70">Limite do banco de dados (GB)</span>
             <input type="number" min={0} step="any" className={CAMPO} value={banco} onChange={(e) => setBanco(e.target.value)} />
             {bancoGb === null && <span className="mt-1 block text-xs text-rose-400">Informe um número maior que zero.</span>}
           </label>
           <label className="block">
-            <span className="mb-1 block text-sm text-white/70">Limite do Storage (GB)</span>
+            <span className="mb-1 block text-sm text-texto/70">Limite do Storage (GB)</span>
             <input
               type="number"
               min={0}

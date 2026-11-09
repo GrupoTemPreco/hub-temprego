@@ -8,7 +8,7 @@ import { useUsuarioAtual } from "@/components/hub/UsuarioAtualProvider";
 import { salvarDadosUsuario, type DadosUsuarioEditaveis, type UsuarioLista } from "@/lib/admin/usuarios";
 import type { UsuarioStatus } from "@/lib/types/shell";
 
-const CAMPO = "w-full rounded-md border border-white/10 px-3 py-2 text-sm outline-none focus:border-blue-500";
+const CAMPO = "w-full rounded-md border border-borda px-3 py-2 text-sm outline-none focus:border-blue-500";
 
 type Props = { usuario: UsuarioLista; onAtualizado: () => Promise<void> };
 
@@ -51,7 +51,7 @@ export function UsuarioDadosTab({ usuario, onAtualizado }: Props) {
   return (
     <div className="space-y-4">
       <label className="block">
-        <span className="mb-1 block text-sm text-white/70">Nome</span>
+        <span className="mb-1 block text-sm text-texto/70">Nome</span>
         <input
           className={CAMPO}
           value={form.nome ?? ""}
@@ -60,7 +60,7 @@ export function UsuarioDadosTab({ usuario, onAtualizado }: Props) {
       </label>
 
       <label className="block">
-        <span className="mb-1 block text-sm text-white/70">E-mail</span>
+        <span className="mb-1 block text-sm text-texto/70">E-mail</span>
         <input
           type="email"
           className={CAMPO}
@@ -70,7 +70,7 @@ export function UsuarioDadosTab({ usuario, onAtualizado }: Props) {
       </label>
 
       <label className="block">
-        <span className="mb-1 block text-sm text-white/70">Status</span>
+        <span className="mb-1 block text-sm text-texto/70">Status</span>
         <select
           className={`${CAMPO} disabled:cursor-not-allowed disabled:opacity-50`}
           disabled={ehVoceMesmo}
@@ -84,11 +84,11 @@ export function UsuarioDadosTab({ usuario, onAtualizado }: Props) {
         </select>
       </label>
 
-      <div className="divide-y divide-white/10 rounded-lg border border-white/10">
+      <div className="divide-y divide-borda rounded-lg border border-borda">
         <div className="flex items-center justify-between gap-4 p-3">
           <div>
             <p className="text-sm font-medium">Administrador</p>
-            <p className="text-xs text-white/50">Acesso total ao painel admin.</p>
+            <p className="text-xs text-texto/50">Acesso total ao painel admin.</p>
           </div>
           <Toggle
             label="Administrador"
@@ -106,7 +106,7 @@ export function UsuarioDadosTab({ usuario, onAtualizado }: Props) {
         <div className="flex items-center justify-between gap-4 p-3">
           <div>
             <p className="text-sm font-medium">Recebe tickets</p>
-            <p className="text-xs text-white/50">Pode ser escolhido como destino de tickets.</p>
+            <p className="text-xs text-texto/50">Pode ser escolhido como destino de tickets.</p>
           </div>
           <Toggle
             label="Recebe tickets"
@@ -117,7 +117,7 @@ export function UsuarioDadosTab({ usuario, onAtualizado }: Props) {
         <div className="flex items-center justify-between gap-4 p-3">
           <div>
             <p className="text-sm font-medium">Acesso ao checklist</p>
-            <p className="text-xs text-white/50">Mostra o Checklist (tarefas pessoais) na sidebar.</p>
+            <p className="text-xs text-texto/50">Mostra o Checklist (tarefas pessoais) na sidebar.</p>
           </div>
           <Toggle
             label="Acesso ao checklist"

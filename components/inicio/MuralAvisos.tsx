@@ -40,7 +40,7 @@ export function MuralAvisos() {
   // Grade de até 3 colunas; com um aviso só, ele ocupa uma coluna sem esticar.
   return (
     <section aria-label="Mural de avisos">
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-white/50">Mural de avisos</h2>
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-texto-suave">Mural de avisos</h2>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {itens.map((item) => (
           <div key={item.id} className="flex min-w-0">

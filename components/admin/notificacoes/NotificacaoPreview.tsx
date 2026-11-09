@@ -14,15 +14,15 @@ export function NotificacaoPreview({ form }: { form: NotificacaoForm }) {
 
   return (
     <div>
-      <span className="mb-1 block text-sm text-white/70">Pré-visualização</span>
-      <div className="relative flex h-80 flex-col overflow-hidden rounded-lg border border-white/10 bg-[#020617]">
+      <span className="mb-1 block text-sm text-texto/70">Pré-visualização</span>
+      <div className="relative flex h-80 flex-col overflow-hidden rounded-lg border border-borda bg-fundo">
         {form.formato === "faixa" && <NotificacaoFaixa notificacao={conteudo} onFechar={nada} embutido />}
         <div className="flex flex-1 gap-2 p-3 opacity-30">
-          <div className="w-10 rounded bg-white/10" />
+          <div className="w-10 rounded bg-superficie-hover" />
           <div className="flex-1 space-y-2">
-            <div className="h-3 w-1/3 rounded bg-white/15" />
-            <div className="h-20 rounded bg-white/10" />
-            <div className="h-20 rounded bg-white/10" />
+            <div className="h-3 w-1/3 rounded bg-superficie-hover" />
+            <div className="h-20 rounded bg-superficie-hover" />
+            <div className="h-20 rounded bg-superficie-hover" />
           </div>
         </div>
         {form.formato === "aviso" && (

@@ -2,11 +2,12 @@
 
 import type { ReactNode } from "react";
 import { CalendarDays, Search, X } from "lucide-react";
+import { CHIP } from "@/components/ui/Badge";
 import { Toggle } from "@/components/ui/Toggle";
 import { FILTRO_NIVEIS, FILTRO_URGENCIAS } from "@/lib/checklistOpcoes";
 import { FILTROS_PADRAO, type FiltrosChecklist, type OrdenacaoChecklist } from "@/lib/checklistRegras";
 
-const CAMPO = "rounded-md border border-white/10 px-2.5 py-1.5 text-sm outline-none focus:border-blue-500";
+const CAMPO = "rounded-md border border-borda px-2.5 py-1.5 text-sm outline-none focus:border-blue-500";
 
 const ORDENACOES: Array<{ value: OrdenacaoChecklist; label: string }> = [
   { value: "manual", label: "Manual" },
@@ -17,9 +18,7 @@ const ORDENACOES: Array<{ value: OrdenacaoChecklist; label: string }> = [
 
 function classePilula(ativa: boolean) {
   return `inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
-    ativa
-      ? "border-blue-500 bg-blue-600/25 text-blue-100"
-      : "border-white/10 bg-white/5 text-white/65 hover:bg-white/10 hover:text-white"
+    ativa ? CHIP.info : "border-borda bg-superficie text-texto/65 hover:bg-superficie-hover hover:text-texto"
   }`;
 }
 
@@ -37,7 +36,7 @@ type GrupoPilulasProps<T> = {
 function GrupoPilulas<T>({ rotulo, opcoes, valores, onChange }: GrupoPilulasProps<T>) {
   return (
     <div role="group" aria-label={rotulo} className="flex flex-wrap items-center gap-1.5">
-      <span className="text-xs text-white/50">{rotulo}:</span>
+      <span className="text-xs text-texto-suave">{rotulo}:</span>
       {opcoes.map((o) => (
         <button
           key={String(o.value)}
@@ -75,10 +74,10 @@ export function ChecklistFiltros({ filtros, onChange, acoes, aoLadoDaBusca, sele
     filtros.ordenacao !== FILTROS_PADRAO.ordenacao;
 
   return (
-    <div className="mb-5 space-y-3 rounded-xl border border-white/10 bg-white/3 p-3">
+    <div className="mb-5 space-y-3 rounded-xl border border-borda bg-superficie p-3">
       <div className="flex flex-wrap items-center gap-2">
         <label className="relative min-w-48 flex-1 sm:max-w-xs">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-texto/40" />
           <input
             type="search"
             value={filtros.busca}
@@ -110,7 +109,7 @@ export function ChecklistFiltros({ filtros, onChange, acoes, aoLadoDaBusca, sele
         >
           <CalendarDays className="h-3.5 w-3.5" /> Só com prazo
         </button>
-        <label className="flex items-center gap-2 text-sm text-white/65">
+        <label className="flex items-center gap-2 text-sm text-texto/65">
           <Toggle
             label="Esconder concluídos"
             checked={filtros.esconderConcluidos}
@@ -122,7 +121,7 @@ export function ChecklistFiltros({ filtros, onChange, acoes, aoLadoDaBusca, sele
           <button
             type="button"
             onClick={() => onChange(FILTROS_PADRAO)}
-            className="inline-flex items-center gap-1 text-xs text-white/55 hover:text-white"
+            className="inline-flex items-center gap-1 text-xs text-texto-suave hover:text-texto"
           >
             <X className="h-3.5 w-3.5" /> Limpar filtros
           </button>

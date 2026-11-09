@@ -28,22 +28,22 @@ export function TicketsToolbar({ q, visao, lixeira, totalLixeira, alterar, onNov
   return (
     <div className="flex flex-wrap items-center gap-3">
       <label className="relative min-w-55 flex-1">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-texto/40" />
         <input
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
           placeholder="Buscar por número ou título..."
-          className="w-full rounded-md border border-white/10 py-2 pl-9 pr-3 text-sm outline-none focus:border-blue-500"
+          className="w-full rounded-md border border-borda py-2 pl-9 pr-3 text-sm outline-none focus:border-blue-500"
         />
       </label>
 
-      <div className="flex rounded-lg border border-white/10 bg-white/3 p-1">
+      <div className="flex rounded-lg border border-borda bg-superficie p-1">
         {!lixeira &&
           (["lista", "kanban"] as const).map((v) => (
             <button
               key={v}
               onClick={() => alterar({ visao: v === "kanban" ? "kanban" : null })}
-              className={`${BOTAO_SEG} ${visao === v ? "bg-blue-600 text-white" : "text-white/60 hover:text-white"}`}
+              className={`${BOTAO_SEG} ${visao === v ? "bg-blue-600 text-white" : "text-texto/60 hover:text-texto"}`}
             >
               {v === "lista" ? <List className="h-4 w-4" /> : <Columns3 className="h-4 w-4" />}
               {v === "lista" ? "Lista" : "Kanban"}
@@ -51,10 +51,10 @@ export function TicketsToolbar({ q, visao, lixeira, totalLixeira, alterar, onNov
           ))}
         <button
           onClick={() => alterar({ lixeira: !lixeira })}
-          className={`${BOTAO_SEG} ${lixeira ? "bg-rose-600/80 text-white" : "text-white/60 hover:text-white"}`}
+          className={`${BOTAO_SEG} ${lixeira ? "bg-rose-600/80 text-white" : "text-texto/60 hover:text-texto"}`}
         >
           <Trash2 className="h-4 w-4" /> Lixeira
-          {totalLixeira > 0 && <span className="rounded-full bg-white/15 px-1.5 text-xs">{totalLixeira}</span>}
+          {totalLixeira > 0 && <span className="rounded-full bg-superficie-hover px-1.5 text-xs">{totalLixeira}</span>}
         </button>
       </div>
 

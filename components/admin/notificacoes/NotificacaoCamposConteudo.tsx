@@ -4,7 +4,7 @@ import { FORMATOS_NOTIFICACAO, NIVEIS_NOTIFICACAO } from "@/lib/notificacoes";
 import type { ErrosForm, NotificacaoForm } from "./notificacaoForm";
 
 export const CAMPO = "w-full rounded-md border px-3 py-2 text-sm outline-none focus:border-blue-500";
-export const borda = (erro?: string) => (erro ? "border-rose-500" : "border-white/10");
+export const borda = (erro?: string) => (erro ? "border-rose-500" : "border-borda");
 
 export function Erro({ texto }: { texto?: string }) {
   return texto ? <span className="mt-1 block text-xs text-rose-400">{texto}</span> : null;
@@ -20,7 +20,7 @@ export function NotificacaoCamposConteudo({ form, set, erros }: Props) {
   return (
     <>
       <label className="block">
-        <span className="mb-1 block text-sm text-white/70">
+        <span className="mb-1 block text-sm text-texto/70">
           Título <span className="text-rose-400">*</span>
         </span>
         <input
@@ -34,7 +34,7 @@ export function NotificacaoCamposConteudo({ form, set, erros }: Props) {
       </label>
 
       <label className="block">
-        <span className="mb-1 block text-sm text-white/70">
+        <span className="mb-1 block text-sm text-texto/70">
           Mensagem <span className="text-rose-400">*</span>
         </span>
         <textarea
@@ -48,7 +48,7 @@ export function NotificacaoCamposConteudo({ form, set, erros }: Props) {
       </label>
 
       <div>
-        <span className="mb-1 block text-sm text-white/70">Nível</span>
+        <span className="mb-1 block text-sm text-texto/70">Nível</span>
         <div className="flex flex-wrap gap-2">
           {NIVEIS_NOTIFICACAO.map((n) => (
             <button
@@ -57,8 +57,8 @@ export function NotificacaoCamposConteudo({ form, set, erros }: Props) {
               onClick={() => set({ nivel: n.value })}
               className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${
                 form.nivel === n.value
-                  ? "border-blue-500 bg-blue-600/20 text-white"
-                  : "border-white/10 text-white/65 hover:bg-white/5"
+                  ? "border-blue-500 bg-blue-600/20 text-texto"
+                  : "border-borda text-texto/65 hover:bg-superficie"
               }`}
             >
               {n.label}
@@ -68,7 +68,7 @@ export function NotificacaoCamposConteudo({ form, set, erros }: Props) {
       </div>
 
       <div>
-        <span className="mb-1 block text-sm text-white/70">Formato</span>
+        <span className="mb-1 block text-sm text-texto/70">Formato</span>
         <div className="grid gap-2 sm:grid-cols-3">
           {FORMATOS_NOTIFICACAO.map((f) => (
             <button
@@ -76,11 +76,11 @@ export function NotificacaoCamposConteudo({ form, set, erros }: Props) {
               type="button"
               onClick={() => set({ formato: f.value })}
               className={`rounded-lg border p-2.5 text-left transition-colors ${
-                form.formato === f.value ? "border-blue-500 bg-blue-600/15" : "border-white/10 hover:bg-white/5"
+                form.formato === f.value ? "border-blue-500 bg-blue-600/15" : "border-borda hover:bg-superficie"
               }`}
             >
               <span className="block text-sm font-medium">{f.label}</span>
-              <span className="block text-xs text-white/50">{f.descricao}</span>
+              <span className="block text-xs text-texto/50">{f.descricao}</span>
             </button>
           ))}
         </div>

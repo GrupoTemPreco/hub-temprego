@@ -49,7 +49,7 @@ export function UsuarioPermissoesTab({ usuario, onAtualizado }: Props) {
     }
   }
 
-  if (!marcadas) return <p className="text-sm text-white/60">Carregando permissões...</p>;
+  if (!marcadas) return <p className="text-sm text-texto/60">Carregando permissões...</p>;
 
   const alterado = JSON.stringify(marcadas) !== JSON.stringify(original);
 
@@ -58,17 +58,17 @@ export function UsuarioPermissoesTab({ usuario, onAtualizado }: Props) {
       {GRUPOS.map((grupo) => {
         const Icon = ICONES[grupo.modulo] ?? KeyRound;
         return (
-          <div key={grupo.modulo} className="rounded-lg border border-white/10">
-            <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2">
+          <div key={grupo.modulo} className="rounded-lg border border-borda">
+            <div className="flex items-center gap-2 border-b border-borda px-3 py-2">
               <span className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-500/15 text-blue-300">
                 <Icon className="h-4 w-4" />
               </span>
               <span className="text-sm font-semibold">{grupo.titulo}</span>
             </div>
-            <ul className="divide-y divide-white/5">
+            <ul className="divide-y divide-borda">
               {grupo.itens.map((p) => (
                 <li key={p.key} className="flex items-center justify-between gap-3 px-3 py-2.5">
-                  <span className="text-sm text-white/80">{p.itemLabel}</span>
+                  <span className="text-sm text-texto/80">{p.itemLabel}</span>
                   <Toggle
                     label={p.label}
                     checked={marcadas[p.key]}

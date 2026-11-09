@@ -84,8 +84,8 @@ export function NotificacoesPainel() {
   }
 
   return (
-    <section className="rounded-xl border border-white/10 bg-white/3">
-      <div className="flex flex-wrap items-center gap-3 border-b border-white/10 p-4">
+    <section className="rounded-xl border border-borda bg-superficie">
+      <div className="flex flex-wrap items-center gap-3 border-b border-borda p-4">
         <Tabs
           value={situacao}
           onChange={setSituacao}
@@ -96,12 +96,12 @@ export function NotificacoesPainel() {
           }))}
         />
         <label className="relative min-w-50 flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-texto/40" />
           <input
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             placeholder="Buscar por título..."
-            className="w-full rounded-md border border-white/10 py-2 pl-9 pr-3 text-sm outline-none focus:border-blue-500"
+            className="w-full rounded-md border border-borda py-2 pl-9 pr-3 text-sm outline-none focus:border-blue-500"
           />
         </label>
         <Button onClick={() => setModal({ tipo: "nova" })} disabled={!dados}>
@@ -110,7 +110,7 @@ export function NotificacoesPainel() {
       </div>
 
       {!dados ? (
-        <p className="p-4 text-sm text-white/60">Carregando notificações...</p>
+        <p className="p-4 text-sm text-texto/60">Carregando notificações...</p>
       ) : visiveis.length === 0 ? (
         <EmptyState
           icon={Bell}

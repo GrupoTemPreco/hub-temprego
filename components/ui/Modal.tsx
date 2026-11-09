@@ -29,7 +29,7 @@ const LARGURAS: Record<Exclude<Tamanho, "painel">, string> = {
 };
 
 const CLASSE_PAINEL =
-  "flex h-dvh max-h-dvh w-full max-w-none flex-col overflow-hidden rounded-none border-0 bg-[#0b1224] shadow-2xl md:h-[90vh] md:max-h-[90vh] md:w-[92vw] md:max-w-[1400px] md:rounded-xl md:border md:border-white/10";
+  "flex h-dvh max-h-dvh w-full max-w-none flex-col overflow-hidden rounded-none border-0 bg-superficie-forte shadow-2xl md:h-[90vh] md:max-h-[90vh] md:w-[92vw] md:max-w-[1400px] md:rounded-xl md:border md:border-borda";
 
 function useTravarFundo(ativo: boolean, origem: RefObject<HTMLElement | null>) {
   useEffect(() => {
@@ -59,7 +59,7 @@ function BotaoFechar({ onClose }: { onClose: () => void }) {
       type="button"
       onClick={onClose}
       aria-label="Fechar"
-      className="shrink-0 rounded-md p-1 text-white/50 hover:bg-white/10 hover:text-white"
+      className="shrink-0 rounded-md p-1 text-texto/50 hover:bg-superficie-hover hover:text-texto"
     >
       <X className="h-4 w-4" />
     </button>
@@ -102,18 +102,18 @@ export function Modal({
         className={
           painel
             ? CLASSE_PAINEL
-            : `w-full ${LARGURAS[size]} rounded-xl border border-white/10 bg-[#0b1224] shadow-2xl`
+            : `w-full ${LARGURAS[size]} rounded-xl border border-borda bg-superficie-forte shadow-2xl`
         }
       >
         {painel ? (
-          <div className="flex shrink-0 items-start justify-between gap-3 border-b border-white/10 px-5 py-3">
-            <div className="min-w-0 flex-1">{cabecalho ?? (title && <h2 className="text-base font-semibold text-white">{title}</h2>)}</div>
+          <div className="flex shrink-0 items-start justify-between gap-3 border-b border-borda px-5 py-3">
+            <div className="min-w-0 flex-1">{cabecalho ?? (title && <h2 className="text-base font-semibold text-texto">{title}</h2>)}</div>
             <BotaoFechar onClose={onClose} />
           </div>
         ) : (
           title && (
-            <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-              <h2 className="text-base font-semibold text-white">{title}</h2>
+            <div className="flex items-center justify-between border-b border-borda px-5 py-4">
+              <h2 className="text-base font-semibold text-texto">{title}</h2>
               <BotaoFechar onClose={onClose} />
             </div>
           )
@@ -128,7 +128,7 @@ export function Modal({
           {children}
         </div>
         {footer && (
-          <div className="flex shrink-0 justify-end gap-2 border-t border-white/10 px-5 py-3">{footer}</div>
+          <div className="flex shrink-0 justify-end gap-2 border-t border-borda px-5 py-3">{footer}</div>
         )}
       </div>
     </div>

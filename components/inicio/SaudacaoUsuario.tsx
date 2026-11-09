@@ -15,11 +15,11 @@ export function SaudacaoUsuario({ nome, subtitulo = "O que você quer acessar ho
 
   return (
     <header>
-      <h1 className="text-2xl font-semibold text-white">
+      <h1 className="text-2xl font-semibold text-texto">
         {saudacao}
         {primeiroNome ? `, ${primeiroNome}` : ""}!
       </h1>
-      <p className="mt-1 text-sm text-white/55">{subtitulo}</p>
+      <p className="mt-1 text-sm text-texto-suave">{subtitulo}</p>
     </header>
   );
 }

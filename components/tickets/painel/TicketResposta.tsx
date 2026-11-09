@@ -64,14 +64,14 @@ export function TicketResposta({ permitirNotaInterna = true, onEnviar }: Props) 
         }}
         placeholder={interno ? "Nota visível só para admins..." : "Escreva uma resposta..."}
         className={`mt-2 w-full resize-none rounded-md border px-3 py-2 text-sm outline-none ${
-          interno ? "border-amber-400/40 focus:border-amber-400" : "border-white/10 focus:border-blue-500"
+          interno ? "border-amber-400/40 focus:border-amber-400" : "border-borda focus:border-blue-500"
         }`}
       />
       <div className="mt-1">
         <AnexosInput anexos={anexos} desabilitado={enviando} variante="compacta" />
       </div>
       <div className="mt-2 flex items-center justify-between">
-        <span className="text-xs text-white/35">Ctrl + Enter para enviar</span>
+        <span className="text-xs text-texto-fraco">Ctrl + Enter para enviar</span>
         <Button onClick={enviar} disabled={!podeEnviar} variant={interno ? "warning" : "primary"}>
           <Send className="h-4 w-4" /> {enviando ? "Enviando..." : interno ? "Adicionar nota" : "Enviar resposta"}
         </Button>

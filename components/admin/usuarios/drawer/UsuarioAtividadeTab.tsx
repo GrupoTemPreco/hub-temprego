@@ -10,21 +10,21 @@ import { TicketStatusBadge } from "@/components/tickets/TicketBadges";
 function ListaTickets({ titulo, tickets }: { titulo: string; tickets: TicketResumo[] }) {
   return (
     <div>
-      <h3 className="mb-2 text-sm font-semibold text-white/80">
-        {titulo} <span className="font-normal text-white/45">({tickets.length})</span>
+      <h3 className="mb-2 text-sm font-semibold text-texto/80">
+        {titulo} <span className="font-normal text-texto/45">({tickets.length})</span>
       </h3>
       {tickets.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-white/10 px-3 py-4 text-center text-sm text-white/45">
+        <p className="rounded-lg border border-dashed border-borda px-3 py-4 text-center text-sm text-texto/45">
           Nenhum ticket.
         </p>
       ) : (
-        <ul className="divide-y divide-white/5 rounded-lg border border-white/10">
+        <ul className="divide-y divide-borda rounded-lg border border-borda">
           {tickets.map((t) => (
             <li key={t.id} className="flex items-center gap-3 px-3 py-2 text-sm">
-              <span className="w-14 shrink-0 font-mono text-white/50">#{t.numero}</span>
+              <span className="w-14 shrink-0 font-mono text-texto/50">#{t.numero}</span>
               <span className="min-w-0 flex-1 truncate">{t.titulo}</span>
               <TicketStatusBadge status={t.status} />
-              <span className="w-20 shrink-0 text-right text-xs text-white/45">{formatarData(t.criado_em)}</span>
+              <span className="w-20 shrink-0 text-right text-xs text-texto/45">{formatarData(t.criado_em)}</span>
             </li>
           ))}
         </ul>
@@ -50,7 +50,7 @@ export function UsuarioAtividadeTab({ usuarioId }: { usuarioId: string }) {
     };
   }, [usuarioId, toast]);
 
-  if (!dados) return <p className="text-sm text-white/60">Carregando atividade...</p>;
+  if (!dados) return <p className="text-sm text-texto/60">Carregando atividade...</p>;
 
   if (dados.abertos.length === 0 && dados.destinados.length === 0) {
     return <EmptyState compact title="Sem atividade" description="Este usuário ainda não abriu nem recebeu tickets." />;

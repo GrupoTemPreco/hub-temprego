@@ -15,13 +15,13 @@ type Props = {
   onExcluir: (setor: SetorLista) => void;
 };
 
-const ACAO = "rounded-md p-1.5 text-white/55 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-40";
+const ACAO = "rounded-md p-1.5 text-texto-suave transition-colors hover:bg-superficie-hover hover:text-texto disabled:opacity-40";
 
 export function SetoresTabela({ setores, usuarios, emAndamentoId, onToggleAtivo, onEditar, onExcluir }: Props) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm">
-        <thead className="border-b border-white/10 text-xs uppercase tracking-wide text-white/45">
+        <thead className="border-b border-borda text-xs uppercase tracking-wide text-texto/45">
           <tr>
             <th className="px-4 py-3 font-medium">Nome do setor</th>
             <th className="px-4 py-3 font-medium">Responsável</th>
@@ -36,10 +36,10 @@ export function SetoresTabela({ setores, usuarios, emAndamentoId, onToggleAtivo,
             const responsavel = s.responsavel_id ? usuarios.get(s.responsavel_id) : undefined;
             const ocupado = emAndamentoId === s.id;
             return (
-              <tr key={s.id} className={`border-b border-white/5 hover:bg-white/4 ${s.ativo ? "" : "opacity-60"}`}>
+              <tr key={s.id} className={`border-b border-borda hover:bg-superficie ${s.ativo ? "" : "opacity-60"}`}>
                 <td className="px-4 py-3">
                   <p className="font-medium">{s.nome}</p>
-                  {s.descricao && <p className="max-w-xs truncate text-xs text-white/50">{s.descricao}</p>}
+                  {s.descricao && <p className="max-w-xs truncate text-xs text-texto/50">{s.descricao}</p>}
                 </td>
                 <td className="px-4 py-3">
                   {s.responsavel_id ? (

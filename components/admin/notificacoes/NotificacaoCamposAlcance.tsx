@@ -21,7 +21,7 @@ function Opcao({ ativo, onClick, children }: { ativo: boolean; onClick: () => vo
       type="button"
       onClick={onClick}
       className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${
-        ativo ? "border-blue-500 bg-blue-600/20 text-white" : "border-white/10 text-white/65 hover:bg-white/5"
+        ativo ? "border-blue-500 bg-blue-600/20 text-texto" : "border-borda text-texto/65 hover:bg-superficie"
       }`}
     >
       {children}
@@ -41,7 +41,7 @@ export function NotificacaoCamposAlcance({ form, set, erros, dados }: Props) {
   return (
     <>
       <div>
-        <span className="mb-1 block text-sm text-white/70">Destinatários</span>
+        <span className="mb-1 block text-sm text-texto/70">Destinatários</span>
         <div className="flex flex-wrap gap-2">
           {PUBLICOS_NOTIFICACAO.map((p) => (
             <Opcao key={p.value} ativo={form.publico === p.value} onClick={() => set({ publico: p.value })}>
@@ -60,13 +60,13 @@ export function NotificacaoCamposAlcance({ form, set, erros, dados }: Props) {
           </div>
         )}
         <Erro texto={erros.publico} />
-        <p className="mt-1.5 flex items-center gap-1.5 text-xs text-white/55">
+        <p className="mt-1.5 flex items-center gap-1.5 text-xs text-texto-suave">
           <Users className="h-3.5 w-3.5" /> Será exibida para {alcance} {alcance === 1 ? "pessoa" : "pessoas"}
         </p>
       </div>
 
       <div>
-        <span className="mb-1 block text-sm text-white/70">Onde aparece</span>
+        <span className="mb-1 block text-sm text-texto/70">Onde aparece</span>
         <div className="flex flex-wrap gap-2">
           <Opcao ativo={form.todasTelas} onClick={() => set({ todasTelas: true })}>Todas as telas</Opcao>
           <Opcao ativo={!form.todasTelas} onClick={() => set({ todasTelas: false })}>Telas específicas</Opcao>
@@ -81,12 +81,12 @@ export function NotificacaoCamposAlcance({ form, set, erros, dados }: Props) {
 
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block">
-          <span className="mb-1 block text-sm text-white/70">Início</span>
+          <span className="mb-1 block text-sm text-texto/70">Início</span>
           <input type="datetime-local" value={form.inicio} onChange={(e) => set({ inicio: e.target.value })} className={`${CAMPO} ${borda(erros.inicio)}`} />
           <Erro texto={erros.inicio} />
         </label>
         <div>
-          <span className="mb-1 block text-sm text-white/70">Fim</span>
+          <span className="mb-1 block text-sm text-texto/70">Fim</span>
           <input
             type="datetime-local"
             disabled={form.semFim}
@@ -94,16 +94,16 @@ export function NotificacaoCamposAlcance({ form, set, erros, dados }: Props) {
             onChange={(e) => set({ fim: e.target.value })}
             className={`${CAMPO} ${borda(erros.fim)} disabled:opacity-40`}
           />
-          <label className="mt-1.5 flex items-center gap-2 text-xs text-white/60">
+          <label className="mt-1.5 flex items-center gap-2 text-xs text-texto/60">
             <input type="checkbox" checked={form.semFim} onChange={(e) => set({ semFim: e.target.checked })} />
             Sem data de fim
           </label>
           <Erro texto={erros.fim} />
         </div>
       </div>
-      <p className="-mt-2 text-xs text-white/40">Horário de Brasília (America/Sao_Paulo).</p>
+      <p className="-mt-2 text-xs text-texto/40">Horário de Brasília (America/Sao_Paulo).</p>
 
-      <div className="flex items-center gap-3 rounded-lg border border-white/10 p-3">
+      <div className="flex items-center gap-3 rounded-lg border border-borda p-3">
         <Toggle label="Ativa" checked={form.ativa} onChange={(v) => set({ ativa: v })} />
         <span className="text-sm">Ativa</span>
       </div>

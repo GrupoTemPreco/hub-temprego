@@ -47,7 +47,7 @@ export function CentralTickets({ aba, onAba, onAbrirTicket, abas = TODAS_AS_ABAS
         />
       );
     }
-    if (!carregado || !referencias) return <p className="text-sm text-white/55">Carregando tickets...</p>;
+    if (!carregado || !referencias) return <p className="text-sm text-texto-suave">Carregando tickets...</p>;
     if (abaAtual === "recebidos") return <RecebidosTickets onAbrir={abrir} />;
     return (
       <ListaTicketsUsuario

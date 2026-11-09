@@ -18,16 +18,16 @@ type TabsProps<T extends string> = {
 
 const ESTILOS = {
   pill: {
-    lista: "flex flex-wrap gap-1 rounded-lg border border-white/10 bg-white/3 p-1",
+    lista: "flex flex-wrap gap-1 rounded-lg border border-borda bg-superficie p-1",
     base: "rounded-md px-3 py-1.5",
     ativo: "bg-blue-600 text-white shadow",
-    inativo: "text-white/60 hover:bg-white/10 hover:text-white",
+    inativo: "text-texto/60 hover:bg-superficie-hover hover:text-texto",
   },
   underline: {
-    lista: "flex gap-1 overflow-x-auto border-b border-white/10",
+    lista: "flex gap-1 overflow-x-auto border-b border-borda",
     base: "-mb-px border-b-2 px-3 py-2",
-    ativo: "border-blue-500 text-white",
-    inativo: "border-transparent text-white/55 hover:text-white",
+    ativo: "border-blue-500 text-texto",
+    inativo: "border-transparent text-texto-suave hover:text-texto",
   },
 };
 
@@ -51,7 +51,7 @@ export function Tabs<T extends string>({ items, value, onChange, variant = "pill
             {Icon && <Icon className="h-4 w-4" />}
             {label}
             {count !== undefined && count > 0 && (
-              <span className="rounded-full bg-white/15 px-1.5 text-xs">{count}</span>
+              <span className="rounded-full bg-superficie-hover px-1.5 text-xs">{count}</span>
             )}
           </button>
         );

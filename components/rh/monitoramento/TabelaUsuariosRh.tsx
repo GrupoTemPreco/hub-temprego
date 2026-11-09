@@ -54,7 +54,7 @@ function normalizar(texto: string) {
   return texto.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
 }
 
-const CAMPO = "rounded-md border border-white/10 px-3 py-2 text-sm outline-none focus:border-blue-500";
+const CAMPO = "rounded-md border border-borda px-3 py-2 text-sm outline-none focus:border-blue-500";
 
 type Props = { usuarios: ResumoUsuarioRh[]; agora: number; onAbrir: (u: ResumoUsuarioRh) => void };
 
@@ -81,11 +81,11 @@ export function TabelaUsuariosRh({ usuarios, agora, onAbrir }: Props) {
   }
 
   return (
-    <section className="rounded-xl border border-white/10 bg-white/3">
-      <div className="flex flex-wrap items-center gap-3 border-b border-white/10 p-4">
+    <section className="rounded-xl border border-borda bg-superficie">
+      <div className="flex flex-wrap items-center gap-3 border-b border-borda p-4">
         <h2 className="mr-auto font-semibold">Pessoas com acesso ao checklist</h2>
         <label className="relative min-w-56 flex-1 sm:flex-none">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-texto/40" />
           <input
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
@@ -109,7 +109,7 @@ export function TabelaUsuariosRh({ usuarios, agora, onAbrir }: Props) {
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-white/10 text-xs uppercase tracking-wide text-white/45">
+            <thead className="border-b border-borda text-xs uppercase tracking-wide text-texto/45">
               <tr>
                 {COLUNAS.map((c) => (
                   <th key={c.id} className={`px-4 py-3 font-medium ${c.numero ? "text-right" : ""}`} aria-sort={
@@ -118,7 +118,7 @@ export function TabelaUsuariosRh({ usuarios, agora, onAbrir }: Props) {
                     <button
                       type="button"
                       onClick={() => ordenarPor(c.id)}
-                      className={`inline-flex items-center gap-1 uppercase hover:text-white ${ordem.coluna === c.id ? "text-white/80" : ""}`}
+                      className={`inline-flex items-center gap-1 uppercase hover:text-texto ${ordem.coluna === c.id ? "text-texto/80" : ""}`}
                     >
                       {c.rotulo}
                       {ordem.coluna === c.id &&
@@ -133,7 +133,7 @@ export function TabelaUsuariosRh({ usuarios, agora, onAbrir }: Props) {
                 <tr
                   key={u.usuario_id}
                   onClick={() => onAbrir(u)}
-                  className="cursor-pointer border-b border-white/5 transition-colors hover:bg-white/4"
+                  className="cursor-pointer border-b border-borda transition-colors hover:bg-superficie"
                 >
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
@@ -147,18 +147,18 @@ export function TabelaUsuariosRh({ usuarios, agora, onAbrir }: Props) {
                   <td className="whitespace-nowrap px-4 py-3">
                     <AcessoRelativo iso={u.ultimo_acesso_checklist_em} agora={agora} alertar />
                   </td>
-                  <td className="px-4 py-3 text-right text-white/80">{u.pendentes}</td>
+                  <td className="px-4 py-3 text-right text-texto/80">{u.pendentes}</td>
                   <td className="px-4 py-3 text-right">
                     <NumeroAlerta valor={u.criticos} />
                   </td>
                   <td className="px-4 py-3 text-right">
                     <NumeroAlerta valor={u.vencidos} />
                   </td>
-                  <td className="px-4 py-3 text-right text-white/80">{u.concluidas}</td>
+                  <td className="px-4 py-3 text-right text-texto/80">{u.concluidas}</td>
                   <td className="px-4 py-3 text-right">
                     <PercentualPrazo usuario={u} />
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-right text-white/70">{formatarHoras(u.tempo_medio_horas)}</td>
+                  <td className="whitespace-nowrap px-4 py-3 text-right text-texto/70">{formatarHoras(u.tempo_medio_horas)}</td>
                 </tr>
               ))}
             </tbody>

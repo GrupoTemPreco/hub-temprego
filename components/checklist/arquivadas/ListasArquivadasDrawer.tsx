@@ -31,12 +31,12 @@ function LinhaArquivada({ lista, arquivadas, ocupado, onExcluir, onRestaurar }: 
   const compartilhada = Boolean(arquivadas.carga?.membros.some((m) => m.grupo_id === lista.id));
 
   return (
-    <li className="overflow-hidden rounded-xl border border-white/10 bg-white/3">
+    <li className="overflow-hidden rounded-xl border border-borda bg-superficie">
       <div className={`h-1.5 ${classeCorGrupo(lista.cor)}`} />
       <button type="button" onClick={() => setAberta((v) => !v)} aria-expanded={aberta} className="w-full px-3 py-2.5 text-left">
         <span className="flex items-center gap-2">
-          <ChevronRight className={`h-4 w-4 shrink-0 text-white/45 transition-transform ${aberta ? "rotate-90" : ""}`} />
-          <span className="min-w-0 flex-1 truncate font-semibold text-white">{lista.nome}</span>
+          <ChevronRight className={`h-4 w-4 shrink-0 text-texto/45 transition-transform ${aberta ? "rotate-90" : ""}`} />
+          <span className="min-w-0 flex-1 truncate font-semibold text-texto">{lista.nome}</span>
           {lista.diaria && <DiariaChip dias={lista.dias_semana} />}
           {compartilhada && (
             <Badge className="shrink-0 px-1.5 py-0 text-[11px]">
@@ -44,7 +44,7 @@ function LinhaArquivada({ lista, arquivadas, ocupado, onExcluir, onRestaurar }: 
             </Badge>
           )}
         </span>
-        <span className="mt-0.5 block pl-6 text-xs text-white/55">
+        <span className="mt-0.5 block pl-6 text-xs text-texto-suave">
           arquivada em {formatarData(lista.arquivado_em)} · {plural(pendentes, "pendente", "pendentes")} ·{" "}
           {plural(itens.length - pendentes, "concluído", "concluídos")}
         </span>
@@ -56,7 +56,7 @@ function LinhaArquivada({ lista, arquivadas, ocupado, onExcluir, onRestaurar }: 
         </div>
       )}
 
-      <div className="flex flex-wrap justify-end gap-2 border-t border-white/5 px-3 py-2">
+      <div className="flex flex-wrap justify-end gap-2 border-t border-borda px-3 py-2">
         <Button size="sm" variant="ghost" className="text-rose-300 hover:text-rose-200" disabled={ocupado} onClick={() => onExcluir(lista)}>
           <Trash2 className="h-3.5 w-3.5" /> Excluir definitivamente
         </Button>
@@ -88,7 +88,7 @@ export function ListasArquivadasDrawer({ arquivadas, onClose }: Props) {
   return (
     <Drawer open onClose={onClose} title="Listas arquivadas" width="max-w-xl">
       {!arquivadas.carga ? (
-        <p className="p-5 text-sm text-white/55">Carregando...</p>
+        <p className="p-5 text-sm text-texto-suave">Carregando...</p>
       ) : listas.length === 0 ? (
         <EmptyState icon={Archive} title="Nenhuma lista arquivada" />
       ) : (

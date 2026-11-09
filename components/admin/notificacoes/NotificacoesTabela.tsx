@@ -25,13 +25,13 @@ type Props = {
   onAcao: (acao: AcaoNotificacao, n: Notificacao) => void;
 };
 
-const BOTAO = "rounded-md p-1.5 text-white/55 transition-colors hover:bg-white/10 hover:text-white";
+const BOTAO = "rounded-md p-1.5 text-texto-suave transition-colors hover:bg-superficie-hover hover:text-texto";
 
 export function NotificacoesTabela({ notificacoes, dados, onAcao }: Props) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm">
-        <thead className="border-b border-white/10 text-xs uppercase tracking-wide text-white/45">
+        <thead className="border-b border-borda text-xs uppercase tracking-wide text-texto/45">
           <tr>
             <th className="px-3 py-3 font-medium">Título</th>
             <th className="px-3 py-3 font-medium">Nível</th>
@@ -48,24 +48,24 @@ export function NotificacoesTabela({ notificacoes, dados, onAcao }: Props) {
             const est = estatisticaLeitura(n, dados);
             const situacao = situacaoNotificacao(n);
             return (
-              <tr key={n.id} className="border-b border-white/5 hover:bg-white/3">
+              <tr key={n.id} className="border-b border-borda hover:bg-superficie">
                 <td className="max-w-65 px-3 py-3">
                   <button onClick={() => onAcao("leitores", n)} className="block max-w-full text-left">
                     <span className="block truncate font-medium hover:underline">{n.titulo}</span>
-                    <span className="block truncate text-xs text-white/50">{n.mensagem}</span>
+                    <span className="block truncate text-xs text-texto/50">{n.mensagem}</span>
                   </button>
                 </td>
                 <td className="px-3 py-3">
                   <Badge variant={corNivel(n.nivel)}>{rotuloNivel(n.nivel)}</Badge>
                 </td>
-                <td className="whitespace-nowrap px-3 py-3 text-white/70">{rotuloPublico(n)}</td>
-                <td className="max-w-40 truncate px-3 py-3 text-white/70" title={rotuloTelas(n.modulos)}>
+                <td className="whitespace-nowrap px-3 py-3 text-texto/70">{rotuloPublico(n)}</td>
+                <td className="max-w-40 truncate px-3 py-3 text-texto/70" title={rotuloTelas(n.modulos)}>
                   {rotuloTelas(n.modulos)}
                 </td>
-                <td className="px-3 py-3 text-white/70">{rotuloFormato(n.formato)}</td>
-                <td className="whitespace-nowrap px-3 py-3 text-xs text-white/60">
+                <td className="px-3 py-3 text-texto/70">{rotuloFormato(n.formato)}</td>
+                <td className="whitespace-nowrap px-3 py-3 text-xs text-texto/60">
                   <span className="block">{formatarDataHoraSP(n.inicio_em)}</span>
-                  <span className="block text-white/40">até {n.fim_em ? formatarDataHoraSP(n.fim_em) : "sem fim"}</span>
+                  <span className="block text-texto/40">até {n.fim_em ? formatarDataHoraSP(n.fim_em) : "sem fim"}</span>
                 </td>
                 <td className="px-3 py-3">
                   <BarraLeitura

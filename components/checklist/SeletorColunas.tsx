@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { COLUNAS_MAX, COLUNAS_MIN } from "@/lib/checklistColunas";
 
-const CAMPO = "rounded-md border border-white/10 px-2.5 py-1.5 text-sm outline-none focus:border-blue-500";
+const CAMPO = "rounded-md border border-borda px-2.5 py-1.5 text-sm outline-none focus:border-blue-500";
 const PREDEFINIDAS = [3, 4, 5] as const;
 
 function ehPredefinida(n: number): n is (typeof PREDEFINIDAS)[number] {

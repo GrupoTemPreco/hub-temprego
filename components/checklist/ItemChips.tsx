@@ -70,5 +70,5 @@ export function AtrasadaChip({ ocorrencia }: { ocorrencia: string }) {
 }
 
 export function ProximaTexto({ data }: { data: string }) {
-  return <span className="text-[11px] text-white/45">{textoProxima(data)}</span>;
+  return <span className="text-[11px] text-texto/45">{textoProxima(data)}</span>;
 }

@@ -103,7 +103,7 @@ export function NovaSolicitacaoModal({ grupos, acoes, garantirGrupo, onClose }: 
               onChange={setGrupoId}
             />
           ) : (
-            <p className="text-xs text-white/50">A tarefa será guardada em uma nova lista &quot;{NOME_GRUPO_INICIAL}&quot;.</p>
+            <p className="text-xs text-texto/50">A tarefa será guardada em uma nova lista &quot;{NOME_GRUPO_INICIAL}&quot;.</p>
           )}
         </div>
         <div className="space-y-4">

@@ -33,7 +33,7 @@ export function UsuariosTabela({ usuarios, setores, selecao, emAndamentoId, onAb
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm">
-        <thead className="border-b border-white/10 text-xs uppercase tracking-wide text-white/45">
+        <thead className="border-b border-borda text-xs uppercase tracking-wide text-texto/45">
           <tr>
             <th className="w-10 py-3 pl-4">
               <CheckboxSelecao
@@ -59,8 +59,8 @@ export function UsuariosTabela({ usuarios, setores, selecao, emAndamentoId, onAb
               <tr
                 key={u.id}
                 onClick={() => onAbrir(u)}
-                className={`cursor-pointer border-b border-white/5 transition-colors ${
-                  pendente ? "bg-amber-500/7 hover:bg-amber-500/12" : "hover:bg-white/4"
+                className={`cursor-pointer border-b border-borda transition-colors ${
+                  pendente ? "bg-amber-500/7 hover:bg-amber-500/12" : "hover:bg-superficie"
                 }`}
               >
                 <td className="py-3 pl-4" onClick={(e) => e.stopPropagation()}>
@@ -76,12 +76,12 @@ export function UsuariosTabela({ usuarios, setores, selecao, emAndamentoId, onAb
                     <span className="font-medium">{u.nome || "Sem nome"}</span>
                   </div>
                 </td>
-                <td className="px-4 py-3 text-white/65">{u.email}</td>
+                <td className="px-4 py-3 text-texto/65">{u.email}</td>
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap gap-1">
-                    {u.setores_ids.length === 0 && <span className="text-white/35">—</span>}
+                    {u.setores_ids.length === 0 && <span className="text-texto-fraco">—</span>}
                     {u.setores_ids.map((id) => (
-                      <span key={id} className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-white/75">
+                      <span key={id} className="rounded-full bg-superficie-hover px-2 py-0.5 text-xs text-texto/75">
                         {nomeSetor.get(id) ?? "Setor removido"}
                       </span>
                     ))}
@@ -96,7 +96,7 @@ export function UsuariosTabela({ usuarios, setores, selecao, emAndamentoId, onAb
                       <ShieldCheck className="h-4 w-4" /> Admin
                     </span>
                   ) : (
-                    <span className="text-white/30">—</span>
+                    <span className="text-texto/30">—</span>
                   )}
                 </td>
                 <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>

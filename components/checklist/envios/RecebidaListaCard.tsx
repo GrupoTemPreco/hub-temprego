@@ -48,11 +48,11 @@ export function RecebidaListaCard({ envio, remetente, seloDestino, complementoTo
   return (
     <article id={`lista-recebida-${envio.id}`} className="flex flex-col gap-2 rounded-xl border border-blue-400/25 bg-blue-500/5 p-3">
       <div className="flex items-start justify-between gap-2">
-        <h3 className="flex min-w-0 items-center gap-1.5 font-semibold text-white">
+        <h3 className="flex min-w-0 items-center gap-1.5 font-semibold text-texto">
           <ListChecks className="h-4 w-4 shrink-0 text-blue-300" />
-          <span className="shrink-0 text-white/60">Lista ·</span>
+          <span className="shrink-0 text-texto/60">Lista ·</span>
           <TextoCortado className="min-w-0 truncate">{envio.nome}</TextoCortado>
-          <span className="shrink-0 text-white/60">· {textoTarefas(envio.qtd_tarefas)}</span>
+          <span className="shrink-0 text-texto/60">· {textoTarefas(envio.qtd_tarefas)}</span>
           {complementoTodos && <span className="min-w-0 truncate text-xs font-normal text-blue-200/80">· {complementoTodos}</span>}
         </h3>
         <div className="flex shrink-0 flex-wrap justify-end gap-1">
@@ -69,37 +69,37 @@ export function RecebidaListaCard({ envio, remetente, seloDestino, complementoTo
         </div>
       </div>
 
-      <p className="flex items-center gap-2 text-xs text-white/60">
+      <p className="flex items-center gap-2 text-xs text-texto/60">
         <Avatar nome={remetente} />
         <span>
-          De <span className="font-medium text-white/85">{remetente}</span> · enviado{" "}
+          De <span className="font-medium text-texto/85">{remetente}</span> · enviado{" "}
           {tempoRelativo(ultimoEnvioEm(envio), new Date(agora))}
         </span>
       </p>
 
-      {envio.mensagem && <p className="text-sm text-white/75">&ldquo;{envio.mensagem}&rdquo;</p>}
+      {envio.mensagem && <p className="text-sm text-texto/75">&ldquo;{envio.mensagem}&rdquo;</p>}
 
       {envio.qtd_tarefas > 0 && (
         <button
           type="button"
           onClick={alternar}
           aria-expanded={aberto}
-          className="flex items-center gap-1 self-start rounded px-1 text-xs text-blue-200/85 hover:bg-white/5"
+          className="flex items-center gap-1 self-start rounded px-1 text-xs text-blue-200/85 hover:bg-superficie"
         >
           <ChevronDown className={`h-3.5 w-3.5 transition-transform ${aberto ? "rotate-180" : ""}`} />
           {aberto ? "Esconder tarefas" : "Ver tarefas"}
         </button>
       )}
-      {tarefas.estado === "carregando" && <p className="text-xs text-white/45">Carregando tarefas...</p>}
+      {tarefas.estado === "carregando" && <p className="text-xs text-texto/45">Carregando tarefas...</p>}
       {tarefas.estado === "erro" && <p className="text-xs text-rose-300/80">Não foi possível carregar as tarefas.</p>}
       {tarefas.estado === "pronto" && (
-        <ul className="max-h-48 space-y-0.5 overflow-y-auto rounded-lg border border-white/10 bg-white/3 px-2 py-1.5 text-sm text-white/75">
+        <ul className="max-h-48 space-y-0.5 overflow-y-auto rounded-lg border border-borda bg-superficie px-2 py-1.5 text-sm text-texto/75">
           {tarefas.titulos.map((titulo, i) => (
             <li key={i} className="min-w-0">
               <TextoCortado className="block truncate">{titulo}</TextoCortado>
             </li>
           ))}
-          {tarefas.titulos.length === 0 && <li className="text-xs text-white/45">A lista está vazia agora.</li>}
+          {tarefas.titulos.length === 0 && <li className="text-xs text-texto/45">A lista está vazia agora.</li>}
         </ul>
       )}
 

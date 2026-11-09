@@ -13,7 +13,7 @@ import { LimpezaCard } from "./LimpezaCard";
 export function LimpezaSecao({ onConcluido }: { onConcluido: () => void }) {
   return (
     <section>
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-white/50">Limpeza</h2>
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-texto/50">Limpeza</h2>
 
       <p className="mb-4 flex items-start gap-2 rounded-lg border border-sky-400/30 bg-sky-500/10 px-3 py-2.5 text-sm text-sky-100">
         <Info className="mt-0.5 h-4 w-4 shrink-0 text-sky-300" />

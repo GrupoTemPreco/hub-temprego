@@ -16,7 +16,7 @@ type Props = {
   onExcluir: () => void;
 };
 
-const SELECT = "w-full rounded-md border border-white/10 px-2.5 py-1.5 text-sm outline-none focus:border-blue-500";
+const SELECT = "w-full rounded-md border border-borda px-2.5 py-1.5 text-sm outline-none focus:border-blue-500";
 
 export function TicketMaisAcoes({ ticket, onStatus, onPrioridade, onCategoria, onExcluir }: Props) {
   const ref = useRef<HTMLDivElement>(null);
@@ -32,9 +32,9 @@ export function TicketMaisAcoes({ ticket, onStatus, onPrioridade, onCategoria, o
       </Button>
 
       {aberto && (
-        <div className="absolute bottom-full right-0 z-20 mb-2 w-64 space-y-3 rounded-lg border border-white/15 bg-[#0f172a] p-3 shadow-xl">
+        <div className="absolute bottom-full right-0 z-20 mb-2 w-64 space-y-3 rounded-lg border border-borda bg-superficie-forte p-3 shadow-xl">
           <label className="block">
-            <span className="mb-1 block text-xs text-white/55">Status</span>
+            <span className="mb-1 block text-xs text-texto-suave">Status</span>
             <select
               className={SELECT}
               value={ticket.status}
@@ -49,7 +49,7 @@ export function TicketMaisAcoes({ ticket, onStatus, onPrioridade, onCategoria, o
             </select>
           </label>
           <label className="block">
-            <span className="mb-1 block text-xs text-white/55">Prioridade</span>
+            <span className="mb-1 block text-xs text-texto-suave">Prioridade</span>
             <select
               className={SELECT}
               value={ticket.prioridade}
@@ -64,7 +64,7 @@ export function TicketMaisAcoes({ ticket, onStatus, onPrioridade, onCategoria, o
             </select>
           </label>
           <label className="block">
-            <span className="mb-1 block text-xs text-white/55">Categoria</span>
+            <span className="mb-1 block text-xs text-texto-suave">Categoria</span>
             <select
               className={SELECT}
               value={ticket.categoria}

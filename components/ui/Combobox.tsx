@@ -33,21 +33,21 @@ export function Combobox({ opcoes, value, onChange, placeholder = "Selecione..."
 
   return (
     <div ref={ref} className="relative">
-      <div className="flex items-center rounded-md border border-white/10 bg-(--input-bg) focus-within:border-blue-500">
+      <div className="flex items-center rounded-md border border-borda bg-input-bg focus-within:border-blue-500">
         <button
           type="button"
           onClick={() => (aberto ? fechar() : setAberto(true))}
           className="flex flex-1 items-center justify-between gap-2 px-3 py-2 text-left text-sm"
         >
-          <span className={rotulo ? "text-white" : "text-white/45"}>{rotulo ?? placeholder}</span>
-          <ChevronDown className="h-4 w-4 text-white/40" />
+          <span className={rotulo ? "text-texto" : "text-texto/45"}>{rotulo ?? placeholder}</span>
+          <ChevronDown className="h-4 w-4 text-texto/40" />
         </button>
         {value && (
           <button
             type="button"
             onClick={() => onChange(null)}
             aria-label="Limpar seleção"
-            className="mr-1 rounded p-1 text-white/45 hover:bg-white/10 hover:text-white"
+            className="mr-1 rounded p-1 text-texto/45 hover:bg-superficie-hover hover:text-texto"
           >
             <X className="h-3.5 w-3.5" />
           </button>

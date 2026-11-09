@@ -8,7 +8,7 @@ import { useClickOutside } from "@/hooks/useClickOutside";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 const BOTAO =
-  "inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-white/15 bg-white/5 px-2.5 py-1.5 text-xs font-medium text-white/85 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-45";
+  "inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-borda bg-superficie px-2.5 py-1.5 text-xs font-medium text-texto/85 hover:bg-superficie-hover disabled:cursor-not-allowed disabled:opacity-45";
 
 const pct = (v: number) => `${Math.round(v * 100)}%`;
 
@@ -55,9 +55,9 @@ export function ControleVolume({ className = "" }: { className?: string }) {
       </button>
 
       {aberto && (
-        <div className="absolute left-0 top-full z-20 mt-2 w-64 space-y-2 rounded-lg border border-white/15 bg-[#0f172a] p-3 shadow-xl">
-          <label className="block text-xs text-white/60">
-            Volume dos avisos: <span className="font-medium text-white">{pct(rascunho)}</span>
+        <div className="absolute left-0 top-full z-20 mt-2 w-64 space-y-2 rounded-lg border border-borda bg-superficie-forte p-3 shadow-xl">
+          <label className="block text-xs text-texto/60">
+            Volume dos avisos: <span className="font-medium text-texto">{pct(rascunho)}</span>
             <input
               type="range"
               min={0}
@@ -68,14 +68,14 @@ export function ControleVolume({ className = "" }: { className?: string }) {
               className="mt-2 w-full accent-blue-500"
             />
           </label>
-          <p className="text-[11px] text-white/45">
+          <p className="text-[11px] text-texto/45">
             Todos: {pct(som.volumeGlobal)} · Você:{" "}
             {som.volumePessoal === null ? "usa o de todos" : `${pct(som.volumePessoal)} (pessoal)`}
           </p>
           <button type="button" onClick={() => som.testar(rascunho)} className={BOTAO}>
             <Play className="h-3.5 w-3.5" /> Testar som
           </button>
-          <div className="grid gap-1.5 border-t border-white/10 pt-2">
+          <div className="grid gap-1.5 border-t border-borda pt-2">
             <button
               type="button"
               disabled={salvando}

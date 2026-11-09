@@ -43,10 +43,10 @@ export function CompartilharGrupoModal({ grupo, membros, acoes, onClose }: Props
     <Modal open onClose={onClose} title={`Compartilhar lista "${grupo.nome}"`} rolavel footer={<Button onClick={onClose}>Pronto</Button>}>
       <div className="space-y-5">
         <section className="space-y-2">
-          <h3 className="text-sm font-medium text-white/80">Adicionar pessoa</h3>
+          <h3 className="text-sm font-medium text-texto/80">Adicionar pessoa</h3>
           <SeletorPessoa pessoas={disponiveis} valor={pessoa} onChange={setPessoa} />
           <div className="flex items-center justify-between gap-3">
-            <label className="flex items-center gap-2 text-sm text-white/70">
+            <label className="flex items-center gap-2 text-sm text-texto/70">
               <Toggle label="Pode editar" checked={podeEditar} onChange={setPodeEditar} />
               Pode editar
             </label>
@@ -57,16 +57,16 @@ export function CompartilharGrupoModal({ grupo, membros, acoes, onClose }: Props
         </section>
 
         <section className="space-y-2">
-          <h3 className="text-sm font-medium text-white/80">Membros ({membros.length})</h3>
+          <h3 className="text-sm font-medium text-texto/80">Membros ({membros.length})</h3>
           {membros.length === 0 ? (
-            <p className="text-sm text-white/45">Ninguém além de você vê esta lista.</p>
+            <p className="text-sm text-texto/45">Ninguém além de você vê esta lista.</p>
           ) : (
-            <ul className="divide-y divide-white/5 rounded-lg border border-white/10">
+            <ul className="divide-y divide-borda rounded-lg border border-borda">
               {membros.map((m) => (
                 <li key={m.usuario_id} className="flex items-center gap-3 px-3 py-2">
                   <Avatar nome={nomeDe(m.usuario_id)} />
-                  <span className="min-w-0 flex-1 truncate text-sm text-white/85">{nomeDe(m.usuario_id)}</span>
-                  <label className="flex items-center gap-2 text-xs text-white/60">
+                  <span className="min-w-0 flex-1 truncate text-sm text-texto/85">{nomeDe(m.usuario_id)}</span>
+                  <label className="flex items-center gap-2 text-xs text-texto/60">
                     <Toggle
                       label={`Pode editar: ${nomeDe(m.usuario_id)}`}
                       checked={m.pode_editar}
@@ -88,7 +88,7 @@ export function CompartilharGrupoModal({ grupo, membros, acoes, onClose }: Props
               ))}
             </ul>
           )}
-          <p className="text-xs text-white/45">Os membros veem todos os itens da lista, inclusive os que forem movidos para ela.</p>
+          <p className="text-xs text-texto/45">Os membros veem todos os itens da lista, inclusive os que forem movidos para ela.</p>
         </section>
       </div>
     </Modal>

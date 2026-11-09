@@ -57,15 +57,15 @@ export function AnexosInput({ anexos, desabilitado = false, variante = "area" }:
         <div
           {...eventosArrastar}
           className={`flex flex-col items-center gap-2 rounded-md border border-dashed px-4 py-4 text-center transition-colors ${
-            arrastando ? "border-blue-400 bg-blue-500/10" : "border-white/15 bg-white/2"
+            arrastando ? "border-blue-400 bg-blue-500/10" : "border-borda bg-superficie"
           }`}
         >
-          <Upload className="h-5 w-5 text-white/40" />
-          <p className="text-xs text-white/55">Arraste arquivos aqui ou cole um print com Ctrl+V</p>
+          <Upload className="h-5 w-5 text-texto/40" />
+          <p className="text-xs text-texto-suave">Arraste arquivos aqui ou cole um print com Ctrl+V</p>
           <Button size="sm" variant="secondary" onClick={abrirSeletor} disabled={desabilitado || cheio}>
             <Paperclip className="h-3.5 w-3.5" /> Anexar
           </Button>
-          <p className="text-[11px] text-white/35">
+          <p className="text-[11px] text-texto-fraco">
             Até {MAX_ANEXOS_POR_ENVIO} arquivos de 10 MB: imagens, PDF, Excel, Word, CSV ou TXT
           </p>
         </div>
@@ -74,7 +74,7 @@ export function AnexosInput({ anexos, desabilitado = false, variante = "area" }:
           <Button size="sm" variant="ghost" onClick={abrirSeletor} disabled={desabilitado || cheio}>
             <Paperclip className="h-3.5 w-3.5" /> Anexar
           </Button>
-          <span className="text-xs text-white/35">ou cole um print com Ctrl+V</span>
+          <span className="text-xs text-texto-fraco">ou cole um print com Ctrl+V</span>
         </div>
       )}
 

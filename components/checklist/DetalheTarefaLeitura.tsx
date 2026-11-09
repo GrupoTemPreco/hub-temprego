@@ -43,8 +43,8 @@ function reenviosDe(envio: EnvioLeitura) {
 function Dado({ rotulo, children }: { rotulo: string; children: ReactNode }) {
   return (
     <div>
-      <dt className="text-[11px] uppercase tracking-wide text-white/45">{rotulo}</dt>
-      <dd className="mt-0.5 text-sm text-white/85">{children}</dd>
+      <dt className="text-[11px] uppercase tracking-wide text-texto-suave">{rotulo}</dt>
+      <dd className="mt-0.5 text-sm text-texto/85">{children}</dd>
     </div>
   );
 }
@@ -58,19 +58,19 @@ export function DetalheTarefaLeitura({ item, nomeLista, envios, onFechar }: Prop
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-white/10 px-4 py-3">
-        <h3 className="text-sm font-semibold text-white/80">Detalhe da tarefa</h3>
+      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-borda px-4 py-3">
+        <h3 className="text-sm font-semibold text-texto/80">Detalhe da tarefa</h3>
         <button
           type="button"
           onClick={onFechar}
           aria-label="Fechar detalhes da tarefa"
-          className="rounded-md p-1 text-white/50 hover:bg-white/10 hover:text-white"
+          className="rounded-md p-1 text-texto/50 hover:bg-superficie-hover hover:text-texto"
         >
           <X className="h-4 w-4" />
         </button>
       </div>
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-4 py-4">
-        <TextoCortado as="h4" className="break-words text-base font-semibold text-white">
+        <TextoCortado as="h4" className="break-words text-base font-semibold text-texto">
           {item.titulo}
         </TextoCortado>
         <RecebidaDeTarefa origem={origemDosCampos(item.recebida_de_nome, item.recebida_em)} />
@@ -88,28 +88,28 @@ export function DetalheTarefaLeitura({ item, nomeLista, envios, onFechar }: Prop
         </dl>
         {historico.length > 0 && (
           <section className="space-y-2">
-            <h4 className="text-[11px] uppercase tracking-wide text-white/45">Histórico de envio</h4>
+            <h4 className="text-[11px] uppercase tracking-wide text-texto/45">Histórico de envio</h4>
             <ul className="space-y-2">
               {historico.map((envio) => {
                 const status = STATUS_DESTINATARIO[envio.status];
                 const reenvios = reenviosDe(envio);
                 return (
-                  <li key={envio.id} className="space-y-1 rounded-lg border border-white/10 px-3 py-2">
+                  <li key={envio.id} className="space-y-1 rounded-lg border border-borda px-3 py-2">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="min-w-0 truncate text-xs text-white/70">
+                      <span className="min-w-0 truncate text-xs text-texto/70">
                         {envio.de_nome ?? "—"} → {envio.para_nome ?? "—"}
                       </span>
                       <Badge variant={status.cor} className="shrink-0">
                         {status.texto}
                       </Badge>
                     </div>
-                    <p className="text-xs text-white/50">
+                    <p className="text-xs text-texto/50">
                       Enviado {formatarDataHoraSP(envio.criado_em)}
                       {reenvios ? ` · ${reenvios}` : ""}
                     </p>
-                    {envio.mensagem && <p className="whitespace-pre-wrap text-sm text-white/75">{envio.mensagem}</p>}
+                    {envio.mensagem && <p className="whitespace-pre-wrap text-sm text-texto/75">{envio.mensagem}</p>}
                     {envio.respondido_em && (
-                      <p className="whitespace-pre-wrap text-xs text-white/55">
+                      <p className="whitespace-pre-wrap text-xs text-texto-suave">
                         Resposta em {formatarDataHoraSP(envio.respondido_em)}
                         {envio.resposta ? `: ${envio.resposta}` : ""}
                       </p>

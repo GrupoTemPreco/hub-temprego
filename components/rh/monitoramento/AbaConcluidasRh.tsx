@@ -24,9 +24,9 @@ export function AbaConcluidasRh({ listas, itens, dias, agora }: Props) {
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-white/10">
+    <div className="overflow-x-auto rounded-lg border border-borda">
       <table className="w-full text-left text-sm">
-        <thead className="border-b border-white/10 text-xs uppercase tracking-wide text-white/45">
+        <thead className="border-b border-borda text-xs uppercase tracking-wide text-texto/45">
           <tr>
             <th className="px-3 py-2.5 font-medium">Tarefa</th>
             <th className="px-3 py-2.5 font-medium">Lista</th>
@@ -40,14 +40,14 @@ export function AbaConcluidasRh({ listas, itens, dias, agora }: Props) {
           {concluidas.map((item) => {
             const chip = CHIP[situacaoEntrega(item)];
             return (
-              <tr key={item.id} className="border-b border-white/5">
-                <TextoCortado as="td" className="max-w-64 truncate px-3 py-2.5 font-medium text-white/90">
+              <tr key={item.id} className="border-b border-borda">
+                <TextoCortado as="td" className="max-w-64 truncate px-3 py-2.5 font-medium text-texto/90">
                   {item.titulo}
                 </TextoCortado>
-                <td className="px-3 py-2.5 text-white/65">{nomeLista(item.grupo_id)}</td>
-                <td className="whitespace-nowrap px-3 py-2.5 text-white/60">{formatarDataHoraSP(item.inicio_em)}</td>
-                <td className="whitespace-nowrap px-3 py-2.5 text-white/60">{formatarDataHoraSP(item.concluido_em)}</td>
-                <td className="whitespace-nowrap px-3 py-2.5 text-right text-white/70">
+                <td className="px-3 py-2.5 text-texto/65">{nomeLista(item.grupo_id)}</td>
+                <td className="whitespace-nowrap px-3 py-2.5 text-texto/60">{formatarDataHoraSP(item.inicio_em)}</td>
+                <td className="whitespace-nowrap px-3 py-2.5 text-texto/60">{formatarDataHoraSP(item.concluido_em)}</td>
+                <td className="whitespace-nowrap px-3 py-2.5 text-right text-texto/70">
                   {formatarHoras(horasEntre(item.inicio_em, item.concluido_em))}
                 </td>
                 <td className="px-3 py-2.5">

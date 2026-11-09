@@ -13,7 +13,7 @@ const GRUPOS = agruparPermissoes();
 type Estado = "manter" | MudancaPermissao;
 
 const ESTADOS: Array<{ value: Estado; label: string; ativo: string }> = [
-  { value: "manter", label: "Manter", ativo: "bg-white/15 text-white" },
+  { value: "manter", label: "Manter", ativo: "bg-superficie-hover text-texto" },
   { value: "conceder", label: "Conceder", ativo: "bg-emerald-600 text-white" },
   { value: "remover", label: "Remover", ativo: "bg-rose-600 text-white" },
 ];
@@ -57,20 +57,20 @@ export function PermissoesMassaModal({ onEscolher, onClose }: Props) {
         {GRUPOS.map((grupo) => {
           const Icon = ICONES[grupo.modulo] ?? KeyRound;
           return (
-            <div key={grupo.modulo} className="rounded-lg border border-white/10">
-              <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2">
+            <div key={grupo.modulo} className="rounded-lg border border-borda">
+              <div className="flex items-center gap-2 border-b border-borda px-3 py-2">
                 <span className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-500/15 text-blue-300">
                   <Icon className="h-4 w-4" />
                 </span>
                 <span className="text-sm font-semibold">{grupo.titulo}</span>
               </div>
-              <ul className="divide-y divide-white/5">
+              <ul className="divide-y divide-borda">
                 {grupo.itens.map((p) => {
                   const atual: Estado = mudancas[p.key] ?? "manter";
                   return (
                     <li key={p.key} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
-                      <span className="text-sm text-white/80">{p.itemLabel}</span>
-                      <div role="radiogroup" aria-label={p.label} className="flex rounded-md border border-white/10 p-0.5">
+                      <span className="text-sm text-texto/80">{p.itemLabel}</span>
+                      <div role="radiogroup" aria-label={p.label} className="flex rounded-md border border-borda p-0.5">
                         {ESTADOS.map((e) => (
                           <button
                             key={e.value}
@@ -79,7 +79,7 @@ export function PermissoesMassaModal({ onEscolher, onClose }: Props) {
                             aria-checked={atual === e.value}
                             onClick={() => definir(p.key, e.value)}
                             className={`rounded px-2 py-0.5 text-xs font-medium transition-colors ${
-                              atual === e.value ? e.ativo : "text-white/55 hover:text-white"
+                              atual === e.value ? e.ativo : "text-texto-suave hover:text-texto"
                             }`}
                           >
                             {e.label}

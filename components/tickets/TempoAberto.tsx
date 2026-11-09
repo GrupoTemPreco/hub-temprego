@@ -7,7 +7,7 @@ export function TempoAberto({ ticket }: { ticket: Pick<Ticket, "criado_em" | "st
   const atrasado = estaAtrasado(ticket);
   return (
     <span
-      className={`inline-flex items-center gap-1 whitespace-nowrap text-xs ${atrasado ? "font-medium text-rose-400" : "text-white/55"}`}
+      className={`inline-flex items-center gap-1 whitespace-nowrap text-xs ${atrasado ? "font-medium text-rose-400" : "text-texto-suave"}`}
       title={atrasado ? "Atrasado" : undefined}
     >
       {atrasado && <AlertTriangle className="h-3.5 w-3.5" />}
