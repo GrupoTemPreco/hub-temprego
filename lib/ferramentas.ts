@@ -1,5 +1,5 @@
 export type Ferramenta = {
-  id: "estoque" | "financeiro" | "compras" | "checklist";
+  id: "estoque" | "financeiro" | "compras" | "inventario" | "checklist";
   modulo: string;
   item: string;
   label: string;
@@ -38,6 +38,13 @@ export const FERRAMENTAS: Ferramenta[] = [
     url: "https://dashboard-compras-kappa.vercel.app/",
   },
   {
+    id: "inventario",
+    modulo: "analytics",
+    item: "inventario",
+    label: "Inventário",
+    url: "https://painel-inventario-delta.vercel.app",
+  },
+  {
     id: "checklist",
     modulo: "checklist",
     item: "preencher",
@@ -50,11 +57,15 @@ export function buscarFerramenta(id: Ferramenta["id"]): Ferramenta {
   return FERRAMENTAS.find((f) => f.id === id)!;
 }
 
+/** Origem exata do painel de inventário: única aceita no postMessage (nos dois sentidos). */
+export const ORIGEM_INVENTARIO = process.env.NEXT_PUBLIC_INVENTARIO_ORIGEM ?? "https://painel-inventario-delta.vercel.app";
+
 /** Itens do submenu "Análises" da sidebar, com o rótulo exibido no menu. */
 export const ITENS_ANALISES = [
   { id: "analise-estoque", label: "Estoque", app: buscarFerramenta("estoque") },
   { id: "analise-financeiro", label: "Financeiro", app: buscarFerramenta("financeiro") },
   { id: "analise-compras", label: "Compras", app: buscarFerramenta("compras") },
+  { id: "analise-inventario", label: "Inventário", app: buscarFerramenta("inventario") },
 ];
 
 export function temPermissao(usuario: AcessoUsuario, modulo: string, item: string) {

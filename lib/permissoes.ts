@@ -2,6 +2,7 @@ export type PermissaoKey =
   | "analytics.estoque"
   | "analytics.contas_a_pagar"
   | "analytics.compras"
+  | "analytics.inventario"
   | "checklist.preencher"
   | "checklist.preencher_supervisao"
   | "checklist.analise"
@@ -32,6 +33,12 @@ export const PERMISSOES_DISPONIVEIS: PermissaoDisponivel[] = [
     label: "Analytics > Compras",
     modulo: "analytics",
     item: "compras",
+  },
+  {
+    key: "analytics.inventario",
+    label: "Analytics > Inventário",
+    modulo: "analytics",
+    item: "inventario",
   },
   {
     key: "checklist.preencher",

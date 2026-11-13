@@ -4,6 +4,7 @@ export type MenuIconKind =
   | "estoque"
   | "financeiro"
   | "compras"
+  | "inventario"
   | "checklist"
   | "tarefas"
   | "rh"
@@ -55,6 +56,14 @@ export function MenuIcon({ kind, className }: { kind: MenuIconKind; className?: 
           <path d="M6 6 5 3H3" />
           <circle cx="9" cy="20" r="1.6" />
           <circle cx="17" cy="20" r="1.6" />
+        </svg>
+      );
+    case "inventario":
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={common}>
+          <path d="M21 8 12 3 3 8v8l9 5 9-5V8Z" />
+          <path d="m3 8 9 5 9-5" />
+          <path d="M12 13v8" />
         </svg>
       );
     case "checklist":
@@ -119,8 +128,9 @@ export function MenuIcon({ kind, className }: { kind: MenuIconKind; className?: 
   }
 }
 
-export function menuIconKindAnalise(appId: string): "estoque" | "financeiro" | "compras" {
+export function menuIconKindAnalise(appId: string): "estoque" | "financeiro" | "compras" | "inventario" {
   if (appId === "estoque") return "estoque";
   if (appId === "financeiro") return "financeiro";
+  if (appId === "inventario") return "inventario";
   return "compras";
 }

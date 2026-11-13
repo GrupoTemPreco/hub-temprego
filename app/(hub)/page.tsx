@@ -10,6 +10,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { useUsuarioAtual } from "@/components/hub/UsuarioAtualProvider";
 import { useFerramentaAtiva } from "@/components/hub/FerramentaAtivaProvider";
 import { MenuIcon } from "@/components/hub/MenuIcon";
+import { InventarioIframe } from "@/components/hub/InventarioIframe";
 import { InicioUsuario } from "@/components/inicio/InicioUsuario";
 import { buscarFerramenta, podeAcessar, srcIframe } from "@/lib/ferramentas";
 
@@ -177,7 +178,11 @@ function HomeConteudo() {
           {active.id === "compras" && avisoComprasVisivel && (
             <AvisoCompras onFechar={() => setAvisoComprasVisivel(false)} />
           )}
-          <iframe key={active.id} src={srcIframe(active, usuario)} className="min-h-0 w-full flex-1 border-none" />
+          {active.id === "inventario" ? (
+            <InventarioIframe />
+          ) : (
+            <iframe key={active.id} src={srcIframe(active, usuario)} className="min-h-0 w-full flex-1 border-none" />
+          )}
         </div>
       ) : (
         <InicioUsuario />
